@@ -1,0 +1,2323 @@
+<?php
+/**
+ * CMS - Calendar Management System.
+ * Creates an interactive Calendar with User Settings.
+ * Calendar can include Bookings, Reservations or waht you want
+ * 
+ * @author      Florian Lämmlein <florian.laemmlein@gmx.de>
+ * @copyright   (c) 2019 - 2022 Florian Lämmlein
+ * @license     GNU-LGPL v3 (http://www.gnu.org/copyleft/lesser.html)
+ * @version     1.0.0
+ * @see         https://github.com/ The CMS GitHub project
+ * @Release     2019-10-01
+ * @Update      2019-11-07
+ */
+//================================================================================================================================================================================+
+//  `lg`                 == Language from Months (from .json file) (`my_months` also must be the same language)                                                    == `de`
+//  `hidde_events`       == Hidde Bookings, Resevations or Events true or false (if `test_event` in Database is `1`)                                               == `false`
+//  `events_check`       == Bookings, Resevations or Events true or false (Aktivate if you have one)                                                               == `false`
+//  `my_events`          == Bookings, Resevations or Events as array (`database_check` must be false to work)                                                      == `array()`
+//  `min_days`           == Min Nights / Days for the Apartment, Room, Event                                                                                       == `0`
+//  `hidden_months`      == Hidde Months by index (3 == after the 3 Month hidde all Months)                                                                        == `13`
+//  `back_days`          == Back Days true or false (29, 30, 01, 02)                                                                                               == `false`
+//  `tooltip`            == Tooltip true or false                                                                                                                  == `false`
+//  `tooltip_functions`  == Tooltip text (Function Names from Settings class) (getStart_date or getFirstname)                                                      == `array()`
+//  `my_months`          == Custom Months that are Displayed by array ["June", "July",...] (`hidden_months` will not longer work)                                  == `array()`
+//  `prev_year_check`    == Show prev Year button true or false                                                                                                    == `false`
+//  `next_year_check`    == Show next Year button true or false                                                                                                    == `false`
+//  `prev_month_check`   == Show prev Month button true or false (only works if `hidden_months` is set and if is not 13 and if `my_months` is null)                == `false`
+//  `next_month_check`   == Show next Month button true or false (only works if `hidden_months` is set and if is not 13 and if `my_months` is null)                == `false`
+//  `min_year`           == Min Year of CMS only the YEAR                                                                                                          == `2019`
+//  `max_year`           == Max Year of CMS only the YEAR                                                                                                          == `2030`
+//  `legend`             == Show legend true or false                                                                                                              == `false`
+//  `today_check`        == Show today button true or false                                                                                                        == `false`
+//  `event_form`         == Show Booking, Reservation Form ["active","action","modal","arrivel_time","leaving_time","person_check","payment_check","active_event"] == `string[]`
+//  `date_format`        == Date formate for all Date Displays in the CMS System                                                                                   == `Y-m-d`
+//  `time_format`        == Time formate for all Time Displays in the CMS System                                                                                   == `H:i:s`
+//  `static_infos`       == Show some information of the CMS ["Events", "Author", "Version", "Language"]                                                           == `array()`
+//  `error_log`          == Shows the Errors from the Script true or false                                                                                         == `false`
+//  `success_log`        == Shows the Success from the Script true or false                                                                                        == `true`
+//  `database_check`     == Get all Events from the Created Database if the Database dosn´t exist                                                                  == `true`
+//  `show_more_events`   == Show more Events, Bookings per Day if there are more than 3 on this Day true or false                                                  == `false`
+//  `max_events_per_day` == Maximum Events per Day (`show_more_events` Must be true)                                                                               == `3`
+//  `is_book_able`       == Set status of the cms.js Script if the Calendar is Bookable true or false                                                              == `true`
+//  `url`                == Set the Url of the Buttons to the given Url Name                                                                                       == `&`
+//  `theme`              == Theme of the CMS (Horizon, Metro, Original)                                                                                            == `Original`
+//================================================================================================================================================================================+
+
+/**
+ * FUN Ajax Handler for any cms.js request.
+ */
+if(isset($_POST["action"])) {
+    // Get the current ajax Event
+    switch ($_POST["action"]) {
+        case 'getEvent':
+            $CT = new My_Ajax();
+            $RRS = $CT->getInfosById($_POST["id"]);
+            echo json_encode($RRS);
+            break;
+        default:
+            break;
+    }
+}
+
+/**
+ * CLASS Calendar - PHP Calendar creation and transport class.
+ * Creates an interactive Calendar with User Settings.
+ * Calendar can include Bookings, Reservations or waht you want
+ */
+class CMS {
+    /********************************************************
+     * Static variables for the Statics and System Settings
+     ********************************************************/
+    // Database connection
+    public const HOST          = "localhost";
+    public const DATABASE      = "cms";
+    public const USER          = "root";
+    public const PASSWORD      = "";
+    // Ground Settings for the CMS System
+    private const PHP_MIN       = "5.3.0";
+    private const VERSION       = "1.0.0";
+    private const AKTIVE        = 1;
+    private const OPEN          = 2;
+    private const ENDED         = 3;
+
+    /********************************************************
+     * User variables from the Settings array ($arrgs)
+     ********************************************************/
+    /**
+     * The Language is set on each element that the CMS is print out.
+     *
+     * @var string
+     */
+    protected $lg = "de";
+
+    /**
+     * Theme for the wole CMS System.
+     *
+     * @var string
+     */
+    protected $theme = "Original";
+
+    /**
+     * This is for all Months that the user will Display.
+     *
+     * @var int
+     */
+    protected $hidden_months = 13;
+
+    /**
+     * The Data format with is Displaying.
+     *
+     * @var string
+     */
+    protected $date_format = "Y-m-d";
+
+    /**
+     * The Time format with is Displaying.
+     *
+     * @var string
+     */
+    protected $time_format = "H:i:s";
+
+    /**
+     * This is for all Months that have Backdays.
+     *
+     * @var bool
+     */
+    protected $back_days = false;
+
+    /**
+     * If the User will have an Tooltip on each Booking, Event.
+     *
+     * @var bool
+     */
+    protected $tooltip = false;
+
+    /**
+     * If the User will have an Legend over the CMS Calendar.
+     *
+     * @var bool
+     */
+    protected $legend = false;
+
+    /**
+     * If the User will hidde an Event, Booking.
+     * Works only if the `test_event` is `1`
+     *
+     * @var bool
+     */
+    protected $hidde_events = false;
+
+    /**
+     * If the User will Display all the Events, Bookings.
+     *
+     * @var bool
+     */
+    protected $events_check = false;
+
+    /**
+     * If the User will Display the prev year Button.
+     *
+     * @var bool
+     */
+    protected $prev_year_check = false;
+
+    /**
+     * If the User will Display the next year Button.
+     *
+     * @var bool
+     */
+    protected $next_year_check = false;
+
+    /**
+     * If the User will Display the prev month Button.
+     *
+     * @var bool
+     */
+    protected $prev_month_check = false;
+
+    /**
+     * If the User will Display the next month Button.
+     *
+     * @var bool
+     */
+    protected $next_month_check = false;
+
+    /**
+     * If the User will Display the Today Button.
+     *
+     * @var bool
+     */
+    protected $today_check = false;
+
+    /**
+     * If the User will use an Database for the Events, Bookings.
+     *
+     * @var bool
+     */
+    protected $database_check = true;
+
+    /**
+     * This is for all Success if is true it will Display it.
+     *
+     * @var bool
+     */
+    protected $success_log = true;
+    
+    /**
+     * This is for the Success Message if `$success_log` is true it will Display it.
+     *
+     * @var string
+     */
+    protected $success_msg;
+
+    /**
+     * This is for the Notify Message to Display it.
+     *
+     * @var string
+     */
+    protected $notify_msg;
+
+    /**
+     * This is for all Errors if is true it will Display it.
+     *
+     * @var bool
+     */
+    protected $error_log = false;
+
+    /**
+     * This is for the Error Message if `$error_log` is true it will Display it.
+     *
+     * @var string
+     */
+    protected $error_msg;
+
+    /**
+     * This holds all Tooltip Functions.
+     * This Functions must be Declaread in the Database as an field in the `events`.
+     * Also must be Declaread in the Settings class!!
+     *
+     * @example ['firstname', 'lastname']
+     * @var array
+     */
+    protected $tooltip_functions = array();
+
+    /**
+     * This is for all Events if the User has Disabled the Database.
+     * 
+     * @var array
+     */
+    protected $my_events = array();
+
+    /**
+     * This is for all Months that the user will Display as Custom Months.
+     * The variable `$hidden_months` is not longer work!!
+     *
+     * @example ['Juli', 'Juni']
+     * @var array
+     */
+    protected $my_months = array();
+
+    /**
+     * This Displays all Infos from the Current CMS.
+     *
+     * @example ['Author', 'Events', 'Version', 'Language']
+     * @var array
+     */
+    protected $static_infos = array();
+
+    /**
+     * If the User will have an Booking, Reservation Form.
+     * Here we set all 3 ground variables fo the Form
+     *
+     * @example ['active' => false, 'action' => 'action_page.php', 'modal' => false, 'arrivel_time' => '14:00:00', 'leaving_time' => '10:00:00', 'person_check' => false, 'payment_check' => false, 'active_event' => false]
+     * @var string[]
+     */
+    protected $event_form = ["active" => false, "action" => '', "modal" => false, "arrivel_time" => '14:00:00', "leaving_time" => '10:00:00', "person_check" => false, "payment_check" => false, "active_event" => null];
+
+    /**
+     * This for the URL from the Buttons in the CMS.
+     *
+     * @var string
+     */
+    protected $url = "&";
+
+    /**
+     * This for the Min Year in the CMS.
+     *
+     * @var int
+     */
+    protected $min_year = "2019";
+
+    /**
+     * This for the Max Year in the CMS.
+     *
+     * @var int
+     */
+    protected $max_year = "2030";
+
+    /**
+     * This for the Min Days for an Event, Booking needed for the cms.js script.
+     *
+     * @var int
+     */
+    protected $min_days = 0;
+
+    /**
+     * Check if the cms.js Script is true to call an Clickable Function on the CMS.
+     *
+     * @var bool
+     */
+    protected $is_book_able = true;
+
+    /**
+     * Check if there are more than 3 Events, Bookings on the Current Day.
+     *
+     * @var bool
+     */
+    protected $show_more_events = false;
+
+    /**
+     * Set Max Events, Bookings per Day only works if the `$show_more_events` is true.
+     *
+     * @var int
+     */
+    protected $max_events_per_day = 3;
+
+    /********************************************************
+     * Ground variables for the calendar
+     ********************************************************/
+    /**
+     * This array holds all Settings from the json.
+     *
+     * @var array
+     * @var string[]
+     */
+    protected $json = [
+        "authors" => [
+            "name" => "Florian Lämmlein",
+            "email" => "florian.laemmlein@gmx.de"
+        ],
+        "database" => [
+            [
+                "name" => "events",
+                "parameters" => "`id` int(11) NOT NULL, `event_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `start_date` date NOT NULL, `end_date` date NOT NULL, `my_description` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `status` tinyint(1) DEFAULT 1, `test_event` tinyint(1) DEFAULT 0",
+                "values" => "INSERT INTO `events`(`id`, `event_name`, `start_date`, `end_date`, `my_description`, `status`) VALUES ('1', 'IFA', '2019-08-12', '2019-08-17', 'Auto Messe', '1', '0')"
+            ],[
+                "name" => "payments",
+                "parameters" => "`id` int(11) NOT NULL, `payment` varchar(255) NOT NULL, `is_active` tinyint(1) NOT NULL DEFAULT 1",
+                "values" => "INSERT INTO `payments`(`id`, `payment`, `is_active`) VALUES ('1', 'PayPal', '1')"
+            ],[
+                "name" => "persons",
+                "parameters" => "`id` int(11) NOT NULL, `id_event` int(11) NOT NULL DEFAULT 1, `persons` int(11) NOT NULL, `second_person` int(11) NOT NULL, `price` int(11) NOT NULL, `second_price` int(11) NOT NULL",
+                "values" => "INSERT INTO `persons` (`id`, `id_event`, `persons`, `second_person`, `price`, `second_price`) VALUES ('1', '1', '8', '6', '50', '10')"
+            ]
+        ],
+        "statuse" => [
+            [
+                "AKTIVE" => true
+            ],[
+                "OPEN" => true
+            ],[
+                "ENDED" => true
+            ]
+        ],
+        "class" => [
+            "button" => [
+                "prev_years" => "btn-warning",
+                "next_years" => "btn-warning",
+                "current_year" => "btn-primary",
+                "today" => "btn-warning",
+                "static" => "btn-info",
+                "submit" => "btn-success",
+                "info" => "btn-info"
+            ],
+            "margin" => [
+                "m-top" => "mt-2",
+                "m-right" => "mr-2",
+                "m-bottom" => "mb-2",
+                "m-left" => "ml-2"
+            ],
+            "bookings" => [
+                "start" => "booked-start",
+                "end" => "booked-end",
+                "booked" => "booked"
+            ],
+            "tooltip" => [
+                "title" => "tooltiptitle"
+            ],
+            "statuse" => [
+                "AKTIVE" => "st1",
+                "OPEN" => "st2",
+                "ENDED" => "st3"
+            ],
+            "icons" => [
+                "prev_month" => "fas fa-chevron-left",
+                "next_month" => "fas fa-chevron-right",
+                "current_day" => "fas fa-calendar-alt",
+                "static" => "fas fa-info-circle",
+                "button" => "fas fa-chevron-right"
+            ]
+        ]
+    ];
+
+    /**
+     * This array holds all Settings from the Lagnuage json.
+     *
+     * @var array
+     */
+    protected $json_lg = array();
+
+    /**
+     * This array holds all Functions as Names for each Event, Booking.
+     *
+     * @var string[]
+     */
+    protected $functions = ["getStart_date",
+                            "getEnd_date",
+                            "getStatus",
+                            "getHidden",
+                            "getEvent_name",
+                            "getEvent_desc"];
+
+    /**
+     * This strings holds all informations about the current Event, Booking foreach Status.
+     * It will Display it if the `$tooltip` variable is true
+     *
+     * @var string
+     */
+    protected $tooltip_text_1; // Event status 1
+    protected $tooltip_text_2; // Event status 2
+    protected $tooltip_text_3; // Event status 3
+
+    /**
+     * This strings holds all HTML classes about the current Event, Booking foreach Status.
+     *
+     * @var string
+     */
+    protected $class_1; // Event status 1
+    protected $class_2; // Event status 2
+    protected $class_3; // Event status 3
+
+    /**
+     * This holds all Events, Bookings as count.
+     *
+     * @var int
+     */
+    protected $allBookings;
+
+    /**
+     * In this variable we set the Current Event, Booking if we loop trow the `$EVENTS` array.
+     *
+     * @var int
+     */
+    protected $current_booking = 0;
+
+    /**
+     * This array holds all Theme Styles foreach Theme by Name.
+     *
+     * @var string[]
+     */
+    protected $theme_styles = [
+        "Horizon" => [
+            "theme"                          => 'Horizon',
+            "Font_Family"                    => 'Comfortaa',
+            "Font_Weight"                    => 'normal',
+            "Opacity"                        => '0.4',
+            "Border_Style"                   => 'solid',
+            "Border_Section_Style"           => 'dashed',
+            "Border_Radius"                  => '12px',
+            "Active_Day_Border_Radius"       => '50%',
+            "Year_left"                      => '10px',
+            "Day_left"                       => '45%',
+            "Day_top"                        => '-10px',
+            "Font_Size"                      => '14px',
+            "Month_Size"                     => '24px',
+            "Year_Size"                      => '12px',
+            "Day_Size"                       => '14px',
+            "Day_Hover_Size"                 => '20%',
+            "Border_Width"                   => '1px',
+            "Border_section_Width"           => '2px',
+            "Border_left_Width"              => '1px',
+            "Border_top_Width"               => '1px',
+            "Border_right_Width"             => '1px',
+            "Border_bottom_Width"            => '1px',
+            "Active_Day_Width"               => '24px',
+            "Active_Day_Height"              => '24px',
+            "Main_Color"                     => 'black',
+            "status_name_1"                  => 'green',
+            "status_name_2"                  => 'orange',
+            "status_name_3"                  => 'red',
+            "selection"                      => '#00ffcf',
+            "Days_Color"                     => '#ffffff',
+            "Month_Color"                    => '#000000',
+            "Year_Color"                     => '#6ba0ff',
+            "Active_Day_Color"               => '#ffffff',
+            "Main_Background"                => 'white',
+            "Table_Background"               => '#8c8c8c',
+            "Table_head_Background"          => '#4d72b5',
+            "Not_Select_Background"          => 'black',
+            "Table_foot_Background"          => 'white',
+            "Days_Background"                => '#4d72b5',
+            "Month_Background"               => 'none',
+            "Year_Background"                => 'none',
+            "Active_Day_Background"          => '#ff6bda',
+            "Main_Hover_Color"               => 'white',
+            "Main_Hover_Background"          => 'none',
+            "Table_foot_Hover_Background"    => '#1abc9c',
+            "Border_Color"                   => '#444444',
+            "Table_foot_Border_Color"        => '#6ba0ff'
+        ],
+        "Metro" => [
+            "theme"                          => 'Metro',
+            "Font_Family"                    => 'Comfortaa',
+            "Font_Weight"                    => 'normal',
+            "Opacity"                        => '0.3',
+            "Border_Style"                   => '',
+            "Border_Section_Style"           => 'dashed',
+            "Border_Radius"                  => '8px',
+            "Active_Day_Border_Radius"       => '50%',
+            "Year_left"                      => '10px',
+            "Day_left"                       => '45%',
+            "Day_top"                        => '-10px',
+            "Font_Size"                      => '14px',
+            "Month_Size"                     => '24px',
+            "Year_Size"                      => '12px',
+            "Day_Size"                       => '14px',
+            "Day_Hover_Size"                 => '20%',
+            "Border_Width"                   => 'unset',
+            "Border_section_Width"           => '2px',
+            "Border_left_Width"              => 'unset',
+            "Border_top_Width"               => 'unset',
+            "Border_right_Width"             => 'unset',
+            "Border_bottom_Width"            => 'unset',
+            "Active_Day_Width"               => '24px',
+            "Active_Day_Height"              => '24px',
+            "Main_Color"                     => 'black',
+            "status_name_1"                  => 'green',
+            "status_name_2"                  => 'orange',
+            "status_name_3"                  => 'red',
+            "selection"                      => 'blue',
+            "Days_Color"                     => '#ffffff',
+            "Month_Color"                    => '#000000',
+            "Year_Color"                     => '#6ba0ff',
+            "Active_Day_Color"               => '#ffffff',
+            "Main_Background"                => 'white',
+            "Table_Background"               => '#525f7f',
+            "Table_head_Background"          => 'white',
+            "Not_Select_Background"          => '#344675',
+            "Table_foot_Background"          => '#ce4646',
+            "Days_Background"                => '#525f7f',
+            "Month_Background"               => 'none',
+            "Year_Background"                => 'none',
+            "Active_Day_Background"          => '#6ba0ff',
+            "Main_Hover_Color"               => 'white',
+            "Main_Hover_Background"          => 'none',
+            "Table_foot_Hover_Background"    => '#6ba0ff',
+            "Border_Color"                   => '',
+            "Table_foot_Border_Color"        => '#6ba0ff'
+        ],
+        "Original" => [
+            "theme"                          => 'Original',
+            "Font_Family"                    => 'Comfortaa',
+            "Font_Weight"                    => 'normal',
+            "Opacity"                        => '0.5',
+            "Border_Style"                   => 'solid',
+            "Border_Section_Style"           => 'dashed',
+            "Border_Radius"                  => '6px',
+            "Active_Day_Border_Radius"       => '50%',
+            "Year_left"                      => '10px',
+            "Day_left"                       => '45%',
+            "Day_top"                        => '-10px',
+            "Font_Size"                      => '14px',
+            "Month_Size"                     => '24px',
+            "Year_Size"                      => '12px',
+            "Day_Size"                       => '14px',
+            "Day_Hover_Size"                 => '20%',
+            "Border_Width"                   => '1px',
+            "Border_section_Width"           => '2px',
+            "Border_left_Width"              => '1px',
+            "Border_top_Width"               => '1px',
+            "Border_right_Width"             => '1px',
+            "Border_bottom_Width"            => '1px',
+            "Active_Day_Width"               => '24px',
+            "Active_Day_Height"              => '24px',
+            "Main_Color"                     => 'black',
+            "status_name_1"                  => 'green',
+            "status_name_2"                  => 'orange',
+            "status_name_3"                  => 'red',
+            "selection"                      => 'blue',
+            "Days_Color"                     => '#ffffff',
+            "Month_Color"                    => '#000000',
+            "Year_Color"                     => '#000000',
+            "Active_Day_Color"               => '#ffffff',
+            "Main_Background"                => 'white',
+            "Table_Background"               => '#e3f2fd',
+            "Table_head_Background"          => '#e3f2fd',
+            "Not_Select_Background"          => '#1abc9c',
+            "Table_foot_Background"          => 'black',
+            "Days_Background"                => '#acb2c1',
+            "Month_Background"               => 'none',
+            "Year_Background"                => 'none',
+            "Active_Day_Background"          => '#6ba0ff',
+            "Main_Hover_Color"               => 'white',
+            "Main_Hover_Background"          => 'none',
+            "Table_foot_Hover_Background"    => '#6ba0ff',
+            "Border_Color"                   => '#444444',
+            "Table_foot_Border_Color"        => 'none'
+        ],
+        "custom" => [
+            "Horizon" =>[
+                ".month tr td {
+                    border: none !important;
+                }"
+            ],
+            "Metro" => [
+                ".Metro.month tr td {
+                    height: 50px !important
+                }
+                .Metro.month .monthName {
+                    text-align: center;
+                    background: #ff8d72;
+                    background-color: #ff8d72;
+                    background-position-x: 0;
+                    background-position-y: 0;
+                    background-image: none;
+                    background-size: auto;
+                    background-image: linear-gradient(to bottom left, #ff8d72, #ff6491, #ff8d72);
+                    background-size: 210% 210%;
+                    background-position: 100% 0;
+                    background-color: #ff8d72;
+                    transition: all .15s ease;
+                    box-shadow: none;
+                    color: #fff;
+                    font-size: 24px;
+                    align-content: center;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    position: absolute;
+                    z-index: 11;
+                    pointer-events: none;
+                    border-radius: 8px
+                }
+                .Metro.month .weekDay {
+                    color: #ff8d72;
+                    font-size: 14px;
+                    font-weight: bolder;
+                    background: #344675;
+                    border-top: none;
+                    cursor: default !important;
+                    width: 50px !important;
+                    height: 50px !important
+                }
+                .Metro.month .after-day {
+                    cursor: default !important
+                }
+                .Metro span.booked,
+                .Metro span.booked-new {
+                    width: 100%;
+                    height: 25%;
+                    top: 50% !important
+                }
+                .Metro span.booked-start,
+                .Metro span.booked-new-start {
+                    border-top-left-radius: 4px;
+                    border-bottom-left-radius: 4px;
+                    clip-path: unset !important
+                }
+                .Metro span.booked-end,
+                .Metro span.booked-new-end {
+                    border-top-right-radius: 4px;
+                    border-bottom-right-radius: 4px;
+                    clip-path: unset !important
+                }"
+            ]
+        ]
+    ];
+
+    /**
+     * This array holds all Events, Bookings from the Database
+     *
+     * @var array
+     */
+    protected $EVENTS = array();
+
+    /**
+     * Tis array holds all Month Names from the Language .json file.
+     *
+     * @var array
+     */
+    protected $month_names = array();
+
+    /**
+     * Here are the Previus Year from the Current.
+     *
+     * @var int
+     */
+    protected $prev_year;
+
+    /**
+     * Here are the Next Year from the Current.
+     *
+     * @var int
+     */
+    protected $next_year;
+
+    /**
+     * Check if the Year Change is true to set up the Next Year
+     *
+     * @var bool
+     */
+    protected $year_change = false;
+
+    /**
+     * Here are the Previus Month from the Current.
+     *
+     * @var int
+     */
+    protected $prev_month;
+
+    /**
+     * Here are the Nex Month from the Current.
+     *
+     * @var int
+     */
+    protected $next_month;
+    
+    /**
+     * Set in the Event, Booking Form the Submit Button to Disabled or not.
+     *
+     * @var string
+     */
+    protected $check_year;
+
+    /**
+     * This string holds the HTML elemnts foreach Payment.
+     *
+     * @var string
+     */
+    protected $option_pay;
+
+    /**
+     * This string holds the HTML elemnts foreach Person.
+     *
+     * @var string
+     */
+    protected $option_pers;
+
+    /**
+     * This string holds the HTML elemnts foreach Event, Booking.
+     *
+     * @var string
+     */
+    protected $option_event;
+
+    /**
+     * This 2 string are for the first HTML elemnt from the Payment, Event options.
+     *
+     * @var string
+     */
+    protected $option_val;
+    protected $option_val_1;
+
+    /**
+     * Set up the second_persons for the cms.js Script if there are second_persons for the Current Event, Booking.
+     *
+     * @var int
+     */
+    protected $second_persons;
+
+    /**
+     * Setup an Second_price for an Event, Booking.
+     *
+     * @var int
+     */
+    protected $second_price;
+
+    /**
+     * This string holds the HTML class about the current Day.
+     *
+     * @var string
+     */
+    protected $class_td;
+
+    /**
+     * This holds the class if there is an error.
+     *
+     * @var string
+     */
+    protected $class;
+
+    /**
+     * This holds the class Function if there is an error.
+     *
+     * @var string
+     */
+    protected $fun;
+    
+    /**
+     * This holds the class Function line if there is an error.
+     *
+     * @var int
+     */
+    protected $line;
+
+    /********************************************************
+     * Constructor Start the CMS Script
+     ********************************************************/
+    /**
+     * FUN initialise the CMS System with all Settings.
+     */
+    public function __construct($arrgs = array()) {
+        // initialise all Variables for the Calendar script
+        if($this->initialise($arrgs)) {
+            // Read the .json file and set all informations into an array
+            if(file_exists(dirname(__FILE__)."/language.json")) {
+                $this->json_lg = json_decode(file_get_contents(dirname(__FILE__)."/language.json"), true);
+                // Check if the lg name is existing in the .json file and if is active
+                if(!isset($this->json_lg['check_lg'][$this->lg])) {
+                    $this->error('check_lg', __CLASS__, __FUNCTION__, __LINE__);
+                }
+            } else {
+                exit("Sorry about that, but the language.json file dose not exist. <br> The language.json file is important for the CMS System!");
+            }
+
+            // Check if the PHP version is lower than the version we need
+            if(CMS::PHP_MIN > PHP_VERSION) {
+                $this->error('php_version', __CLASS__, __FUNCTION__, __LINE__);
+            }
+
+            // Finaly check all Functions for the Calendar
+            if(!$this->checkAllFunctions()) {
+                $this->error('functions_check', __CLASS__, __FUNCTION__, __LINE__);
+            }
+
+            // Check if the User has given an array with Bookings, Events.
+            // Also check if the Database is not active
+            if(!$this->database_check && count($this->my_events) < 0) {
+                $this->error('my_events_check', __CLASS__, __FUNCTION__, __LINE__);
+            } 
+            else if(!$this->database_check && count($this->my_events) > 0) {
+                $this->allBookings = count($this->my_events);
+            } 
+            else {
+                $this->checkDatabase();
+            }
+            // Also check if the Database is active and if the User has given some Events, Bookings. Display an Notification
+            if($this->database_check && count($this->my_events) > 0) {
+                $this->notify('my_events_check_2');
+            }
+
+            // Check with language the Month Names are have
+            for($i = 1; $i <= 12; $i++) {
+                array_push($this->month_names, $this->json_lg['month_name_'.$i][$this->lg]);
+            }
+
+            // Change the Theme only if is existing
+            $this->change_theme();
+        } else {
+            exit("Please check all Settings there are some Problems. <br>   1. Check if you have given the right Names for the Settings. <br>   2. Check the Settings you have used if its supportet by this version of the CMS System. (".CMS::VERSION.")");
+        }
+        // Call cleanup method after script execution finishes or exit is called.
+        register_shutdown_function(array($this, 'destroy'), true);
+    }
+
+    /**
+     * FUN Checks all user Settings given by the $arrgs array.
+     * 
+     * Setup the Calendar variables and start the script
+     */
+    protected function initialise($arrgs = array()) {
+        $check = array(true);
+        foreach ($arrgs as $key => $value) {
+            if($key == "static_infos" || $key == "tooltip_functions" || $key == "my_months" || $key == "my_events" || $key == "event_form") {
+                foreach ((array) $value as $Ckey => $row) {
+                    if(is_numeric($Ckey)) {
+                        array_push($this->$key, $row);
+                    } else {
+                        $this->$key[$Ckey] = $row;
+                    }
+                }
+            } else {
+                if(!is_array($value) && $value != null && $value != "" || $value == false) {
+                    $this->$key = $value;
+                } else {
+                    array_push($check, false);
+                }
+            }
+        }
+        return count($check) == array_sum($check) ? true : false;
+    }
+
+    /**
+     * FUN Global Database connection.
+     */
+    protected function checkDatabase() {
+        // Try the connection to the database
+        try {
+            $PDO = new PDO("mysql:host=".CMS::HOST.";dbname=".CMS::DATABASE.";charset=utf8", CMS::USER, CMS::PASSWORD, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
+        }
+        catch(PDOException $ex) {
+            if(!$this->create_Database()) {
+                $this->error($ex->getMessage(), __CLASS__, __FUNCTION__, __LINE__);
+                return false;
+            }
+        }
+        try {
+            if(mysqli_connect(CMS::HOST, CMS::USER, CMS::PASSWORD, CMS::DATABASE)) {
+                $CON = mysqli_connect(CMS::HOST, CMS::USER, CMS::PASSWORD, CMS::DATABASE);
+            } else {
+                throw new Exception('Unable to connect');
+            }
+        }
+        catch(Exception $ex) {
+            $this->error($ex->getMessage(), __CLASS__, __FUNCTION__, __LINE__);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * FUN Check if all Functions that we need for the Calendar are existing in the Settings class.
+     */
+    protected function checkAllFunctions() {
+        $check = array(true);
+        // Loop trow the Functions array to check each Function
+        foreach ($this->functions as $key => $value) {
+            if(method_exists('Settings', $value)) {
+                array_push($check, true);
+            } else {
+                array_push($check, false);
+            }
+        }
+        // Check the array if all functions are existing return result
+        return array_sum($check) == count($check) ? true : false;
+    }
+
+    /**
+     * FUN Change the System Theme.
+     * Get all Variables from the layout.php file.
+     */
+    public function change_theme() {
+        // Check if the Theme is existing
+        if(isset($this->theme_styles[$this->theme])) {
+            // Check if the Theme is an array
+            if(is_array($this->theme_styles[$this->theme])) {
+                // Check if the custom array is not null for the current Theme
+                if(isset($this->theme_styles["custom"][$this->theme])) {
+                    // Loop trow the Theme variables to set it into the $this->theme array
+                    foreach ($this->theme_styles[$this->theme] as $key => $value) {
+                        $_SESSION["TH"][$key] = $value;
+                    }
+                    // Loop trow the custom css sytles
+                    $_SESSION["TH"]["custom"] = "";
+                    $count = count($this->theme_styles["custom"][$this->theme]);
+                    for ($i = 0; $i < $count; $i++) {
+                        $_SESSION["TH"]["custom"] .= $this->theme_styles["custom"][$this->theme][$i];
+                    }
+                } else {
+                    // Loop trow the Theme variables to set it into the $this->theme array
+                    foreach ($this->theme_styles[$this->theme] as $key => $value) {
+                        $_SESSION["TH"][$key] = $value;
+                    }
+                }
+            } else {
+                $this->error('theme_var_not_found', __CLASS__, __FUNCTION__, __LINE__);
+            }
+        } else {
+            $this->error('theme_not_found', __CLASS__, __FUNCTION__, __LINE__);
+        }
+        // Display the css file
+        echo '<link rel="stylesheet" href="css/styles.css.php" type="text/css">
+        <input type="zahl" hidden name="min_nights_for_booking" id="min_nights_for_booking" value="'.$this->min_days.'" style="display: hidden;">';
+    }
+
+    /**
+     * FUN Get all Events, Bookings by id from it self.
+     */
+    protected function getAllBookings($startDate, $endDate) {
+        $sql = "SELECT *
+                FROM events";
+
+        $mysqli = new mysqli(CMS::HOST, CMS::USER, CMS::PASSWORD, CMS::DATABASE);
+        // Check the connection
+        if($mysqli->connect_error) {
+            $this->error('theme_not_found', __CLASS__, __FUNCTION__, __LINE__);
+        }
+        $mysqli->set_charset("utf8");
+        $RS = $mysqli->query($sql);
+        $mysqli->close();
+        
+        // Check the query
+        if(!$RS) {
+            $this->error('mysqli_query', __CLASS__, __FUNCTION__, __LINE__);
+        }
+        // Loop trow all Events, Bookings and set each Event, Booking as new Settings class
+        while($data = $RS->fetch_object()) {
+            $EVENT_End = DateTime::createFromFormat("d/m/Y", date("d/m/Y", strtotime($data->end_date)), new DateTimeZone("UTC"));
+            // Check the Date and with status are the Event, Reservation have
+            if(($EVENT_End >= $startDate) && ($EVENT_End <= $endDate)) {
+                array_push($this->EVENTS, new Settings($data));
+            }
+        }
+        // Get all Bookings as count
+        $this->allBookings = $RS->num_rows;
+
+        // Sort array to ASC mode by date
+        usort($this->EVENTS, function($a, $b) {
+            return $a->getStart_date()->format('U') - $b->getStart_date()->format('U');
+        });
+    }
+
+    /**
+     * FUN Check Event, Apartment or Room by id and get all informations about that.
+     */
+    protected function getAllInfosFromRoom($year) {
+        // Check if the Payment Function is active
+        if($this->event_form["payment_check"] && $this->database_check) {
+            $RS = $this->getAllPayments();
+            $isFirst = true;
+            // Get all Payments for the Event, Apartment, Room
+            while($PY = $RS->fetch_object()) {
+                if($PY->is_active == 1) {
+                    if($isFirst) {
+                        $this->option_pay = '<option class="checked" value="'.$PY->payment.'">'.$PY->payment.'</option>';
+                        $this->option_val = $PY->payment;
+                        // Disable the first
+                        $isFirst = false;
+                    } else {
+                        $this->option_pay .= '<option value="'.$PY->payment.'">'.$PY->payment.'</option>';
+                    }
+                } else {
+                    $this->option_pay .= "";
+                }
+            }
+        }
+        // Check if the Person Function is active
+        if($this->event_form["person_check"] && $this->database_check) {
+            $RS = $this->getAllPersons();
+            $isFirst = true;
+            // Check if there is more than 1 Event as Select option
+            if($RS->num_rows > 1) {
+                // Get all Persons for the Event, Apartment, Room
+                while($PS = $RS->fetch_object()) {
+                    if($isFirst) {
+                        $this->option_event = '<option class="checked" value="'.$PS->id.'">'.$PS->event_name.'</option>';
+                        // Get all Persons as select option
+                        for ($i = 1; $i <= $PS->persons; $i++) {
+                            if($i == 1) {
+                                $this->option_pers = '<option class="checked" value="'.$i.'">'.$i.'</option>';
+                            } else {
+                                $this->option_pers .= '<option value="'.$i.'">'.$i.'</option>';
+                            }
+                        }
+                        // Setup the price and persons
+                        $this->second_persons = $PS->second_person;
+                        $this->second_price = $PS->second_price;
+                        // Setup the first Element in the li list
+                        $this->option_val_1 = $PS->event_name;
+                        // Disable the first
+                        $isFirst = false;
+                    } else {
+                        $this->option_event .= '<option value="'.$PS->id.'">'.$PS->event_name.'</option>';
+                    }
+                }
+            } else {
+                // Get all Persons for the Event, Apartment, Room
+                while($PS = $RS->fetch_object()) {
+                    // Get all Persons as select option
+                    for ($i = 1; $i <= $PS->persons; $i++) {
+                        if($i == 1) {
+                            $this->option_pers = '<option class="checked" value="'.$i.'">'.$i.'</option>';
+                        } else {
+                            $this->option_pers .= '<option value="'.$i.'">'.$i.'</option>';
+                        }
+                    }
+                    // Setup the price and persons
+                    $this->second_persons = $PS->second_person;
+                    $this->second_price = $PS->second_price;
+                }
+            }
+        }
+        // Check the given year if is lower than current
+        $this->check_year = $year < date("Y") ? "disabled" : "";
+    }
+
+    /**
+     * FUN Get an Key from the json file.
+     * By the given Key and Name
+     */
+    protected function getKey($key, $name = array()) {
+        $RS = "";
+        // Check if the name in the array is existing in the .json file
+        foreach ($name as $Ckey => $row) {
+            if(isset($this->json[$key][$Ckey][$row])) {
+                $RS .= $this->json[$key][$Ckey][$row]." ";
+            }
+            else if(isset($this->json[$key][$Ckey])) {
+                $RS .= $this->json[$key][$Ckey]." ";
+            }
+            else if(isset($this->json[$key][$row])) {
+                $RS .= $this->json[$key][$row]." ";
+            }
+        }
+        return trim($RS);
+    }
+
+    /**
+     * FUN Check the Given Months (User Months) by index.
+     * 
+     * if month is older than current month return false.
+     * else retun the index as month
+     */
+    protected function ceckGivenMonths() {
+        $check = array(true);
+        // Check if the array is not empty and if there are no issues between the month names
+        if(count(array_intersect($this->month_names, $this->my_months)) > 0) {
+            // Check the Date foreach month name (User Months)
+            // if the current month is lower than the month retun false
+            foreach ($this->my_months as $key => $value) {
+                if(date("d-m-Y") > date("d-m-Y", strtotime($value))) {
+                    array_push($check, false);
+                } else {
+                    array_push($check, true);
+                }
+            }
+            // check if there is an Date older than todys date
+            if(array_sum($check) == count($check)) {
+                return array_intersect($this->month_names, $this->my_months);
+            }
+            $this->notify('month_date');
+        }
+        return false;
+    }
+
+    /**
+     * FUN Create the Calender with all Settings you have set.
+     */
+    public function showCalendar($year, $month_index) {
+        $startDate = DateTime::createFromFormat("d/m/Y", "1/1/{$year}", new DateTimeZone("UTC"));
+        $endDate = DateTime::createFromFormat("d/m/Y", "{$startDate->format("t")}/12/{$year}", new DateTimeZone("UTC"));
+        
+        // Check if Bookings and Database are true
+        if($this->events_check && $this->database_check) {
+            $this->getAllBookings($startDate, $endDate);
+        }
+        // Bookings and Database are false but my_events can be true
+        else if(!$this->database_check && count($this->my_events) > 0) {
+            // Loop trow the my_events array and set each Event, Booking as new Settings class
+            foreach ($this->my_events as $data) {
+                $EVENT_End = DateTime::createFromFormat("d/m/Y", date("d/m/Y", strtotime($data["end_date"])), new DateTimeZone("UTC"));
+                // Check the Date and with status are the Event, Reservation have
+                if(($EVENT_End >= $startDate) && ($EVENT_End <= $endDate)) {
+                    array_push($this->EVENTS, new Settings($data));
+                }
+            }
+            // Sort Events array from the User by Datetime in ASC mode
+            usort($this->EVENTS, function($a, $b) {
+                return $a->getStart_date()->format('U') - $b->getStart_date()->format('U');
+            });
+        }
+        // Nothing is set Bookings to null
+        else {
+            $this->EVENTS = array();
+        }
+        // Check if month_index is null
+        if($month_index == "" || $month_index == null || $month_index <= 0) {
+            $month_index = 1;
+        }
+        // Create the Header with Buttons and Legend
+        $this->_drawCalendarHeader($year, $month_index);
+
+        echo "<div class=\"{$this->theme} calendar row\">";
+
+        // Loop trow all Months as index
+        if(count($this->my_months) > 0 && $this->my_months[0] != "") {
+            // Check the Months that the User has given in the array
+            $month = $this->ceckGivenMonths();
+
+            // Printout Error if the User has given false Month names exit
+            if(!is_array($month) && !$month) {
+                $this->error('check_months', __CLASS__, __FUNCTION__, __LINE__);
+            }
+            // No Error User has given right Month Names print out Calendar
+            for($i = 1; $i <= 12; $i++) {
+                // Printout Months with Bookings inside
+                if(array_key_exists($i, $month)) {
+                    // Create the current Month and get the Name by index
+                    $name = $month[$i];
+                    $j = array_search($name, $month) +1;
+                    
+                    // Display the current Month with Events, Bookings inside
+                    echo "<div class=\"{$this->theme} month table-responsive col-xs-4 col-md-6 col-lg-4\">";
+                        $this->_showCalendarMonth($j == 13 ? 1 : $j, $this->getYear($year, $j));
+                    echo "</div>";
+                }
+            }
+        } else {
+            // Create the new index for $hidden_months
+            $this->hidden_months = ($this->hidden_months + $month_index);
+            // Create each Month with new index and Bookings inside
+            for($i = $month_index; $i <= $this->hidden_months; $i++) {
+                // if hidde same as Month index break the loop
+                if($this->hidden_months == $i) {
+                    break;
+                }
+                // Display the current Month with Events, Bookings inside
+                echo "<div class=\"{$this->theme} month table-responsive col-xs-4 col-md-6 col-lg-4\">";
+                    $this->_showCalendarMonth($i == 13 ? 1 : $i, $this->getYear($year, $i));
+                echo "</div>";
+            }
+        }
+        // End of the CMS System print out end of div
+        echo '</div>';
+
+        // Create the Event Form
+        if($this->event_form['active']) {
+            // Get All informations from Apartment, Room
+            $this->getAllInfosFromRoom($year);
+
+            if($this->event_form['modal']) {
+                $this->_drawBookingFormModal();
+            } else {
+                $this->_drawBookingForm();
+            }
+        }
+        // Create the Static Modal if is not null
+        if($this->static_infos != null) {
+            $this->_drawStaticModal();
+        }
+        // Check if the error_msg is empty
+        if($this->error_msg == "") {
+            $this->success('cms_create_success', __CLASS__, __FUNCTION__, __LINE__);
+        } else {
+            $this->error('cms_create_error', __CLASS__, __FUNCTION__, __LINE__);
+        }
+        // last but not least get all Notifys for the cms.js
+        $this->_drawJSscriptNotifys();
+    }
+
+    /**
+     * FUN Get all Tooltip Functions from the User array.
+     */
+    protected function getTooltipFunctions($EVENT) {
+        $count = count($this->tooltip_functions);
+        // Check with index is in array and if index are the same as given
+        if($count > 0) {
+            foreach ($this->tooltip_functions as $key => $value) {
+                if(isset($EVENT->$value)) {
+                    if(!isset($fun) || $fun == "") {
+                        if($count == 1) {
+                            $fun = $EVENT->$value."<br>";
+                        } else {
+                            $fun = $EVENT->$value."&nbsp;";
+                        }
+                    } else {
+                        $fun .= $EVENT->$value."<br>";
+                    }
+                }
+            }
+            return $fun;
+        }
+        return "";
+    }
+
+    /**
+     * FUN Create the Tooltip with status and some informations about the Resevation, Event.
+     */
+    protected function createTooltip($EVENT) {
+        if($EVENT->getStatus() == CMS::AKTIVE) {
+            return $this->tooltip_text_1 = "<span class='".$this->getKey("class", ["tooltip" => "title", "statuse" => "AKTIVE"])."'>".$this->json_lg["status_name_1"][$this->lg].":</span><br>
+            ".$EVENT->getEvent_name()."<br>"."
+            ".$EVENT->getEvent_desc()."<br>"."
+            ".$this->getTooltipFunctions($EVENT)."
+            ".$EVENT->getStart_date()->format($this->date_format)." - ".$EVENT->getEnd_date()->format($this->date_format);
+        } 
+        else if($EVENT->getStatus() == CMS::OPEN) {
+            return $this->tooltip_text_2 = "<span class='".$this->getKey("class", ["tooltip" => "title", "statuse" => "OPEN"])."'>".$this->json_lg["status_name_2"][$this->lg].":</span><br>
+            ".$EVENT->getEvent_name()."<br>"."
+            ".$EVENT->getEvent_desc()."<br>"."
+            ".$this->getTooltipFunctions($EVENT)."
+            ".$EVENT->getStart_date()->format($this->date_format)." - ".$EVENT->getEnd_date()->format($this->date_format);
+        } 
+        else if($EVENT->getStatus() == CMS::ENDED) {
+            return $this->tooltip_text_3 = "<span class='".$this->getKey("class", ["tooltip" => "title", "statuse" => "ENDED"])."'>".$this->json_lg["status_name_3"][$this->lg].":</span><br>
+            ".$EVENT->getEvent_name()."<br>"."
+            ".$EVENT->getEvent_desc()."<br>"."
+            ".$this->getTooltipFunctions($EVENT)."
+            ".$EVENT->getStart_date()->format($this->date_format)." - ".$EVENT->getEnd_date()->format($this->date_format);
+        } else {
+            $this->error('status_check', __CLASS__, __FUNCTION__, __LINE__);
+        }
+    }
+
+    /**
+     * FUN Check if Date is in range with current Event dates.
+     */
+    protected function isDateInRange($EVENT, $dayToCheck) {
+        $dateRangeEnd = $EVENT->getEnd_date();
+        $tempDay = clone $EVENT->getStart_date();
+        while($tempDay < $dateRangeEnd) {
+            if($dayToCheck == $tempDay) {
+                return true;
+            }
+            $tempDay->modify('+1 day');
+        }
+        return false;
+    }
+
+    /**
+     * FUN Check Current Status from Event, Reservation if is true or false.
+     */
+    protected function checkStatus($EVENT) {
+        if($EVENT != null) {
+            if(isset($this->json["statuse"][ ($EVENT->getStatus() - 1) ])) {
+                return array_values($this->json["statuse"][ ($EVENT->getStatus() - 1) ])[0] ? true : false;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * FUN Check the Current `test_event` Status is `1` and if hidde_event is true than return true.
+     */
+    protected function checkHidden($EVENT) {
+        if($this->hidde_events) {
+            return $EVENT->getHidden() == 1 ? true : false;
+        }
+        return false;
+    }
+
+    /**
+     * FUN Return the calculated Year.
+     * 
+     * if the `max_year` var is more than the current Year.
+     * Also check if the Month is lower than the `hidden` var.
+     */
+    protected function getYear($YEAR, $MONTH) {
+        // Check if the given Month is lower than the `hidden`
+        if(($MONTH + $this->hidden_months) >= 13 && !$this->year_change && ($MONTH + 1) > 13 && $YEAR < $this->max_year) {
+            $this->year_change = true;
+            return $YEAR += 1;
+        }
+        return $YEAR;
+    }
+
+    /** 
+     * FUN Create each Month and check each Day if there is an Event.
+     */
+    protected function _showCalendarMonth($month, $year) {
+        // Create all variables that we need to start the while loop
+        $startDate = DateTime::createFromFormat("d/m/Y", "1/{$month}/{$year}", new DateTimeZone("UTC"));
+        $endDate = DateTime::createFromFormat("d/m/Y", "{$startDate->format("t")}/{$month}/{$year}", new DateTimeZone("UTC"));
+        $dateNow = DateTime::createFromFormat("d/m/Y", date("d/m/Y"), new DateTimeZone("UTC"));
+        $fillStart = $startDate->format("w") - 1;
+        $printedFillerDays = false;
+        $days = 0;
+        $tempDate = clone $startDate;
+
+        // Print all Months with day names inside
+        $this->_drawMonthTableHeader($startDate);
+
+        // Check how many days in this week are filled
+        if($fillStart == -1) {
+            $fillStart = 6;
+        }
+
+        // Create Backdays in the current month
+        if($this->back_days) {
+            $tempDate = $tempDate->modify('-' .$fillStart.' day');
+        }
+
+        // loop trow all days in this Month check on each Day if there is an Event
+        // Check also if there is more than 1 Event on this Day
+        while($tempDate <= $endDate) {
+            // Fill $days with 0-7 days
+            if($days == 0) {
+                echo "<tr>";
+            }
+            // Create empty Days if there is no date in this Day
+            if(!$this->back_days) {
+                if(!$printedFillerDays) {
+                    // loop trow the week and set the empty Days insid ethe the current week
+                    for($i = 0; $i < $fillStart; $i++) {
+                        echo "<td data-set='none'></td>";
+                        $days++;
+                    }
+                    // Disable this function because we don´t need it anymore
+                    $printedFillerDays = true;
+                }
+            }
+            // check if $tempDate == Active Day
+            if($tempDate == $dateNow) {
+                $this->class_td = "active-day";
+            }
+            else if($tempDate < $dateNow) {
+                $this->class_td = "not-select-able";
+            }
+            else if($tempDate > $dateNow) {
+                $this->class_td = "";
+            }
+            // Create the Event on this Day and loop all Days from current Event
+            if($tempDate <= $endDate) {
+                // Print the Start Day and the Bookings
+                echo "<td class=\"{$this->class_td}\" id=\"{$tempDate->format("Y-m-d")}\">"
+                . "<span class=\"day\">{$tempDate->format("d")}</span><ul>";
+
+                // Check if on this Day is an Event
+                if($this->EVENTS != null) {
+                    foreach($this->EVENTS as $key => $row) {
+                        if($this->checkStatus($row) && !$this->checkHidden($row)) {
+                            // Check if the show_more_events is false and if max_events_per_day == 3
+                            if($this->show_more_events && $this->max_events_per_day != $key || !$this->show_more_events && $this->max_events_per_day == 3) {
+                                // Check foreach Date if start, end or between the booking Date
+                                if($tempDate->format('d.m.Y') == $row->getStart_date()->format('d.m.Y') && $tempDate->format('d.m.Y') == $row->getEnd_date()->format('d.m.Y')) {
+                                    $this->_drawCalendardayBooked($row);
+                                }
+                                else if($tempDate->format('d.m.Y') == $row->getStart_date()->format('d.m.Y')) {
+                                    $this->_drawCalendardayBookedStart($row);
+                                }
+                                else if($tempDate->format('d.m.Y') == $row->getEnd_date()->format('d.m.Y')) {
+                                    $this->_drawCalendardayBookedEnd($row, $tempDate);
+                                    $this->current_booking++;
+                                    unset($this->EVENTS[$key]);
+                                }
+                                else if($this->isDateInRange($row, $tempDate)){
+                                    $this->_drawCalendardayBooked($row);
+                                }
+                                // Clear all variables
+                                $this->class_1 = "";
+                                $this->class_2 = "";
+                                $this->class_3 = "";
+                                $this->tooltip_text_1 = "";
+                                $this->tooltip_text_2 = "";
+                                $this->tooltip_text_3 = "";
+                            }
+                        }
+                    }
+                } else if(isset($this->EVENTS[$this->current_booking]) && !$this->checkStatus($this->EVENTS[$this->current_booking]) ) {
+                    $this->_drawCalendardayFree();
+                    $this->current_booking++;
+                } else {
+                    $this->_drawCalendardayFree();
+                }
+                // Print End of the Day
+                echo "</ul>";
+
+                // Check if is_book_able is true
+                if($this->is_book_able) {
+                    echo "<span class=\"book_able\"></span>";
+                }
+                // Print end of the td
+                echo "</td>";
+
+                // Modify Date +1 to loop the while
+                $tempDate->modify('+1 day');
+                $days++;
+            }
+            // Print end of week
+            if($days == 7) {
+                echo "</tr>";
+                $days = 0;
+            }
+        }
+        // check if there are empty Days inside this week
+        if($days < 7 && $days != 0) {
+            while($days < 7) {
+                echo "<td data-set='none'></td>";
+                $days++;
+            }
+        }
+        // Print end of table
+        echo '</tbody></table>';
+    }
+
+    /**
+     * FUN Check the Event status printout start_date from Event.
+     */
+    protected function _drawCalendardayBookedStart($EVENT) {
+        if($EVENT->getStatus() == CMS::AKTIVE) {
+            $this->class_1 = $this->getKey('class', ['bookings' => 'start', 'statuse' => 'AKTIVE']);
+            if($this->tooltip) {
+                $this->createTooltip($EVENT);
+            }
+        } else if($EVENT->getStatus() == CMS::OPEN) {
+            $this->class_2 = $this->getKey('class', ['bookings' => 'start', 'statuse' => 'OPEN']);
+            if($this->tooltip) {
+                $this->createTooltip($EVENT);
+            }
+        } else if($EVENT->getStatus() == CMS::ENDED) {
+            $this->class_3 = $this->getKey('class', ['bookings' => 'start', 'statuse' => 'ENDED']);
+            if($this->tooltip) {
+                $this->createTooltip($EVENT);
+            }
+        } else {
+            $this->error('status_check', __CLASS__, __FUNCTION__, __LINE__);
+        }
+        // Print out the Event, Booking
+        $this->_printEventsOut();
+    }
+
+    /**
+     * FUN Check the Event status printout end_date from Event.
+     */
+    protected function _drawCalendardayBookedEnd($EVENT, $tempDate) {
+        if($EVENT->getStatus() == CMS::AKTIVE) {
+            $this->class_1 = $this->getKey('class', ['bookings' => 'end', 'statuse' => 'AKTIVE']);
+            if($this->tooltip) {
+                $this->createTooltip($EVENT);
+            }
+        } else if($EVENT->getStatus() == CMS::OPEN) {
+            $this->class_2 = $this->getKey('class', ['bookings' => 'end', 'statuse' => 'OPEN']);
+            if($this->tooltip) {
+                $this->createTooltip($EVENT);
+            }
+        } else if($EVENT->getStatus() == CMS::ENDED) {
+            $this->class_3 = $this->getKey('class', ['bookings' => 'end', 'statuse' => 'ENDED']);
+            if($this->tooltip) {
+                $this->createTooltip($EVENT);
+            }
+        } else {
+            $this->error('status_check', __CLASS__, __FUNCTION__, __LINE__);
+        }
+        // Print out the Event, Booking
+        $this->_printEventsOut();
+        // Check if there is an Event on the end_date from the last Event
+        $this->_drawCalendardayBookedNew($EVENT->getStatus(), $tempDate);
+    }
+
+    /**
+     * FUN Check the Event status printout date from Event.
+     */
+    protected function _drawCalendardayBooked($EVENT) {
+        if($EVENT->getStatus() == CMS::AKTIVE) {
+            $this->class_1 = $this->getKey('class', ['bookings' => 'booked', 'statuse' => 'AKTIVE']);
+            if($this->tooltip) {
+                $this->createTooltip($EVENT);
+            }
+        } else if($EVENT->getStatus() == CMS::OPEN) {
+            $this->class_2 = $this->getKey('class', ['bookings' => 'booked', 'statuse' => 'OPEN']);
+            if($this->tooltip) {
+                $this->createTooltip($EVENT);
+            }
+        } else if($EVENT->getStatus() == CMS::ENDED) {
+            $this->class_3 = $this->getKey('class', ['bookings' => 'booked', 'statuse' => 'ENDED']);
+            if($this->tooltip) {
+                $this->createTooltip($EVENT);
+            }
+        } else {
+            $this->error('status_check', __CLASS__, __FUNCTION__, __LINE__);
+        }
+        // Print out the Event, Booking
+        $this->_printEventsOut();
+    }
+
+    /**
+     * FUN Check if there is an Event start_date == end_date from last Event.
+     * Check the Status from the current and the last booking select an class by status
+     */
+    protected function _drawCalendardayBookedNew($status, $tempDate) {
+        if(count($this->EVENTS) > $this->current_booking) {
+            $EVENT = isset($this->EVENTS[$this->current_booking]) ? $this->EVENTS[$this->current_booking] : null;
+            if($EVENT != null) {
+                if($tempDate == $EVENT->getStart_date()) {
+                    if($EVENT->getStatus() == CMS::AKTIVE && $status == 1) {
+                        $this->class_1 = $this->getKey('class', ['bookings' => 'end', 'statuse' => 'AKTIVE']);
+                        $this->class_2 = $this->getKey('class', ['bookings' => 'start', 'statuse' => 'AKTIVE']);
+                        if($this->tooltip) {
+                            $this->createTooltip($EVENT);
+                        }
+                    } else if($EVENT->getStatus() == CMS::AKTIVE && $status == 2) {
+                        $this->class_1 = $this->getKey('class', ['bookings' => 'start', 'statuse' => 'AKTIVE']);
+                        $this->class_2 = $this->getKey('class', ['bookings' => 'end', 'statuse' => 'OPEN']);
+                        if($this->tooltip) {
+                            $this->createTooltip($EVENT);
+                        }
+                    } else if($EVENT->getStatus() == CMS::OPEN && $status == 1) {
+                        $this->class_1 = $this->getKey('class', ['bookings' => 'end', 'statuse' => 'AKTIVE']);
+                        $this->class_2 = $this->getKey('class', ['bookings' => 'start', 'statuse' => 'OPEN']);
+                        if($this->tooltip) {
+                            $this->createTooltip($EVENT);
+                        }
+                    } else if($EVENT->getStatus() == CMS::OPEN && $status == 2) {
+                        $this->class_1 = $this->getKey('class', ['bookings' => 'end', 'statuse' => 'OPEN']);
+                        $this->class_2 = $this->getKey('class', ['bookings' => 'start', 'statuse' => 'OPEN']);
+                        $this->tooltip_text_1 = $this->tooltip_text_2;
+                        if($this->tooltip) {
+                            $this->createTooltip($EVENT);
+                        }
+                    } else {
+                        $this->error('status_check', __CLASS__, __FUNCTION__, __LINE__);
+                    }
+                    // Print out the Event, Booking
+                    $this->_printEventsOut();
+                }
+            }
+        }
+    }
+
+    /**
+     * FUN There is no Event printout free.
+     */
+    protected function _drawCalendardayFree() {
+        $this->class_1 = "free";
+        $this->_printEventsOut();
+    }
+
+    /**
+     * FUN Print out the Created Events, Bookings from the Classes.
+     */
+    protected function _printEventsOut() {
+        if($this->class_1 != "") {
+            echo "<li><span class=\"{$this->class_1}\" data-toggle=\"tooltip\" title=\"{$this->tooltip_text_1}\"></span></li>";
+        }
+        if($this->class_2 != "") {
+            echo "<li><span class=\"{$this->class_2}\" data-toggle=\"tooltip\" title=\"{$this->tooltip_text_2}\"></span></li>";
+        }
+        if($this->class_3 != "") {
+            echo "<li><span class=\"{$this->class_3}\" data-toggle=\"tooltip\" title=\"{$this->tooltip_text_3}\"></span></li>";
+        }
+    }
+
+    /**
+     * FUN Create the Header on top of Calendar.
+     * check all elements variables if there is one true print this element
+     */
+    protected function _drawCalendarHeader($year, $month) {
+        $this->prev_year = $year -1;
+        $this->next_year = $year +1;
+        $this->prev_month = $month - $this->hidden_months;
+        $this->next_month = $month + $this->hidden_months;
+        
+        // Check if the prev_month is Negative
+        if($this->prev_month <= 0) {
+            $this->prev_month = 1 + $this->hidden_months;
+            // Check if the month is lower than 12
+            for($i = 1; $i < 12; $i++) {
+                // Check second time if the month is lower than 12
+                if($this->prev_month < 12 && ($this->prev_month + $this->hidden_months) <= 12) {
+                    $this->prev_month = $this->prev_month + $this->hidden_months;
+                }
+            }
+        }
+        // Check if the prev_month is higger 12
+        if($this->prev_month >= 12) {
+            $this->prev_month = 13 - $this->hidden_months;
+        }
+
+        // Create the Prev & Next Button to switch the Months and Years
+        echo '<div class="text-center">';
+            // check if months_showen not == null
+            // Create the Prev Month Button if is Active
+            if(!count($this->my_months) > 0 && $this->hidden_months < 13 && $this->prev_month_check) {
+                if($month == 1) {
+                    $year = $year -1;
+                    $change = true;
+                }
+                if($this->prev_month <= $this->min_year) {
+                    echo "<a href=\"{$this->url}&year={$year}&month={$this->prev_month}\" "
+                    . "class=\"btn ".$this->getKey('class', ['button' => 'prev_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-right: 5px;\"><i class=\"{$this->getKey('class', ['icons' => 'prev_month'])}\"></i></a>";
+                } else {
+                    echo "<a href=\"{$this->url}&year={$year}&month={$this->prev_month}\" "
+                    . "disabled class=\"btn disabled ".$this->getKey('class', ['button' => 'prev_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-right: 5px;\"><i class=\"{$this->getKey('class', ['icons' => 'prev_month'])}\"></i></a>";
+                }
+                if(isset($change) && $change) {
+                    $year = $year +1;
+                    $change = false;
+                }
+            }
+            // Create the Years Buttons check with Buttons are Active
+            if($this->prev_year_check && $this->next_year_check) {
+                if($this->prev_year >= $this->min_year) {
+                    echo "<a href=\"{$this->url}&year={$this->prev_year}&month={$month}\" "
+                    . "class=\"btn ".$this->getKey('class', ['button' => 'prev_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-right: 5px;\">{$this->prev_year}</a>";
+                }
+                    echo "<a href=\"\" class=\"btn ".$this->getKey('class', ['button' => 'current_year'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"pointer-events: none;\">{$year}</a>";
+                if($this->next_year <= $this->max_year) {
+                    echo "<a href=\"{$this->url}&year={$this->next_year}&month={$month}\" "
+                    . "class=\"btn ".$this->getKey('class', ['button' => 'next_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-left: 5px;\">{$this->next_year}</a>";
+                }
+            } 
+            else if($this->prev_year_check && !$this->next_year_check) {
+                if($this->prev_year >= $this->min_year) {
+                    echo "<a href=\"{$this->url}&year={$this->prev_year}&month={$month}\" "
+                    . "class=\"btn ".$this->getKey('class', ['button' => 'prev_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-right: 5px;\">{$this->prev_year}</a>";
+                    echo "<a href=\"\" class=\"btn ".$this->getKey('class', ['button' => 'current_year'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"pointer-events: none;\">{$year}</a>";
+                }
+            } 
+            else if($this->next_year_check && !$this->prev_year_check) {
+                if($this->next_year <= $this->max_year) {
+                    echo "<a href=\"\" class=\"btn ".$this->getKey('class', ['button' => 'current_year'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"pointer-events: none;\">{$year}</a>";
+                    echo "<a href=\"{$this->url}&year={$this->next_year}&month={$month}\" "
+                    . "class=\"btn ".$this->getKey('class', ['button' => 'next_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-left: 5px;\">{$this->next_year}</a>";
+                }
+            }
+            // check if months_showen not == null. Create the Next Month Button if is Active
+            if(!count($this->my_months) > 0 && $this->hidden_months < 13 && $this->next_month_check) {
+                // Check if next_month is lower than 12
+                if($this->next_month <= 12) {
+                    if($month == 12) {
+                        $year = $year +1;
+                    }
+                }
+                // Check if next_month is higger than 12
+                if($this->next_month > 12) {
+                    $this->next_month = 1;
+                    $year = $year +1;
+                }
+                if($this->next_month <= $this->max_year) {
+                    echo "<a href=\"{$this->url}&year={$year}&month={$this->next_month}\" "
+                    . "class=\"btn ".$this->getKey('class', ['button' => 'next_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-left: 5px;\"><i class=\"{$this->getKey('class', ['icons' => 'next_month'])}\"></i></a>";
+                } else {
+                    echo "<a href=\"#\" "
+                    . "disabled class=\"btn disabled ".$this->getKey('class', ['button' => 'next_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-left: 5px;\"><i class=\"{$this->getKey('class', ['icons' => 'next_month'])}\"></i></a>";
+                }
+            }
+            // Create the Statics if is active
+            if($this->static_infos != null && $this->static_infos[0] != "") {
+                echo '<button class="btn '.$this->getKey('class', ['button' => 'static']).' float-right '.$this->getKey('class', ['margin' => 'm-left']).'" data-toggle="modal" data-target="#staticModal"><i class="'.$this->getKey('class', ['icons' => 'static']).'"></i></button>';
+            }
+            // Create the Today Button if is Active
+            if($this->today_check) {
+                $today = date("Y");
+                echo '<button class="btn '.$this->getKey('class', ['button' => 'today']).' float-right" onclick="window.location.href=\''.$this->url.'&year='.$today.'&month='.$month.'\'" ><i class="'.$this->getKey('class', ['icons' => 'current_day']).'"></i></button>';
+            }
+        echo "</div>";
+        // Create the Legend if is Active
+        if ($this->legend) {
+            echo "<p id=\"legend\">".$this->json_lg["legend"][$this->lg]."
+                    <span style=\"background: ".$this->theme_styles[$this->theme]["status_name_1"].";\"></span>".$this->json_lg["status_name_1"][$this->lg]."
+                    <span style=\"background: ".$this->theme_styles[$this->theme]["status_name_2"].";\"></span>".$this->json_lg["status_name_2"][$this->lg]."
+                    <span style=\"background: ".$this->theme_styles[$this->theme]["status_name_3"].";\"></span>".$this->json_lg["status_name_3"][$this->lg]."
+                    <span style=\"background: ".$this->theme_styles[$this->theme]["selection"].";\"></span>".$this->json_lg["selection"][$this->lg]."
+                    <span style=\"background: ".$this->theme_styles[$this->theme]["Active_Day_Background"].";\"></span>".$this->json_lg["current_day"][$this->lg]."
+                </p>";
+        }
+    }
+    
+    /**
+     * FUN Create foreach Month the headers in the Calendar.
+     */
+    protected function _drawMonthTableHeader($date) {
+        echo "<table class=\"table table-bordered table-striped\" id=\"month_{$date->format("n")}\">"
+            . "<thead>"
+            . "<tr><th colspan=\"7\" class=\"monthName\">".$this->month_names[($date->format("n")-1)]."<span class=\"yearName\">".$date->format("Y")."</span></th></tr>"
+            . "<tr>"
+            . "<td class=\"weekDay\">".$this->json_lg["week_day_1"][$this->lg]."</td>"
+            . "<td class=\"weekDay\">".$this->json_lg["week_day_2"][$this->lg]."</td>"
+            . "<td class=\"weekDay\">".$this->json_lg["week_day_3"][$this->lg]."</td>"
+            . "<td class=\"weekDay\">".$this->json_lg["week_day_4"][$this->lg]."</td>"
+            . "<td class=\"weekDay\">".$this->json_lg["week_day_5"][$this->lg]."</td>"
+            . "<td class=\"weekDay\">".$this->json_lg["week_day_6"][$this->lg]."</td>"
+            . "<td class=\"weekDay\">".$this->json_lg["week_day_7"][$this->lg]."</td>"
+            . "</tr></thead><tbody>";
+    }
+
+    /**
+     * FUN Create Event form and show all Payments and Persons as select.
+     */
+    protected function _drawBookingForm() {
+        echo '<div class="card '.$this->theme.'">
+                <div class="card-header">
+                    <h4 class="card-title">'.$this->json_lg["selection_2"][$this->lg].'</h4>
+                </div>
+                <div class="card-body">
+                    <form role="form" id="booking_calendar_form" action="'.$this->event_form['action'].'" method="post" data-toggle="validator">
+                        <div class="col-12 row">
+                            <div class="col-2">
+                                <div class="form-group">
+                                    <label for="arrival">'.$this->json_lg["input_1"][$this->lg].' '.date($this->time_format, strtotime($this->event_form["arrivel_time"])).' Uhr</label>
+                                    <input type="text" readonly id="arrival" name="arrival" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <div class="form-group">
+                                    <label for="leaving">'.$this->json_lg["input_2"][$this->lg].' '.date($this->time_format, strtotime($this->event_form["leaving_time"])).' Uhr</label>
+                                    <input type="text" readonly id="leaving" name="leaving" class="form-control">
+                                </div>
+                            </div>';
+                            // Check if the Database function is active and if there is more than 1 Event, Booking that the User has given
+                            if($this->option_event != null && $this->database_check) {
+                                echo '<div class="col-2">
+                                    <div class="form-group">
+                                        <label for="events">'.$this->json_lg["input_5"][$this->lg].'</label>
+                                        <select id="events" class="custom-select">
+                                            '.$this->option_event.'
+                                        </select>
+                                    </div>
+                                </div>';
+                            }
+                            // Check if the Database function is active and if person_check is also true
+                            if($this->event_form["person_check"] && $this->database_check) {
+                                echo '<div class="col-1">
+                                    <div class="form-group">
+                                        <label for="persons">'.$this->json_lg["input_4"][$this->lg].'</label>
+                                        <select id="persons" class="custom-select">
+                                            '.$this->option_pers.'
+                                        </select>
+                                    </div>
+                                </div>';
+                            }
+                             // Check if the Database function is active and if payment_check is also true
+                            if($this->event_form["payment_check"] && $this->database_check) {
+                                echo '
+                                <div class="col-2">
+                                    <div class="form-group">
+                                        <label for="payments">'.$this->json_lg["input_3"][$this->lg].'</label>
+                                        <select id="payments" class="custom-select">
+                                            '.$this->option_pay.'
+                                        </select>
+                                    </div>
+                                </div>';
+                            }
+                            echo '
+                            <div class="col-2">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <input type="zahl" name="second_person" id="second_person" value="'.$this->second_persons.'" hidden style="display: hidden;">
+                                    <input type="zahl" name="second_price" id="second_price" value="'.$this->second_price.'" hidden style="display: hidden;">
+                                    <button type="submit" id="book_now" name="book_now" class="btn '.$this->getKey('class', ['button' => 'submit']).' animation-on-hover btn-block" '.$this->check_year.'>'.$this->json_lg["next_step"][$this->lg].' <i class="'.$this->getKey('class', ['icons' => 'button']).'"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            </div>';
+    }
+
+    /**
+     * FUN Create Event form as Modal and show all Payments and Persons as select.
+     */
+    protected function _drawBookingFormModal() {
+        echo '<div class="modal fade '.$this->theme.'" id="calendarModal" tabindex="-1" role="dialog" aria-labelledby="calendarModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="calendarModalLabel">'.$this->json_lg["selection_2"][$this->lg].'</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <div class="modal-body">
+                            <form role="form" id="booking_calendar_form" action="'.$this->event_form['action'].'" method="post" data-toggle="validator">
+                                <div class="col-12 row">
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label for="arrival">'.$this->json_lg["input_1"][$this->lg].' '.date($this->time_format, strtotime($this->event_form["arrivel_time"])).' Uhr</label>
+                                            <input type="text" readonly id="arrival" name="arrival" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label for="leaving">'.$this->json_lg["input_2"][$this->lg].' '.date($this->time_format, strtotime($this->event_form["leaving_time"])).' Uhr</label>
+                                            <input type="text" readonly id="leaving" name="leaving" class="form-control">
+                                        </div>
+                                    </div>';
+                                    // Check if the Database function is active and if there is more than 1 Event, Booking that the User has given
+                                    if($this->option_event != null && $this->database_check) {
+                                        echo '<div class="col-2">
+                                            <div class="form-group">
+                                                <label for="events">'.$this->json_lg["input_5"][$this->lg].'</label>
+                                                <select id="events" class="custom-select">
+                                                    '.$this->option_event.'
+                                                </select>
+                                            </div>
+                                        </div>';
+                                    }
+                                    // Check if the Database function is active and if person_check is also true
+                                    if($this->event_form["person_check"] && $this->database_check) {
+                                        echo '<div class="col-1">
+                                            <div class="form-group">
+                                                <label for="persons">'.$this->json_lg["input_4"][$this->lg].'</label>
+                                                <select id="persons" class="custom-select">
+                                                    '.$this->option_pers.'
+                                                </select>
+                                            </div>
+                                        </div>';
+                                    }
+                                    // Check if the Database function is active and if payment_check is also true
+                                    if($this->event_form["payment_check"] && $this->database_check) {
+                                        echo '
+                                        <div class="col-2">
+                                            <div class="form-group">
+                                                <label for="payments">'.$this->json_lg["input_3"][$this->lg].'</label>
+                                                <select id="payments" class="custom-select">
+                                                    '.$this->option_pay.'
+                                                </select>
+                                            </div>
+                                        </div>';
+                                    }
+                                    echo '
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <label>&nbsp;</label>
+                                            <input type="zahl" name="second_person" id="second_person" value="'.$this->second_persons.'" hidden style="display: hidden;">
+                                            <input type="zahl" name="second_price" id="second_price" value="'.$this->second_price.'" hidden style="display: hidden;">
+                                            <button type="submit" id="book_now" name="book_now" class="btn '.$this->getKey('class', ['button' => 'submit']).' animation-on-hover btn-block" '.$this->check_year.'>'.$this->json_lg["next_step"][$this->lg].' <i class="'.$this->getKey('class', ['icons' => 'button']).'"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>';
+    }
+
+    /**
+     * FUN Create all cms.js info msg with the given language.
+     */
+    protected function _drawJSscriptNotifys() {
+        // print out all warnings and success to get it later in the cms.js file
+        echo '<script>
+            color = "'.$this->theme_styles[$this->theme]["selection"].'";
+            var notify_1 = "'.$this->json_lg["notify_1"][$this->lg].'",
+                notify_2 = "'.$this->json_lg["notify_2"][$this->lg].'",
+                notify_3 = "'.$this->json_lg["notify_3"][$this->lg].'",
+                notify_4 = "'.$this->json_lg["notify_4"][$this->lg].'",
+                notify_5 = "'.$this->json_lg["notify_5"][$this->lg].'",
+                notify_5_1 = "'.$this->json_lg["notify_5_1"][$this->lg].'",
+                notify_5_2 = "'.$this->json_lg["notify_5_2"][$this->lg].'",
+                notify_6 = "'.$this->json_lg["notify_6"][$this->lg].'",
+                notify_7 = "'.$this->json_lg["notify_7"][$this->lg].'"
+        </script>
+        ';
+    }
+
+    /**
+     * FUN Create the Satic Modal with some informations about the Calendar.
+     */
+    protected function _drawStaticModal() {
+        $statics = "";
+        foreach($this->static_infos as $key => $value) {
+            if($value == "Events") {
+                $statics .= "<p>{$this->json_lg["infos_1"][$this->lg]}: {$this->allBookings}</p>";
+            }
+            else if($value == "Authors") {
+                $statics .= "<p>{$this->json_lg["infos_2"][$this->lg]}: {$this->getKey('authors', ['name'])} <a href=\"mailto:{$this->getKey('authors', ['email'])}\">{$this->getKey('authors', ['email'])}</a></p>";
+            }
+            else if($value == "Version") {
+                $statics .= "<p>{$this->json_lg["infos_3"][$this->lg]}: {$this->getKey('infos', ['version'])}</p>";
+            }
+            else if($value == "Language") {
+                $statics .= "<p>{$this->json_lg["infos_4"][$this->lg]}: {$this->lg}</p>";
+            }
+            else if($value == "Theme") {
+                $statics .= "<p>{$this->json_lg["infos_5"][$this->lg]}: {$this->theme}</p>";
+            }
+            // Check if there is an Dev key
+            if($value == "dev") {
+                $statics .= "<p>DEV:<ul>";
+                foreach($this as $Ckey => $row) {
+                    if(!is_array($row) && $row != "") {
+                        $statics .= "<li>{$Ckey}: {$row}</li>";
+                    }
+                }
+                $statics .= "</ul></p>";
+            }
+        }
+        // Print out the Static Modal with all Inforamations from .json file
+        echo '<div class="modal fade '.$this->theme.'" id="staticModal" tabindex="-1" role="dialog" aria-labelledby="staticModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="staticModalLabel">'.$this->json_lg["infos"][$this->lg].'</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <div class="modal-body">
+                            '.$statics.'
+                        </div>
+                    </div>
+                </div>
+            </div>';
+    }
+
+    /**
+     * FUN Get all Payments from Database.
+     */
+    protected function getAllPayments() {
+        $sql = "SELECT * FROM payments";
+        
+        $mysqli = new mysqli(CMS::HOST, CMS::USER, CMS::PASSWORD, CMS::DATABASE);
+        $mysqli->set_charset("utf8");
+        $RS = $mysqli->query($sql);
+        $mysqli->close();
+
+        return $RS;
+    }
+
+    /**
+     * FUN Get all Persons from Database.
+     */
+    protected function getAllPersons() {
+        if(is_array($this->event_form['active_event'])) {
+            $IDS = "'".implode("','", $this->event_form['active_event'])."'";
+            $sql = "SELECT * FROM persons JOIN events ON events.id = persons.id_event WHERE id_event IN(".$IDS.")";
+        } else {
+            $sql = "SELECT * FROM persons WHERE id_event = ".$this->event_form['active_event']."";
+        }
+
+        $mysqli = new mysqli(CMS::HOST, CMS::USER, CMS::PASSWORD, CMS::DATABASE);
+        $mysqli->set_charset("utf8");
+        $RS = $mysqli->query($sql);
+        $mysqli->close();
+
+        return $RS;
+    }
+
+    /**
+     * FUN to Create the Database and the Tables.
+     */
+    protected function create_Database() {
+        // Initalise all Variables
+        $count = count($this->json['database']);
+
+        // Create the Database
+        $mysqli = new mysqli(CMS::HOST, CMS::USER, CMS::PASSWORD);
+            if($mysqli->select_db(CMS::DATABASE) == false) {
+                $sql = "CREATE DATABASE ".CMS::DATABASE;
+                $mysqli->query($sql);
+            }
+        $mysqli->close();
+
+        // Create the Tables
+        $mysqli = new mysqli(CMS::HOST, CMS::USER, CMS::PASSWORD, CMS::DATABASE);
+            for($i = 0; $i < $count; $i++) {
+                $sql = "CREATE TABLE ".$this->json['database']['build'][$i]['name']." (".$this->json['database']['build'][$i]['parameters'].") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+                $mysqli->query($sql);
+                // Insert value into the current Table
+                if($this->json['database']['build'][$i]["values"] != "") {
+                    $sql = "".$this->json['database']['build'][$i]["values"]."";
+                    $mysqli->query($sql);
+                }
+                $sql = "ALTER TABLE ".$this->json['database']['build'][$i]['name']." ADD PRIMARY KEY( `id`);";
+                $RS = $mysqli->query($sql);
+            }
+        $mysqli->close();
+
+        // Check if the Result is true
+        if($RS) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * FUN Display an Notify.
+     */
+    protected function notify($notify = "") {
+        // Check the $notify wich notify it is.
+        if(isset($this->json_lg[$notify][$this->lg])) {
+            $this->notify_msg = $this->json_lg[$notify][$this->lg];
+        } else {
+            $this->notify_msg = $notify;
+        }
+        // Display the Notify Message.
+        echo "<script>
+            $(document).ready(function() { cms.showNotification('1', 'top', 'center', \"".$this->notify_msg."\", 'fas fa-bell'); });
+        </script>";
+    }
+
+    /**
+     * FUN Display an Success or not.
+     * 
+     * If the User has Activated the Funktion
+     */
+    protected function success($success = "", $class = null, $fun = null, $line = null) {
+        // Check the $success wich success it is.
+        switch ($success) {
+            default:
+                if(isset($this->json_lg[$success][$this->lg])) {
+                    $this->success_msg = $this->json_lg[$success][$this->lg];
+                } else {
+                    $this->success_msg = $success;
+                }
+                break;
+        }
+        // Display the success Message if the User has Activated the Funktion.
+        if($this->success_log) {
+            echo "<script>
+                $(document).ready(function() { cms.showNotification('2', 'top', 'right', \"".$this->success_msg."\", 'fas fa-bell'); });
+            </script>";
+        } else {
+            $this->class= $class;
+            $this->fun= $fun;
+            $this->line= $line;
+            $this->status_log("success");
+        }
+    }
+
+    /**
+     * FUN Exit the Script and Display an Error or not.
+     * 
+     * If the User has Activated the Funktion
+     */
+    protected function error($error = "", $class = null, $fun = null, $line = null) {
+        // Check the $error wich error it is.
+        switch ($error) {
+            case 'check_lg':
+                $this->error_msg = 'Please check the given language the language dosn`t exist. or the language is not activated.';
+                break;
+            default:
+                if(isset($this->json_lg[$error][$this->lg])) {
+                    $this->error_msg = $this->json_lg[$error][$this->lg];
+                } else {
+                    $this->error_msg = $error;
+                }
+                break;
+        }
+        // Display the Error Message if the User has Activated the Funktion.
+        if($this->error_log) {
+            echo "<script>
+                $(document).ready(function() { cms.showNotification('4', 'top', 'right', \"".$this->error_msg."\", 'fas fa-bell'); });
+            </script>";
+        } else {
+            $this->class= $class;
+            $this->fun= $fun;
+            $this->line= $line;
+            $this->status_log("error");
+        }
+        exit;
+    }
+
+    /**
+     * FUN Log the Status of an Succes or an Error Msg if the User has trund of the Display log function.
+     */
+    protected function status_log($type = "error") {
+        $var = $type.'_msg';
+        // Log the Succes ror Error in the file
+        if(file_exists(dirname(__FILE__)."/logs.txt")) {
+            // Create the New content for the log file
+            $msg = $type.":           File: ".dirname(__FILE__).".php           CLASS: ".$this->class."           FUN: ".$this->fun."           LINE: ".$this->line."           MSG: ".$this->$var."           Time: ".date('d.m.Y H:i:s')."\r\n";
+            // Add the New content to the File
+            file_put_contents(dirname(__FILE__)."/logs.txt", $msg, FILE_APPEND);
+        } else {
+            // Create the log file if is not existing
+            $file = fopen(dirname(__FILE__)."/logs.txt", "w");
+            // Create the New content for the log file
+            $msg = $type.":           File: ".dirname(__FILE__).".php           CLASS: ".$this->class."           FUN: ".$this->fun."           LINE: ".$this->line."           MSG: ".$this->$var."           Time: ".date('d.m.Y H:i:s')."\r\n";
+            // Add the New content to the File
+            fwrite($file, $msg);
+            fclose($file);
+        }
+    }
+
+    /**
+	 * FUN Unset all variables and files.
+	 */
+	public function destroy() {
+		foreach($this as $key => $value) {
+            unset($this->$key);
+		}
+    }
+    
+    /**
+	 * FUN Default destructor cleanup all variables.
+	 */
+	public function __destruct() {
+        $this->destroy();
+	}
+}
+
+/**
+ * CLASS Create Settings class.
+ * 
+ * Set Data from Database in to the Functions
+ */
+class Settings {
+    /**
+     * Holds the `id` from the current Event, Booking
+     *
+     * @var int
+     */
+    protected $id;
+
+    /**
+     * Holds the `Name` from the current Event, Booking
+     *
+     * @var string
+     */
+    protected $event_name;
+
+    /**
+     * Holds the `start_date` from the current Event, Booking
+     *
+     * @var date
+     */
+    protected $start_date;
+
+    /**
+     * Holds the `end_date` from the current Event, Booking
+     *
+     * @var date
+     */
+    protected $end_date;
+
+    /**
+     * Holds the `my_description` from the current Event, Booking
+     *
+     * @var string
+     */
+    protected $my_description;
+
+    /**
+     * Holds the `status` from the current Event, Booking
+     *
+     * @var int
+     */
+    protected $status;
+
+    /**
+     * Holds the `test_event` from the current Event, Booking
+     *
+     * @var int
+     */
+    protected $test_event;
+
+    /**
+     * This array holds all Variables from the $this->`tooltip_functions` array()
+     *
+     * @var int
+     */
+    protected $_methods = array();
+
+    /****************************************************************
+    * FUN inizilaize the class by constructor 
+    *****************************************************************/
+    public function __construct($event = array()) {
+        // Check if the event variable is not null
+        if($event != null) {
+            // Set all variables
+            foreach ((array) $event as $key => $value) {
+                switch ($key) {
+                    case '_methods':
+                        $this->_methods[$key] = $value;
+                        break;
+                    case 'start_date':
+                        $this->start_date = DateTime::createFromFormat("d/m/Y", date("d/m/Y", strtotime($value)), new DateTimeZone("UTC"));
+                        break;
+                    case 'end_date':
+                        $this->end_date = DateTime::createFromFormat("d/m/Y", date("d/m/Y", strtotime($value)), new DateTimeZone("UTC"));
+                        break;
+                    default:
+                        $this->$key = $value;
+                        break;
+                }
+            }
+        }
+    }
+
+    /****************************************************************
+    * FUN Inizilaize all Functions and set data to object (this).
+    *****************************************************************/
+    public function getStart_date() {
+        return $this->start_date;
+    }
+    public function getEnd_date() {
+        return $this->end_date;
+    }
+    public function getStatus() {
+        return $this->status;
+    }
+    public function getHidden() {
+        return $this->test_event;
+    }
+    public function getEvent_name() {
+        return $this->event_name;
+    }
+    public function getEvent_desc() {
+        return $this->my_description;
+    }
+}
+
+/**
+ * CLASS Create My_Ajax class.
+ * 
+ * Set Data from Database in to the Functions
+ */
+class My_Ajax {
+    /****************************************************************
+    * FUN inizilaize the class by constructor 
+    *****************************************************************/
+    public function __construct() {}
+
+    /**
+     * FUN Get all Infos from Database by id from Event, Booking.
+     */
+    public function getInfosById($id) {
+        $id = intval(trim($id));
+        $RRS = [];
+        
+        // Get all Persons from the current Event, Booking
+        $sql = "SELECT * FROM persons WHERE id_event = ".$id."";
+
+        $mysqli = new mysqli(CMS::HOST, CMS::USER, CMS::PASSWORD, CMS::DATABASE);
+        $RS = $mysqli->query($sql);
+        $mysqli->close();
+
+        // Loop trow the result and return it to the ajax
+        while ($PS = $RS->fetch_object()) {
+            // Get all Persons as select option
+            for ($i = 1; $i <= $PS->persons; $i++) {
+                if($i == 1) {
+                    $option_pers = '<option class="checked" value="'.$i.'">'.$i.'</option>';
+                } else {
+                    $option_pers .= '<option value="'.$i.'">'.$i.'</option>';
+                }
+            }
+            // Get the second Person and Price
+            $second_person = $PS->second_person;
+            $second_price = $PS->second_price;
+        }
+        // Create the Persons reuslt
+        $RRS[0] = $option_pers;
+        $RRS[1] = $second_person;
+        $RRS[2] = $second_price;
+
+        // Return the result
+        return $RRS;
+    }
+}
+?>

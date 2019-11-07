@@ -1,0 +1,250 @@
+{
+    "check_lg": {
+        "de": true,
+        "en": true
+    },
+    "my_events_check": {
+        "de": "Sie haben die Datenbank abgeschaltet haben aber keine Events / Buchungen als array übergeben!",
+        "en": "You deactivated the database and did not pass some events / bookings as an array!"
+    },
+    "my_events_check_2": {
+        "de": "Sie haben einige Events / Buchungen als array übergeben, haben aber die Datenbank nicht abgeschaltet. <br> Ihre Events / Buchungen werden nicht Angezeigt!",
+        "en": "You have passed some events / bookings as an array, but you have not turned off the database. <br> Your events / bookings will not be displayed!"
+    },
+    "theme_not_found": {
+        "de": "Das Theme wurde nicht gefunden! Bitte Überprüfen Sie ob Sie das Theme richtig geschreiben haben.",
+        "en": "The theme was not found! Please check if you wrote the theme correctly."
+    },
+    "theme_var_not_found": {
+        "de": "Die Theme Eigenschaften wurden nicht gefunden! Bitte Überprüfen Sie das Theme.",
+        "en": "The theme properties were not found! Please check the theme."
+    },
+    "php_version": {
+        "de": "Bitte überprüfen Sie ihre PHP Version diese ist älter als 5.3.0.",
+        "en": "Please check your PHP version which is older than 5.3.0."
+    },
+    "functions_check": {
+        "de": "Bitte überprüfen Sie die Funktionen es scheint Probleme mit diesen zu geben.",
+        "en": "Please check the features it seems there are problems with these."
+    },
+    "mysqli_conn": {
+        "de": "Verbindung zur Datenbank fehlgeschlagen. SQL Connection Error.",
+        "en": "Connection to the database failed. SQL connection error."
+    },
+    "mysqli_query": {
+        "de": "SQL Befehl nicht ausführbar. SQL Query Error.",
+        "en": "SQL command not executable. SQL query error."
+    },
+    "check_months": {
+        "de": "Bitte geben Sie Deutsche Monate an.",
+        "en": "Please enter English months."
+    },
+    "month_date": {
+        "de": "Einige Monate sind älter als das Heutige Datum! Bitte geben Sie andere Monate an. <br> Sie können auch ein anderes Jahr angeben.",
+        "en": "Some months are older than today's date! Please enter other months. <br> You can also add another year."
+    },
+    "cms_create_success": {
+        "de": "CMS (Calendar Managment System) erfolgreich erstellt.",
+        "en": "CMS (Calendar Managment System) was successfully created."
+    },
+    "cms_create_error": {
+        "de": "CMS (Calendar Managment System) wurde nicht erstellt.",
+        "en": "Can not create the CMS (Calendar Managment System)."
+    },
+    "notify_1": {
+        "de": "Sie haben auf einen bereits Belegeten Tag geklickt. Bitte wählen Sie ein anderes Datum.",
+        "en": "You have clicked on an already assigned day. Please choose a different date."
+    },
+    "notify_2": {
+        "de": "Sie müssen die mindest Buchungs, Event Tage einhalten diese sind",
+        "en": "You must meet the minimum booking, event days these are"
+    },
+    "notify_3": {
+        "de": "Ihr Datum ist älter als das Heutige Datum. Bitte wählen Sie ein anderes Datum.",
+        "en": "Your date is older than today's date. Please choose a different date."
+    },
+    "notify_4": {
+        "de": "Bitte wählen Sie im Kalender einen Buchungs, Event zeitraum. <br> Wählen Sie zuerst den Anreisetag und dann den Abreisetag. <br> Das Abreisedatum darf nicht kleiner sein wie das Anreisedatum. <br> Die mindest Buchungs, Event Tage sind",
+        "en": "Please select a booking, event period in the calendar. <br> First select the arrival day and then the departure day. <br> The departure date can not be smaller than the arrival date. <br> The minimum booking, event days are"
+    },
+    "notify_5": {
+        "de": "Für die",
+        "en": "For the"
+    },
+    "notify_5_1": {
+        "de": "Person fallen extra kosten in höhe von",
+        "en": "Person fall extra costs of"
+    },
+    "notify_5_2": {
+        "de": "EUR an.",
+        "en": "dollar on."
+    },
+    "notify_6": {
+        "de": "Bitte wählen Sie im Kalender einen Buchungs, Event zeitraum. <br> Die mindest Buchungs, Event Tage sind",
+        "en": "Please select a booking, event period in the calendar. <br> The minimum booking, event days are"
+    },
+    "notify_7": {
+        "de": "Sie haben die Buchungs Funktion abgeschaltet. <br> Sie müssen die Funktion erst Einschalten um eine Buchung tätigen zu können!",
+        "en": "You have deactivated the booking function. <br> You must first activate the function to make a booking!"
+    },
+    "notify_8": {
+        "de": "Ihr Event ist in der Datenbank nicht vorhanden!",
+        "en": "Your event is not in the database!"
+    },
+    "status_check": {
+        "de": "Der Status der Buchung ist nicht vorhanden.",
+        "en": "The status of the Event does not exist."
+    },
+    "status_name_1": {
+        "de": "Aktiv",
+        "en": "Active"
+    },
+    "status_name_2": {
+        "de": "Offen",
+        "en": "Open"
+    },
+    "status_name_3": {
+        "de": "Beended",
+        "en": "Ended"
+    },
+    "legend": {
+        "de": "Legende:",
+        "en": "Legend:"
+    },
+    "selection": {
+        "de": "Auswahl",
+        "en": "Selection"
+    },
+    "selection_2": {
+        "de": "Ihre Auswahl:",
+        "en": "Your selection:"
+    },
+    "current_day": {
+        "de": "Aktueller Tag",
+        "en": "Active Day"
+    },
+    "input_1": {
+        "de": "Anreise:",
+        "en": "Arraivel:"
+    },
+    "input_2": {
+        "de": "Abreise:",
+        "en": "Leaving:"
+    },
+    "input_3": {
+        "de": "Bezahlung:",
+        "en": "Payment:"
+    },
+    "input_4": {
+        "de": "Personen:",
+        "en": "Persons:"
+    },
+    "input_5": {
+        "de": "Events:",
+        "en": "Events:"
+    },
+    "next_step": {
+        "de": "Weiter zu schritt 2",
+        "en": "Goto step 2"
+    },
+    "infos": {
+        "de": "Informationen aus dem Aktuellen Kalendar.",
+        "en": "Informations about the current calendar."
+    },
+    "infos_1": {
+        "de": "Buchungen",
+        "en": "Events"
+    },
+    "infos_2": {
+        "de": "Ersteller",
+        "en": "Author"
+    },
+    "infos_3": {
+        "de": "Version",
+        "en": "Version"
+    },
+    "infos_4": {
+        "de": "Sprache",
+        "en": "Language"
+    },
+    "infos_5": {
+        "de": "Design",
+        "en": "Theme"
+    },
+    "week_day_1": {
+        "de": "Mo",
+        "en": "Mon"
+    },
+    "week_day_2": {
+        "de": "Di",
+        "en": "Tue"
+    },
+    "week_day_3": {
+        "de": "Mi",
+        "en": "Wed"
+    },
+    "week_day_4": {
+        "de": "Do",
+        "en": "Thu"
+    },
+    "week_day_5": {
+        "de": "Fr",
+        "en": "Fri"
+    },
+    "week_day_6": {
+        "de": "Sa",
+        "en": "Sat"
+    },
+    "week_day_7": {
+        "de": "So",
+        "en": "Sun"
+    },
+    "month_name_1": {
+        "de": "Januar",
+        "en": "January"
+    },
+    "month_name_2": {
+        "de": "Februar",
+        "en": "February"
+    },
+    "month_name_3": {
+        "de": "März",
+        "en": "March"
+    },
+    "month_name_4": {
+        "de": "April",
+        "en": "April"
+    },
+    "month_name_5": {
+        "de": "Mai",
+        "en": "May"
+    },
+    "month_name_6": {
+        "de": "Juni",
+        "en": "June"
+    },
+    "month_name_7": {
+        "de": "Juli",
+        "en": "July"
+    },
+    "month_name_8": {
+        "de": "August",
+        "en": "August"
+    },
+    "month_name_9": {
+        "de": "September",
+        "en": "September"
+    },
+    "month_name_10": {
+        "de": "Oktober",
+        "en": "October"
+    },
+    "month_name_11": {
+        "de": "November",
+        "en": "November"
+    },
+    "month_name_12": {
+        "de": "Dezember",
+        "en": "December"
+    }
+}
