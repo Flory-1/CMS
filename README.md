@@ -1,10 +1,13 @@
-# CMS
-# CMS a Full-Featured Calendea Manegment System made with PHP by Florian L&auml;mmlein
+![CMS](cms.png)
+# CMS a Full-Featured Calendar Managment System made with PHP by Florian Lämmlein
 #### Creates an interactive Calendar with User Settings.
 #### Calendar can include Bookings, Reservations or waht you want
 
 ## CMS Features
 - Calendar view with Date range picker.
+- Easy to use, super fast and smoth.
+- Multi language support.
+- Show Custom Months.
 - And Much more!
 
 ## How to use
