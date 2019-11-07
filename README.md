@@ -22,6 +22,18 @@
     include_once "src/cms.php";
   
   // 3: Initialise the CMS Script with all Settings you want
+    $CT = new CMS(
+        [
+        "lg"=>"en",
+        "time_format"=>"H.i",
+        "date_format"=>"d.m.Y",
+        "is_book_able"=>false,
+        "static_infos"=>[
+            "Authors", "Version"
+        ],
+        "legend"=>true
+        ]
+    );
   
   // 4: Set the current Year and Month
     $year = isset($_GET["year"]) ? $_GET["year"] : date("Y");
