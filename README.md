@@ -48,7 +48,7 @@
 
 ## All Settings in the CMS System
 | Variable | Description | Type | Default value |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | `lg` | Language (`my_months` also must be the same language) | string | de |
 | `rtl_check` | RTL Support for the Language and the Calendar | bool | false |
 | `weekend_check` | Show each weekend of month true or flase | bool | false |
