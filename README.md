@@ -61,14 +61,14 @@
 | `tooltip` | Show an Tooltip foreach Event, Booking true or false | bool | false |
 | `tooltip_functions` | Tooltip text (Function Names from Settings class) (firstname) | array() | null |
 | `my_months` | Custom Months that are Displayed by array ["June", "July",...] (`hidden_months` will not longer work) | array() | null |
-| `buttons` | Show all the Buttons you want ["active", "prev_year", "next_year", "prev_month", "next_month", "today", "year", "week", "day" "url"] | array() | null |
+| `buttons` | Show all the Buttons you want [`active`, `prev_year`, `next_year`, `prev_month`, `next_month`, `today`, `year`, `week`, `day`, `url`] | array() | null |
 | `min_year` | Min Year of CMS only the YEAR | bool | false |
 | `max_year` | Max Year of CMS only the YEAR | bool | false |
 | `legend` | Show legend on top of the Calendar true or false | bool | false |
-| `event_form` | Show Booking, Reservation Form ["active","action","modal","arrivel_time","leaving_time","person_check","payment_check","active_event"] | array() | null |
+| `event_form` | Show Booking, Reservation Form [`active`, `action`, `modal`, `arrivel_time`, `leaving_time`, `person_check`, `payment_check`, `active_event`] | array() | null |
 | `date_format` | Date formate for all Date Displays in the CMS System | string | Y-m-d |
 | `time_format` | Time formate for all Time Displays in the CMS System | string | H:i:s |
-| `static_infos` | Show some information of the CMS ["active", "author", "events", "version", "language", "theme"] | array() | null |
+| `static_infos` | Show some information of the CMS [`active`, `author`, `events`, `version`, `language`, `theme`] | array() | null |
 | `error_log` | Shows the Errors from the Script true or false | bool | false |
 | `success_log` | Shows the Success from the Script true or false | bool | false |
 | `database_check` | Get all Events from the Created Database if the Database dosn´t exist | bool | false |
