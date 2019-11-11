@@ -11,12 +11,15 @@ $CT = new CMS(
         'active'=>true,
         'action'=>'?page_2'
     ],
+    "buttons"=>[
+        "active"=>true,
+        "prev_year"=>true,
+        "next_year"=>true,
+        "today"=>true,
+        "url"=>'?test&id=6'
+    ],
     "min_year"=>''.date("Y").'',
-    "my_year"=>''.(date("Y") + 2).'',
-    "prev_year_check"=>true,
-    "next_year_check"=>true,
-    "url"=>'?test&id=6',
-    "today_check"=>true,
+    "max_year"=>''.(date("Y") + 2).'',
     "my_months"=>["June", "July", "August"]
     ]
 );
