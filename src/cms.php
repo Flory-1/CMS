@@ -8,40 +8,37 @@
  * @copyright   (c) 2019 - 2022 Florian Lämmlein
  * @license     GNU-LGPL v3 (http://www.gnu.org/copyleft/lesser.html)
  * @version     1.0.0
- * @see         https://github.com/ The CMS GitHub project
+ * @see         https://github.com/Flory-1/CMS The CMS GitHub project
  * @Release     2019-10-01
  * @Update      2019-11-07
  */
 //================================================================================================================================================================================+
 //  `lg`                 == Language from Months (from .json file) (`my_months` also must be the same language)                                                    == `de`
+//  `rtl_check`          == RTL Support for the Language and the Calendar                                                                                          == `false`
+//  `weekend_check`      == Show each weekend of month true or flase                                                                                               == `false`
 //  `hidde_events`       == Hidde Bookings, Resevations or Events true or false (if `test_event` in Database is `1`)                                               == `false`
 //  `events_check`       == Bookings, Resevations or Events true or false (Aktivate if you have one)                                                               == `false`
 //  `my_events`          == Bookings, Resevations or Events as array (`database_check` must be false to work)                                                      == `array()`
 //  `min_days`           == Min Nights / Days for the Apartment, Room, Event                                                                                       == `0`
 //  `hidden_months`      == Hidde Months by index (3 == after the 3 Month hidde all Months)                                                                        == `13`
 //  `back_days`          == Back Days true or false (29, 30, 01, 02)                                                                                               == `false`
-//  `tooltip`            == Tooltip true or false                                                                                                                  == `false`
-//  `tooltip_functions`  == Tooltip text (Function Names from Settings class) (getStart_date or getFirstname)                                                      == `array()`
-//  `my_months`          == Custom Months that are Displayed by array ["June", "July",...] (`hidden_months` will not longer work)                                  == `array()`
-//  `prev_year_check`    == Show prev Year button true or false                                                                                                    == `false`
-//  `next_year_check`    == Show next Year button true or false                                                                                                    == `false`
-//  `prev_month_check`   == Show prev Month button true or false (only works if `hidden_months` is set and if is not 13 and if `my_months` is null)                == `false`
-//  `next_month_check`   == Show next Month button true or false (only works if `hidden_months` is set and if is not 13 and if `my_months` is null)                == `false`
+//  `tooltip`            == Show an Tooltip foreach Event, Booking true or false                                                                                   == `false`
+//  `tooltip_functions`  == Tooltip text (Function Names from Settings class) (getStart_date or getFirstname)                                                      == `string[]`
+//  `my_months`          == Custom Months that are Displayed by array ["June", "July",...] (`hidden_months` will not longer work)                                  == `string[]`
+//  `buttons`            == Show all the Buttons you want ["active", "prev_year", "next_year", "prev_month", "next_month", "today", "year", "week", "day" "url"]   == `string[]`
 //  `min_year`           == Min Year of CMS only the YEAR                                                                                                          == `2019`
 //  `max_year`           == Max Year of CMS only the YEAR                                                                                                          == `2030`
-//  `legend`             == Show legend true or false                                                                                                              == `false`
-//  `today_check`        == Show today button true or false                                                                                                        == `false`
+//  `legend`             == Show legend on top of the Calendar true or false                                                                                       == `false`
 //  `event_form`         == Show Booking, Reservation Form ["active","action","modal","arrivel_time","leaving_time","person_check","payment_check","active_event"] == `string[]`
 //  `date_format`        == Date formate for all Date Displays in the CMS System                                                                                   == `Y-m-d`
 //  `time_format`        == Time formate for all Time Displays in the CMS System                                                                                   == `H:i:s`
-//  `static_infos`       == Show some information of the CMS ["Events", "Author", "Version", "Language"]                                                           == `array()`
+//  `static_infos`       == Show some information of the CMS ["active", "author", "events", "version", "language", "theme"]                                        == `string[]`
 //  `error_log`          == Shows the Errors from the Script true or false                                                                                         == `false`
 //  `success_log`        == Shows the Success from the Script true or false                                                                                        == `true`
 //  `database_check`     == Get all Events from the Created Database if the Database dosn´t exist                                                                  == `true`
 //  `show_more_events`   == Show more Events, Bookings per Day if there are more than 3 on this Day true or false                                                  == `false`
 //  `max_events_per_day` == Maximum Events per Day (`show_more_events` Must be true)                                                                               == `3`
 //  `is_book_able`       == Set status of the cms.js Script if the Calendar is Bookable true or false                                                              == `true`
-//  `url`                == Set the Url of the Buttons to the given Url Name                                                                                       == `&`
 //  `theme`              == Theme of the CMS (Horizon, Metro, Original)                                                                                            == `Original`
 //================================================================================================================================================================================+
 
@@ -91,6 +88,20 @@ class CMS {
      * @var string
      */
     protected $lg = "de";
+
+    /**
+     * The RTL Language support for the whole CMS that is printed out.
+     *
+     * @var bool
+     */
+    protected $rtl_check = false;
+    
+    /**
+     * This is for all Weekend days that are in the current Month.
+     *
+     * @var bool
+     */
+    protected $weekend_check = false;
 
     /**
      * Theme for the wole CMS System.
@@ -155,41 +166,6 @@ class CMS {
      * @var bool
      */
     protected $events_check = false;
-
-    /**
-     * If the User will Display the prev year Button.
-     *
-     * @var bool
-     */
-    protected $prev_year_check = false;
-
-    /**
-     * If the User will Display the next year Button.
-     *
-     * @var bool
-     */
-    protected $next_year_check = false;
-
-    /**
-     * If the User will Display the prev month Button.
-     *
-     * @var bool
-     */
-    protected $prev_month_check = false;
-
-    /**
-     * If the User will Display the next month Button.
-     *
-     * @var bool
-     */
-    protected $next_month_check = false;
-
-    /**
-     * If the User will Display the Today Button.
-     *
-     * @var bool
-     */
-    protected $today_check = false;
 
     /**
      * If the User will use an Database for the Events, Bookings.
@@ -262,26 +238,26 @@ class CMS {
     /**
      * This Displays all Infos from the Current CMS.
      *
-     * @example ['Author', 'Events', 'Version', 'Language']
+     * @example ["active" => false, "author" => false, "events" => false, "version" => false, "language" => false, "theme" => false]
      * @var array
      */
-    protected $static_infos = array();
+    protected $static_infos = ["active" => false, "author" => false, "events" => false, "version" => false, "language" => false, "theme" => false];
 
     /**
      * If the User will have an Booking, Reservation Form.
-     * Here we set all 3 ground variables fo the Form
      *
-     * @example ['active' => false, 'action' => 'action_page.php', 'modal' => false, 'arrivel_time' => '14:00:00', 'leaving_time' => '10:00:00', 'person_check' => false, 'payment_check' => false, 'active_event' => false]
+     * @example ["active" => false, "action" => '', "modal" => false, "arrivel_time" => '14:00:00', "leaving_time" => '10:00:00', "person" => '', "payment" => '', "active_event" => null]
      * @var string[]
      */
-    protected $event_form = ["active" => false, "action" => '', "modal" => false, "arrivel_time" => '14:00:00', "leaving_time" => '10:00:00', "person_check" => false, "payment_check" => false, "active_event" => null];
-
+    protected $event_form = ["active" => false, "action" => '', "modal" => false, "arrivel_time" => '14:00:00', "leaving_time" => '10:00:00', "person" => '', "payment" => '', "active_event" => null];
+    
     /**
-     * This for the URL from the Buttons in the CMS.
+     * If the User will have some Buttons.
      *
-     * @var string
+     * @example ["active" => false, "prev_year" => false, "next_year" => false, "prev_month" => false, "next_month" => false, "today" => false, "year" => false, "week" => false, "day" => false, "url" => '']
+     * @var string[]
      */
-    protected $url = "&";
+    protected $buttons = ["active" => false, "prev_year" => false, "next_year" => false, "prev_month" => false, "next_month" => false, "today" => false, "year" => false, "week" => false, "day" => false, "url" => ''];
 
     /**
      * This for the Min Year in the CMS.
@@ -368,6 +344,9 @@ class CMS {
                 "prev_years" => "btn-warning",
                 "next_years" => "btn-warning",
                 "current_year" => "btn-primary",
+                "year" => "btn-primary",
+                "week" => "btn-primary",
+                "day" => "btn-primary",
                 "today" => "btn-warning",
                 "static" => "btn-info",
                 "submit" => "btn-success",
@@ -395,9 +374,12 @@ class CMS {
             "icons" => [
                 "prev_month" => "fas fa-chevron-left",
                 "next_month" => "fas fa-chevron-right",
-                "current_day" => "fas fa-calendar-alt",
+                "current_day" => "fas fa-calendar-check",
                 "static" => "fas fa-info-circle",
-                "button" => "fas fa-chevron-right"
+                "button" => "fas fa-chevron-right",
+                "year" => "fas fa-calendar-alt",
+                "week" => "fas fa-calendar-week",
+                "day" => "fas fa-calendar-day"
             ]
         ]
     ];
@@ -493,6 +475,7 @@ class CMS {
             "Days_Color"                     => '#ffffff',
             "Month_Color"                    => '#000000',
             "Year_Color"                     => '#6ba0ff',
+            "Weekend_Color"                  => '#ecbaba',
             "Active_Day_Color"               => '#ffffff',
             "Main_Background"                => 'white',
             "Table_Background"               => '#8c8c8c',
@@ -502,12 +485,15 @@ class CMS {
             "Days_Background"                => '#4d72b5',
             "Month_Background"               => 'none',
             "Year_Background"                => 'none',
+            "Weekend_Background"             => 'none',
             "Active_Day_Background"          => '#ff6bda',
             "Main_Hover_Color"               => 'white',
             "Main_Hover_Background"          => 'none',
             "Table_foot_Hover_Background"    => '#1abc9c',
+            "Weekend_Hover_Background"       => 'black',
             "Border_Color"                   => '#444444',
-            "Table_foot_Border_Color"        => '#6ba0ff'
+            "Table_foot_Border_Color"        => '#6ba0ff',
+            "Weekend_Border_Color"           => 'none',
         ],
         "Metro" => [
             "theme"                          => 'Metro',
@@ -542,6 +528,7 @@ class CMS {
             "Days_Color"                     => '#ffffff',
             "Month_Color"                    => '#000000',
             "Year_Color"                     => '#6ba0ff',
+            "Weekend_Color"                  => 'red',
             "Active_Day_Color"               => '#ffffff',
             "Main_Background"                => 'white',
             "Table_Background"               => '#525f7f',
@@ -551,12 +538,15 @@ class CMS {
             "Days_Background"                => '#525f7f',
             "Month_Background"               => 'none',
             "Year_Background"                => 'none',
+            "Weekend_Background"             => '#525f7f',
             "Active_Day_Background"          => '#6ba0ff',
             "Main_Hover_Color"               => 'white',
             "Main_Hover_Background"          => 'none',
             "Table_foot_Hover_Background"    => '#6ba0ff',
+            "Weekend_Hover_Background"       => 'black',
             "Border_Color"                   => '',
-            "Table_foot_Border_Color"        => '#6ba0ff'
+            "Table_foot_Border_Color"        => '#6ba0ff',
+            "Weekend_Border_Color"           => 'none',
         ],
         "Original" => [
             "theme"                          => 'Original',
@@ -591,6 +581,7 @@ class CMS {
             "Days_Color"                     => '#ffffff',
             "Month_Color"                    => '#000000',
             "Year_Color"                     => '#000000',
+            "Weekend_Color"                  => '#ecbaba',
             "Active_Day_Color"               => '#ffffff',
             "Main_Background"                => 'white',
             "Table_Background"               => '#e3f2fd',
@@ -600,12 +591,15 @@ class CMS {
             "Days_Background"                => '#acb2c1',
             "Month_Background"               => 'none',
             "Year_Background"                => 'none',
+            "Weekend_Background"             => '#acb2c1',
             "Active_Day_Background"          => '#6ba0ff',
             "Main_Hover_Color"               => 'white',
             "Main_Hover_Background"          => 'none',
             "Table_foot_Hover_Background"    => '#6ba0ff',
+            "Weekend_Hover_Background"       => 'black',
             "Border_Color"                   => '#444444',
-            "Table_foot_Border_Color"        => 'none'
+            "Table_foot_Border_Color"        => 'none',
+            "Weekend_Border_Color"           => '#ecbaba',
         ],
         "custom" => [
             "Horizon" =>[
@@ -720,11 +714,25 @@ class CMS {
     protected $prev_month;
 
     /**
-     * Here are the Nex Month from the Current.
+     * Here are the Next Month from the Current.
      *
      * @var int
      */
     protected $next_month;
+    
+    /**
+     * Here are the current Year.
+     *
+     * @var int
+     */
+    protected $current_year;
+    
+    /**
+     * Here are the current Month.
+     *
+     * @var int
+     */
+    protected $current_month;
     
     /**
      * Set in the Event, Booking Form the Submit Button to Disabled or not.
@@ -872,17 +880,25 @@ class CMS {
     protected function initialise($arrgs = array()) {
         $check = array(true);
         foreach ($arrgs as $key => $value) {
-            if($key == "static_infos" || $key == "tooltip_functions" || $key == "my_months" || $key == "my_events" || $key == "event_form") {
+            if(is_array($value)) {
                 foreach ((array) $value as $Ckey => $row) {
-                    if(is_numeric($Ckey)) {
-                        array_push($this->$key, $row);
+                    if(isset($this->$key)) {
+                        if(is_numeric($Ckey)) {
+                            array_push($this->$key, $row);
+                        } else {
+                            $this->$key[$Ckey] = $row;
+                        }
                     } else {
-                        $this->$key[$Ckey] = $row;
+                        array_push($check, false);
                     }
                 }
             } else {
-                if(!is_array($value) && $value != null && $value != "" || $value == false) {
-                    $this->$key = $value;
+                if(isset($this->$key)) {
+                    if(!is_array($value) && $value != null && $value != "" || $value == false) {
+                        $this->$key = $value;
+                    } else {
+                        array_push($check, false);
+                    }
                 } else {
                     array_push($check, false);
                 }
@@ -972,6 +988,11 @@ class CMS {
         // Display the css file
         echo '<link rel="stylesheet" href="css/styles.css.php" type="text/css">
         <input type="zahl" hidden name="min_nights_for_booking" id="min_nights_for_booking" value="'.$this->min_days.'" style="display: hidden;">';
+        
+        // Check if the RTL support is active
+        if($this->rtl_check) {
+            echo '<html dir="rtl">';
+        }
     }
 
     /**
@@ -1014,9 +1035,9 @@ class CMS {
     /**
      * FUN Check Event, Apartment or Room by id and get all informations about that.
      */
-    protected function getAllInfosFromRoom($year) {
+    protected function getAllInfosFromRoom() {
         // Check if the Payment Function is active
-        if($this->event_form["payment_check"] && $this->database_check) {
+        if($this->event_form["payment"] && $this->database_check) {
             $RS = $this->getAllPayments();
             $isFirst = true;
             // Get all Payments for the Event, Apartment, Room
@@ -1036,7 +1057,7 @@ class CMS {
             }
         }
         // Check if the Person Function is active
-        if($this->event_form["person_check"] && $this->database_check) {
+        if($this->event_form["person"] && $this->database_check) {
             $RS = $this->getAllPersons();
             $isFirst = true;
             // Check if there is more than 1 Event as Select option
@@ -1082,7 +1103,7 @@ class CMS {
             }
         }
         // Check the given year if is lower than current
-        $this->check_year = $year < date("Y") ? "disabled" : "";
+        $this->check_year = $this->current_year < date("Y") ? "disabled" : "";
     }
 
     /**
@@ -1112,14 +1133,17 @@ class CMS {
      * if month is older than current month return false.
      * else retun the index as month
      */
-    protected function ceckGivenMonths() {
+    protected function ceckGivenMonths($YEAR) {
+        $startDate = DateTime::createFromFormat("d/m/Y", date("d/m/Y"), new DateTimeZone("UTC"));
         $check = array(true);
         // Check if the array is not empty and if there are no issues between the month names
         if(count(array_intersect($this->month_names, $this->my_months)) > 0) {
             // Check the Date foreach month name (User Months)
             // if the current month is lower than the month retun false
             foreach ($this->my_months as $key => $value) {
-                if(date("d-m-Y") > date("d-m-Y", strtotime($value))) {
+                $endDate = DateTime::createFromFormat("d/m/Y", date("d/m/{$YEAR}", strtotime($value)), new DateTimeZone("UTC"));
+                // Check if the date is lower or higger than todays date
+                if($startDate >= $endDate) {
                     array_push($check, false);
                 } else {
                     array_push($check, true);
@@ -1138,9 +1162,18 @@ class CMS {
      * FUN Create the Calender with all Settings you have set.
      */
     public function showCalendar($year, $month_index) {
-        $startDate = DateTime::createFromFormat("d/m/Y", "1/1/{$year}", new DateTimeZone("UTC"));
-        $endDate = DateTime::createFromFormat("d/m/Y", "{$startDate->format("t")}/12/{$year}", new DateTimeZone("UTC"));
-        
+        // Check if month_index is null
+        if($month_index == "" || $month_index == null || $month_index <= 0) {
+            $month_index = 1;
+        }
+        // Setup the current year and month
+        $this->current_year = intval(trim($year));
+        $this->current_month = intval(trim($month_index));
+
+        // Create an new Date object for start, end date
+        $startDate = DateTime::createFromFormat("d/m/Y", "1/1/{$this->current_year}", new DateTimeZone("UTC"));
+        $endDate = DateTime::createFromFormat("d/m/Y", "{$startDate->format("t")}/12/{$this->current_year}", new DateTimeZone("UTC"));
+
         // Check if Bookings and Database are true
         if($this->events_check && $this->database_check) {
             $this->getAllBookings($startDate, $endDate);
@@ -1164,19 +1197,15 @@ class CMS {
         else {
             $this->EVENTS = array();
         }
-        // Check if month_index is null
-        if($month_index == "" || $month_index == null || $month_index <= 0) {
-            $month_index = 1;
-        }
         // Create the Header with Buttons and Legend
-        $this->_drawCalendarHeader($year, $month_index);
+        $this->_drawCalendarHeader();
 
         echo "<div class=\"{$this->theme} calendar row\">";
 
         // Loop trow all Months as index
         if(count($this->my_months) > 0 && $this->my_months[0] != "") {
             // Check the Months that the User has given in the array
-            $month = $this->ceckGivenMonths();
+            $month = $this->ceckGivenMonths($year);
 
             // Printout Error if the User has given false Month names exit
             if(!is_array($month) && !$month) {
@@ -1198,9 +1227,9 @@ class CMS {
             }
         } else {
             // Create the new index for $hidden_months
-            $this->hidden_months = ($this->hidden_months + $month_index);
+            $this->hidden_months = ($this->hidden_months + $this->current_month);
             // Create each Month with new index and Bookings inside
-            for($i = $month_index; $i <= $this->hidden_months; $i++) {
+            for($i = $this->current_month; $i <= $this->hidden_months; $i++) {
                 // if hidde same as Month index break the loop
                 if($this->hidden_months == $i) {
                     break;
@@ -1217,7 +1246,7 @@ class CMS {
         // Create the Event Form
         if($this->event_form['active']) {
             // Get All informations from Apartment, Room
-            $this->getAllInfosFromRoom($year);
+            $this->getAllInfosFromRoom();
 
             if($this->event_form['modal']) {
                 $this->_drawBookingFormModal();
@@ -1225,8 +1254,8 @@ class CMS {
                 $this->_drawBookingForm();
             }
         }
-        // Create the Static Modal if is not null
-        if($this->static_infos != null) {
+        // Create the Static Modal if is activated
+        if($this->static_infos["active"]) {
             $this->_drawStaticModal();
         }
         // Check if the error_msg is empty
@@ -1338,7 +1367,7 @@ class CMS {
      */
     protected function getYear($YEAR, $MONTH) {
         // Check if the given Month is lower than the `hidden`
-        if(($MONTH + $this->hidden_months) >= 13 && !$this->year_change && ($MONTH + 1) > 13 && $YEAR < $this->max_year) {
+        if(($MONTH + $this->hidden_months) >= 13 && !$this->year_change && ($MONTH + 1) > 13 && $YEAR <= $this->max_year && $YEAR >= $this->min_year) {
             $this->year_change = true;
             return $YEAR += 1;
         }
@@ -1354,7 +1383,7 @@ class CMS {
         $endDate = DateTime::createFromFormat("d/m/Y", "{$startDate->format("t")}/{$month}/{$year}", new DateTimeZone("UTC"));
         $dateNow = DateTime::createFromFormat("d/m/Y", date("d/m/Y"), new DateTimeZone("UTC"));
         $fillStart = $startDate->format("w") - 1;
-        $printedFillerDays = false;
+        $printedFillerDays = true;
         $days = 0;
         $tempDate = clone $startDate;
 
@@ -1380,14 +1409,14 @@ class CMS {
             }
             // Create empty Days if there is no date in this Day
             if(!$this->back_days) {
-                if(!$printedFillerDays) {
+                if($printedFillerDays) {
                     // loop trow the week and set the empty Days insid ethe the current week
                     for($i = 0; $i < $fillStart; $i++) {
                         echo "<td data-set='none'></td>";
                         $days++;
                     }
                     // Disable this function because we don´t need it anymore
-                    $printedFillerDays = true;
+                    $printedFillerDays = false;
                 }
             }
             // check if $tempDate == Active Day
@@ -1402,10 +1431,14 @@ class CMS {
             }
             // Create the Event on this Day and loop all Days from current Event
             if($tempDate <= $endDate) {
-                // Print the Start Day and the Bookings
-                echo "<td class=\"{$this->class_td}\" id=\"{$tempDate->format("Y-m-d")}\">"
-                . "<span class=\"day\">{$tempDate->format("d")}</span><ul>";
-
+                // Print the Start Day and the Bookings also Check if there is an Weekend Day
+                if($this->weekend_check && $days >= 5) {
+                    echo "<td class=\"weekend {$this->class_td}\" id=\"{$tempDate->format("Y-m-d")}\">"
+                        . "<span class=\"day\">{$tempDate->format("d")}</span><ul>";
+                } else {
+                    echo "<td class=\"{$this->class_td}\" id=\"{$tempDate->format("Y-m-d")}\">"
+                        . "<span class=\"day\">{$tempDate->format("d")}</span><ul>";
+                }
                 // Check if on this Day is an Event
                 if($this->EVENTS != null) {
                     foreach($this->EVENTS as $key => $row) {
@@ -1466,7 +1499,12 @@ class CMS {
         // check if there are empty Days inside this week
         if($days < 7 && $days != 0) {
             while($days < 7) {
-                echo "<td data-set='none'></td>";
+                // Check if there is an Weekend Day
+                if($this->weekend_check && $this->back_days && $days >= 5) {
+                    echo "<td class='weekend' data-set='none'></td>";
+                } else {
+                    echo "<td data-set='none'></td>";
+                }
                 $days++;
             }
         }
@@ -1625,11 +1663,13 @@ class CMS {
      * FUN Create the Header on top of Calendar.
      * check all elements variables if there is one true print this element
      */
-    protected function _drawCalendarHeader($year, $month) {
-        $this->prev_year = $year -1;
-        $this->next_year = $year +1;
-        $this->prev_month = $month - $this->hidden_months;
-        $this->next_month = $month + $this->hidden_months;
+    protected function _drawCalendarHeader() {
+        // Setup all variables for the Navigation
+        $year = $this->current_year;
+        $this->prev_year = $this->current_year - 1;
+        $this->next_year = $this->current_year + 1;
+        $this->prev_month = $this->current_month - $this->hidden_months;
+        $this->next_month = $this->current_month + $this->hidden_months;
         
         // Check if the prev_month is Negative
         if($this->prev_month <= 0) {
@@ -1646,87 +1686,18 @@ class CMS {
         if($this->prev_month >= 12) {
             $this->prev_month = 13 - $this->hidden_months;
         }
-
         // Create the Prev & Next Button to switch the Months and Years
-        echo '<div class="text-center">';
-            // check if months_showen not == null
-            // Create the Prev Month Button if is Active
-            if(!count($this->my_months) > 0 && $this->hidden_months < 13 && $this->prev_month_check) {
-                if($month == 1) {
-                    $year = $year -1;
-                    $change = true;
-                }
-                if($this->prev_month <= $this->min_year) {
-                    echo "<a href=\"{$this->url}&year={$year}&month={$this->prev_month}\" "
-                    . "class=\"btn ".$this->getKey('class', ['button' => 'prev_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-right: 5px;\"><i class=\"{$this->getKey('class', ['icons' => 'prev_month'])}\"></i></a>";
-                } else {
-                    echo "<a href=\"{$this->url}&year={$year}&month={$this->prev_month}\" "
-                    . "disabled class=\"btn disabled ".$this->getKey('class', ['button' => 'prev_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-right: 5px;\"><i class=\"{$this->getKey('class', ['icons' => 'prev_month'])}\"></i></a>";
-                }
-                if(isset($change) && $change) {
-                    $year = $year +1;
-                    $change = false;
-                }
-            }
-            // Create the Years Buttons check with Buttons are Active
-            if($this->prev_year_check && $this->next_year_check) {
-                if($this->prev_year >= $this->min_year) {
-                    echo "<a href=\"{$this->url}&year={$this->prev_year}&month={$month}\" "
-                    . "class=\"btn ".$this->getKey('class', ['button' => 'prev_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-right: 5px;\">{$this->prev_year}</a>";
-                }
-                    echo "<a href=\"\" class=\"btn ".$this->getKey('class', ['button' => 'current_year'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"pointer-events: none;\">{$year}</a>";
-                if($this->next_year <= $this->max_year) {
-                    echo "<a href=\"{$this->url}&year={$this->next_year}&month={$month}\" "
-                    . "class=\"btn ".$this->getKey('class', ['button' => 'next_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-left: 5px;\">{$this->next_year}</a>";
-                }
-            } 
-            else if($this->prev_year_check && !$this->next_year_check) {
-                if($this->prev_year >= $this->min_year) {
-                    echo "<a href=\"{$this->url}&year={$this->prev_year}&month={$month}\" "
-                    . "class=\"btn ".$this->getKey('class', ['button' => 'prev_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-right: 5px;\">{$this->prev_year}</a>";
-                    echo "<a href=\"\" class=\"btn ".$this->getKey('class', ['button' => 'current_year'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"pointer-events: none;\">{$year}</a>";
-                }
-            } 
-            else if($this->next_year_check && !$this->prev_year_check) {
-                if($this->next_year <= $this->max_year) {
-                    echo "<a href=\"\" class=\"btn ".$this->getKey('class', ['button' => 'current_year'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"pointer-events: none;\">{$year}</a>";
-                    echo "<a href=\"{$this->url}&year={$this->next_year}&month={$month}\" "
-                    . "class=\"btn ".$this->getKey('class', ['button' => 'next_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-left: 5px;\">{$this->next_year}</a>";
-                }
-            }
-            // check if months_showen not == null. Create the Next Month Button if is Active
-            if(!count($this->my_months) > 0 && $this->hidden_months < 13 && $this->next_month_check) {
-                // Check if next_month is lower than 12
-                if($this->next_month <= 12) {
-                    if($month == 12) {
-                        $year = $year +1;
-                    }
-                }
-                // Check if next_month is higger than 12
-                if($this->next_month > 12) {
-                    $this->next_month = 1;
-                    $year = $year +1;
-                }
-                if($this->next_month <= $this->max_year) {
-                    echo "<a href=\"{$this->url}&year={$year}&month={$this->next_month}\" "
-                    . "class=\"btn ".$this->getKey('class', ['button' => 'next_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-left: 5px;\"><i class=\"{$this->getKey('class', ['icons' => 'next_month'])}\"></i></a>";
-                } else {
-                    echo "<a href=\"#\" "
-                    . "disabled class=\"btn disabled ".$this->getKey('class', ['button' => 'next_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-left: 5px;\"><i class=\"{$this->getKey('class', ['icons' => 'next_month'])}\"></i></a>";
-                }
-            }
-            // Create the Statics if is active
-            if($this->static_infos != null && $this->static_infos[0] != "") {
-                echo '<button class="btn '.$this->getKey('class', ['button' => 'static']).' float-right '.$this->getKey('class', ['margin' => 'm-left']).'" data-toggle="modal" data-target="#staticModal"><i class="'.$this->getKey('class', ['icons' => 'static']).'"></i></button>';
-            }
-            // Create the Today Button if is Active
-            if($this->today_check) {
-                $today = date("Y");
-                echo '<button class="btn '.$this->getKey('class', ['button' => 'today']).' float-right" onclick="window.location.href=\''.$this->url.'&year='.$today.'&month='.$month.'\'" ><i class="'.$this->getKey('class', ['icons' => 'current_day']).'"></i></button>';
-            }
-        echo "</div>";
+        if($this->buttons["active"]) {
+            echo '<div class="text-center">';
+                $this->_drawNaviButtons();
+            echo "</div>";
+        }
+        // Create the Statics if is active
+        if($this->static_infos["active"]) {
+            echo '<button class="btn '.$this->getKey('class', ['button' => 'static']).' float-right '.$this->getKey('class', ['margin' => 'm-left']).'" data-toggle="modal" data-target="#staticModal"><i class="'.$this->getKey('class', ['icons' => 'static']).'"></i></button>';
+        }
         // Create the Legend if is Active
-        if ($this->legend) {
+        if($this->legend) {
             echo "<p id=\"legend\">".$this->json_lg["legend"][$this->lg]."
                     <span style=\"background: ".$this->theme_styles[$this->theme]["status_name_1"].";\"></span>".$this->json_lg["status_name_1"][$this->lg]."
                     <span style=\"background: ".$this->theme_styles[$this->theme]["status_name_2"].";\"></span>".$this->json_lg["status_name_2"][$this->lg]."
@@ -1735,6 +1706,8 @@ class CMS {
                     <span style=\"background: ".$this->theme_styles[$this->theme]["Active_Day_Background"].";\"></span>".$this->json_lg["current_day"][$this->lg]."
                 </p>";
         }
+        // Rebuild the current year variable
+        $this->current_year = $year;
     }
     
     /**
@@ -1753,6 +1726,96 @@ class CMS {
             . "<td class=\"weekDay\">".$this->json_lg["week_day_6"][$this->lg]."</td>"
             . "<td class=\"weekDay\">".$this->json_lg["week_day_7"][$this->lg]."</td>"
             . "</tr></thead><tbody>";
+    }
+
+    /**
+     * FUN Create all the active Buttons.
+     */
+    protected function _drawNaviButtons() {
+        // Check if the prev month function is active
+        if(!count($this->my_months) > 0 && $this->hidden_months < 13 && $this->buttons["prev_month"]) {
+            if($this->current_month == 1) {
+                $this->current_year = $this->current_year - 1;
+                $change = true;
+            }
+            if($this->prev_month <= $this->min_year) {
+                echo "<a href=\"{$this->buttons['url']}&year={$this->current_year}&month={$this->prev_month}\" "
+                . "class=\"btn ".$this->getKey('class', ['button' => 'prev_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-right: 5px;\"><i class=\"{$this->getKey('class', ['icons' => 'prev_month'])}\"></i></a>";
+            } else {
+                echo "<a href=\"{$this->buttons['url']}&year={$this->current_year}&month={$this->prev_month}\" "
+                . "disabled class=\"btn disabled ".$this->getKey('class', ['button' => 'prev_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-right: 5px;\"><i class=\"{$this->getKey('class', ['icons' => 'prev_month'])}\"></i></a>";
+            }
+            if(isset($change) && $change) {
+                $this->current_year = $this->current_year + 1;
+                $change = false;
+            }
+        }
+        // Check if the prev and next year function is active
+        if($this->buttons["prev_year"] && $this->buttons["next_year"]) {
+            if($this->prev_year >= $this->min_year) {
+                echo "<a href=\"{$this->buttons['url']}&year={$this->prev_year}&month={$this->current_month}\" "
+                . "class=\"btn ".$this->getKey('class', ['button' => 'prev_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-right: 5px;\">{$this->prev_year}</a>";
+            }
+                echo "<a href=\"\" class=\"btn ".$this->getKey('class', ['button' => 'current_year'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"pointer-events: none;\">{$this->current_year}</a>";
+            if($this->next_year <= $this->max_year) {
+                echo "<a href=\"{$this->buttons['url']}&year={$this->next_year}&month={$this->current_month}\" "
+                . "class=\"btn ".$this->getKey('class', ['button' => 'next_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-left: 5px;\">{$this->next_year}</a>";
+            }
+        }
+        // Check if the prev year function is active
+        else if($this->buttons["prev_year"] && !$this->buttons["next_year"]) {
+            if($this->prev_year >= $this->min_year) {
+                echo "<a href=\"{$this->buttons['url']}&year={$this->prev_year}&month={$this->current_month}\" "
+                . "class=\"btn ".$this->getKey('class', ['button' => 'prev_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-right: 5px;\">{$this->prev_year}</a>";
+                echo "<a href=\"\" class=\"btn ".$this->getKey('class', ['button' => 'current_year'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"pointer-events: none;\">{$this->current_year}</a>";
+            }
+        }
+        // Check if the next year function is active
+        else if($this->buttons["next_year"] && !$this->buttons["prev_year"]) {
+            if($this->next_year <= $this->max_year) {
+                echo "<a href=\"\" class=\"btn ".$this->getKey('class', ['button' => 'current_year'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"pointer-events: none;\">{$this->current_year}</a>";
+                echo "<a href=\"{$this->buttons['url']}&year={$this->next_year}&month={$this->current_month}\" "
+                . "class=\"btn ".$this->getKey('class', ['button' => 'next_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-left: 5px;\">{$this->next_year}</a>";
+            }
+        }
+        // Check if the next month function is active
+        if(!count($this->my_months) > 0 && $this->hidden_months < 13 && $this->buttons["next_month"]) {
+            // Check if next_month is lower than 12
+            if($this->next_month <= 12) {
+                if($this->current_month == 12) {
+                    $this->current_year = $this->current_year +1;
+                }
+            }
+            // Check if next_month is higger than 12
+            if($this->next_month > 12) {
+                $this->next_month = 1;
+                $this->current_year = $this->current_year +1;
+            }
+            if($this->next_month <= $this->max_year) {
+                echo "<a href=\"{$this->buttons['url']}&year={$this->current_year}&month={$this->next_month}\" "
+                . "class=\"btn ".$this->getKey('class', ['button' => 'next_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-left: 5px;\"><i class=\"{$this->getKey('class', ['icons' => 'next_month'])}\"></i></a>";
+            } else {
+                echo "<a href=\"#\" "
+                . "disabled class=\"btn disabled ".$this->getKey('class', ['button' => 'next_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-left: 5px;\"><i class=\"{$this->getKey('class', ['icons' => 'next_month'])}\"></i></a>";
+            }
+        }
+        // Create the Year Button if is active
+        if($this->buttons["year"]) {
+            echo '<button class="btn '.$this->getKey('class', ['button' => 'year']).' float-right"><i class="'.$this->getKey('class', ['icons' => 'year']).'"></i></button>';
+        }
+        // Create the Week Button if is active
+        if($this->buttons["week"]) {
+            echo '<button class="btn '.$this->getKey('class', ['button' => 'week']).' float-right"><i class="'.$this->getKey('class', ['icons' => 'week']).'"></i></button>';
+        }
+        // Create the Day Button if is active
+        if($this->buttons["day"]) {
+            echo '<button class="btn '.$this->getKey('class', ['button' => 'day']).' float-right"><i class="'.$this->getKey('class', ['icons' => 'day']).'"></i></button>';
+        }
+        // Create the Today Button if is Active
+        if($this->buttons["today"]) {
+            $today = date("Y");
+            echo '<button class="btn '.$this->getKey('class', ['button' => 'today']).' float-right" onclick="window.location.href=\''.$this->buttons['url'].'&year='.$today.'&month='. $this->current_month.'\'" ><i class="'.$this->getKey('class', ['icons' => 'current_day']).'"></i></button>';
+        }
     }
 
     /**
@@ -1790,7 +1853,7 @@ class CMS {
                                 </div>';
                             }
                             // Check if the Database function is active and if person_check is also true
-                            if($this->event_form["person_check"] && $this->database_check) {
+                            if($this->event_form["person"] && $this->database_check) {
                                 echo '<div class="col-1">
                                     <div class="form-group">
                                         <label for="persons">'.$this->json_lg["input_4"][$this->lg].'</label>
@@ -1801,7 +1864,7 @@ class CMS {
                                 </div>';
                             }
                              // Check if the Database function is active and if payment_check is also true
-                            if($this->event_form["payment_check"] && $this->database_check) {
+                            if($this->event_form["payment"] && $this->database_check) {
                                 echo '
                                 <div class="col-2">
                                     <div class="form-group">
@@ -1866,7 +1929,7 @@ class CMS {
                                         </div>';
                                     }
                                     // Check if the Database function is active and if person_check is also true
-                                    if($this->event_form["person_check"] && $this->database_check) {
+                                    if($this->event_form["person"] && $this->database_check) {
                                         echo '<div class="col-1">
                                             <div class="form-group">
                                                 <label for="persons">'.$this->json_lg["input_4"][$this->lg].'</label>
@@ -1877,7 +1940,7 @@ class CMS {
                                         </div>';
                                     }
                                     // Check if the Database function is active and if payment_check is also true
-                                    if($this->event_form["payment_check"] && $this->database_check) {
+                                    if($this->event_form["payment"] && $this->database_check) {
                                         echo '
                                         <div class="col-2">
                                             <div class="form-group">
@@ -1931,23 +1994,23 @@ class CMS {
     protected function _drawStaticModal() {
         $statics = "";
         foreach($this->static_infos as $key => $value) {
-            if($value == "Events") {
+            if($key == "events" && $value) {
                 $statics .= "<p>{$this->json_lg["infos_1"][$this->lg]}: {$this->allBookings}</p>";
             }
-            else if($value == "Authors") {
+            else if($key == "authors" && $value) {
                 $statics .= "<p>{$this->json_lg["infos_2"][$this->lg]}: {$this->getKey('authors', ['name'])} <a href=\"mailto:{$this->getKey('authors', ['email'])}\">{$this->getKey('authors', ['email'])}</a></p>";
             }
-            else if($value == "Version") {
-                $statics .= "<p>{$this->json_lg["infos_3"][$this->lg]}: {$this->getKey('infos', ['version'])}</p>";
+            else if($key == "version" && $value) {
+                $statics .= "<p>{$this->json_lg["infos_3"][$this->lg]}: ".CMS::VERSION."</p>";
             }
-            else if($value == "Language") {
+            else if($key == "language" && $value) {
                 $statics .= "<p>{$this->json_lg["infos_4"][$this->lg]}: {$this->lg}</p>";
             }
-            else if($value == "Theme") {
+            else if($key == "theme" && $value) {
                 $statics .= "<p>{$this->json_lg["infos_5"][$this->lg]}: {$this->theme}</p>";
             }
             // Check if there is an Dev key
-            if($value == "dev") {
+            if($key == "dev" && $value) {
                 $statics .= "<p>DEV:<ul>";
                 foreach($this as $Ckey => $row) {
                     if(!is_array($row) && $row != "") {
@@ -2024,14 +2087,14 @@ class CMS {
         // Create the Tables
         $mysqli = new mysqli(CMS::HOST, CMS::USER, CMS::PASSWORD, CMS::DATABASE);
             for($i = 0; $i < $count; $i++) {
-                $sql = "CREATE TABLE ".$this->json['database']['build'][$i]['name']." (".$this->json['database']['build'][$i]['parameters'].") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+                $sql = "CREATE TABLE ".$this->json['database'][$i]['name']." (".$this->json['database'][$i]['parameters'].") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
                 $mysqli->query($sql);
                 // Insert value into the current Table
-                if($this->json['database']['build'][$i]["values"] != "") {
-                    $sql = "".$this->json['database']['build'][$i]["values"]."";
+                if($this->json['database'][$i]["values"] != "") {
+                    $sql = "".$this->json['database'][$i]["values"]."";
                     $mysqli->query($sql);
                 }
-                $sql = "ALTER TABLE ".$this->json['database']['build'][$i]['name']." ADD PRIMARY KEY( `id`);";
+                $sql = "ALTER TABLE ".$this->json['database'][$i]['name']." ADD PRIMARY KEY( `id`);";
                 $RS = $mysqli->query($sql);
             }
         $mysqli->close();
