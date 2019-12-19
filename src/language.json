@@ -27,11 +27,15 @@
         "de": "Bitte überprüfen Sie die Funktionen es scheint Probleme mit diesen zu geben.",
         "en": "Please check the features it seems there are problems with these."
     },
-    "mysqli_conn": {
-        "de": "Verbindung zur Datenbank fehlgeschlagen. SQL Connection Error.",
+    "database_check": {
+        "de": "Die Datenbankverbindung konnte nicht hergestellt werden.",
+        "en": "The database connection could not be established."
+    },
+    "sql_conn": {
+        "de": "Verbindung zur Datenbank Fehlgeschlagen. SQL Connection Error.",
         "en": "Connection to the database failed. SQL connection error."
     },
-    "mysqli_query": {
+    "sql_query": {
         "de": "SQL Befehl nicht ausführbar. SQL Query Error.",
         "en": "SQL command not executable. SQL query error."
     },
@@ -44,7 +48,7 @@
         "en": "Some months are older than today's date! Please enter other months. <br> You can also add another year."
     },
     "cms_create_success": {
-        "de": "CMS (Calendar Managment System) erfolgreich erstellt.",
+        "de": "CMS (Calendar Managment System) Erfolgreich erstellt.",
         "en": "CMS (Calendar Managment System) was successfully created."
     },
     "cms_create_error": {
@@ -68,16 +72,8 @@
         "en": "Please select a booking, event period in the calendar. <br> First select the arrival day and then the departure day. <br> The departure date can not be smaller than the arrival date. <br> The minimum booking, event days are"
     },
     "notify_5": {
-        "de": "Für die",
-        "en": "For the"
-    },
-    "notify_5_1": {
-        "de": "Person fallen extra kosten in höhe von",
-        "en": "Person fall extra costs of"
-    },
-    "notify_5_2": {
-        "de": "EUR an.",
-        "en": "dollar on."
+        "de": "Es fallen extra Kosten für diese Person an in höhe von",
+        "en": "There are extra costs for this person in the amount of"
     },
     "notify_6": {
         "de": "Bitte wählen Sie im Kalender einen Buchungs, Event zeitraum. <br> Die mindest Buchungs, Event Tage sind",
@@ -90,6 +86,46 @@
     "notify_8": {
         "de": "Ihr Event ist in der Datenbank nicht vorhanden!",
         "en": "Your event is not in the database!"
+    },
+    "notify_9": {
+        "de": "Das Event steht zum Download bereit, klicken Sie einfach hier.",
+        "en": ""
+    },
+    "notify_10": {
+        "de": "Das Event konnte nicht Bereitgestellt werden!",
+        "en": ""
+    },
+    "notify_11": {
+        "de": "Umschalten der Anzeige Erfolgreich.",
+        "en": ""
+    },
+    "notify_12": {
+        "de": "Umschalten der Anzeige Fehlgeschlagen!",
+        "en": ""
+    },
+    "header_1": {
+        "de": "Jahr Anzeigen",
+        "en": "Show yaer"
+    },
+    "header_2": {
+        "de": "Monat Anzeigen",
+        "en": "Show month"
+    },
+    "header_3": {
+        "de": "Woche Anzeigen",
+        "en": "Show week"
+    },
+    "header_4": {
+        "de": "Tag Anzeigen",
+        "en": "Show day"
+    },
+    "header_5": {
+        "de": "Heutiges Datum Anzeigen",
+        "en": "Show current date"
+    },
+    "header_6": {
+        "de": "Infos vom aktuellen Kalendar Anzeigen",
+        "en": "Show infos about the current calendar"
     },
     "status_check": {
         "de": "Der Status der Buchung ist nicht vorhanden.",

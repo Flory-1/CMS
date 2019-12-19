@@ -1,57 +1,48 @@
 <?php
-/**
- * CMS - Calendar Management System.
- * Creates an interactive Calendar with User Settings.
- * Calendar can include Bookings, Reservations or waht you want
- * 
- * @author      Florian Lämmlein <florian.laemmlein@gmx.de>
- * @copyright   (c) 2019 - 2022 Florian Lämmlein
- * @license     GNU-LGPL v3 (http://www.gnu.org/copyleft/lesser.html)
- * @version     1.0.0
- * @see         https://github.com/Flory-1/CMS The CMS GitHub project
- * @Release     2019-10-01
- * @Update      2019-11-07
- */
-//================================================================================================================================================================================+
-//  `lg`                 == Language from Months (from .json file) (`my_months` also must be the same language)                                                    == `de`
-//  `rtl_check`          == RTL Support for the Language and the Calendar                                                                                          == `false`
-//  `weekend_check`      == Show each weekend of month true or flase                                                                                               == `false`
-//  `hidde_events`       == Hidde Bookings, Resevations or Events true or false (if `test_event` in Database is `1`)                                               == `false`
-//  `events_check`       == Bookings, Resevations or Events true or false (Aktivate if you have one)                                                               == `false`
-//  `my_events`          == Bookings, Resevations or Events as array (`database_check` must be false to work)                                                      == `array()`
-//  `min_days`           == Min Nights / Days for the Apartment, Room, Event                                                                                       == `0`
-//  `hidden_months`      == Hidde Months by index (3 == after the 3 Month hidde all Months)                                                                        == `13`
-//  `back_days`          == Back Days true or false (29, 30, 01, 02)                                                                                               == `false`
-//  `tooltip`            == Show an Tooltip foreach Event, Booking true or false                                                                                   == `false`
-//  `tooltip_functions`  == Tooltip text (Function Names from Settings class) (getStart_date or getFirstname)                                                      == `string[]`
-//  `my_months`          == Custom Months that are Displayed by array ["June", "July",...] (`hidden_months` will not longer work)                                  == `string[]`
-//  `buttons`            == Show all the Buttons you want ["active", "prev_year", "next_year", "prev_month", "next_month", "today", "year", "week", "day" "url"]   == `string[]`
-//  `min_year`           == Min Year of CMS only the YEAR                                                                                                          == `2019`
-//  `max_year`           == Max Year of CMS only the YEAR                                                                                                          == `2030`
-//  `legend`             == Show legend on top of the Calendar true or false                                                                                       == `false`
-//  `event_form`         == Show Booking, Reservation Form ["active","action","modal","arrivel_time","leaving_time","person_check","payment_check","active_event"] == `string[]`
-//  `date_format`        == Date formate for all Date Displays in the CMS System                                                                                   == `Y-m-d`
-//  `time_format`        == Time formate for all Time Displays in the CMS System                                                                                   == `H:i:s`
-//  `static_infos`       == Show some information of the CMS ["active", "author", "events", "version", "language", "theme"]                                        == `string[]`
-//  `error_log`          == Shows the Errors from the Script true or false                                                                                         == `false`
-//  `success_log`        == Shows the Success from the Script true or false                                                                                        == `true`
-//  `database_check`     == Get all Events from the Created Database if the Database dosn´t exist                                                                  == `true`
-//  `show_more_events`   == Show more Events, Bookings per Day if there are more than 3 on this Day true or false                                                  == `false`
-//  `max_events_per_day` == Maximum Events per Day (`show_more_events` Must be true)                                                                               == `3`
-//  `is_book_able`       == Set status of the cms.js Script if the Calendar is Bookable true or false                                                              == `true`
-//  `theme`              == Theme of the CMS (Horizon, Metro, Original)                                                                                            == `Original`
-//================================================================================================================================================================================+
+/**********************************************************************
+ * CMS - Calendar Management System.                                  *
+ * Creates an interactive Calendar with User Settings.                *
+ * Calendar can include Bookings, Reservations or waht you want       *
+ *                                                                    *
+ * @package     CMS - Calendar Management System                      *
+ * @author      Florian Lämmlein <florian.laemmlein@gmx.de>           *
+ * @copyright   (c) 2019 - 2022 Florian Lämmlein                      *
+ * @license     GNU-LGPL v3 (http://www.gnu.org/copyleft/lesser.html) *
+ * @see         https://github.com/Flory-1/CMS The CMS GitHub project *
+ * @since       Release version: 1.0.0 at 2019-10-01                  *
+ * @version     Actuall version: 2.2.0 at 2019-12-19                  *
+ *********************************************************************/
 
 /**
- * FUN Ajax Handler for any cms.js request.
+ * FUN: Ajax Handler for any cms.js request.
  */
 if(isset($_POST["action"])) {
     // Get the current ajax Event
     switch ($_POST["action"]) {
-        case 'getEvent':
-            $CT = new My_Ajax();
-            $RRS = $CT->getInfosById($_POST["id"]);
-            echo json_encode($RRS);
+        case 'getEventsDay':
+            $CT = new CMS_Ajax();
+            $RS = $CT->getEventsDay($_POST["start_date"]);
+            echo $RS;
+            break;
+        case 'getEventsWeek':
+            $CT = new CMS_Ajax();
+            $RS = $CT->getEventsWeek($_POST["start_date"]);
+            echo $RS;
+            break;
+        case 'getEventsYear':
+            $CT = new CMS_Ajax();
+            $RS = $CT->getEventsYear($_POST["start_date"]);
+            echo $RS;
+            break;
+        case 'getInfosById':
+            $CT = new CMS_Ajax();
+            $RS = $CT->getInfosById($_POST["id"]);
+            echo json_encode($RS);
+            break;
+        case 'getLinkById':
+            $CT = new CMS_Ajax();
+            $RS = $CT->getLinkById($_POST);
+            echo $RS;
             break;
         default:
             break;
@@ -59,28 +50,22 @@ if(isset($_POST["action"])) {
 }
 
 /**
- * CLASS Calendar - PHP Calendar creation and transport class.
+ * CLASS: CMS - PHP Calendar creation and transport class.
  * Creates an interactive Calendar with User Settings.
  * Calendar can include Bookings, Reservations or waht you want
  */
 class CMS {
     /********************************************************
-     * Static variables for the Statics and System Settings
+     * INFO: Static variables for the Statics and System Settings
      ********************************************************/
-    // Database connection
-    public const HOST          = "localhost";
-    public const DATABASE      = "cms";
-    public const USER          = "root";
-    public const PASSWORD      = "";
-    // Ground Settings for the CMS System
     private const PHP_MIN       = "5.3.0";
-    private const VERSION       = "1.0.0";
     private const AKTIVE        = 1;
     private const OPEN          = 2;
     private const ENDED         = 3;
 
     /********************************************************
-     * User variables from the Settings array ($arrgs)
+     * HELP: You can change this Settings if you want.
+     * INFO: User variables from the CMS_Settings array ($arrgs)
      ********************************************************/
     /**
      * The Language is set on each element that the CMS is print out.
@@ -88,34 +73,6 @@ class CMS {
      * @var string
      */
     protected $lg = "de";
-
-    /**
-     * The RTL Language support for the whole CMS that is printed out.
-     *
-     * @var bool
-     */
-    protected $rtl_check = false;
-    
-    /**
-     * This is for all Weekend days that are in the current Month.
-     *
-     * @var bool
-     */
-    protected $weekend_check = false;
-
-    /**
-     * Theme for the wole CMS System.
-     *
-     * @var string
-     */
-    protected $theme = "Original";
-
-    /**
-     * This is for all Months that the user will Display.
-     *
-     * @var int
-     */
-    protected $hidden_months = 13;
 
     /**
      * The Data format with is Displaying.
@@ -131,26 +88,75 @@ class CMS {
      */
     protected $time_format = "H:i:s";
 
+        /**
+     * This for the Min Year in the CMS.
+     *
+     * @var int
+     */
+    protected $min_year = "2019";
+
+    /**
+     * This for the Max Year in the CMS.
+     *
+     * @var int
+     */
+    protected $max_year = "2030";
+
+    /**
+     * This for the Current Year in the CMS.
+     *
+     * @var int
+     */
+    protected $cur_year = "2019";
+    
+    /**
+     * This for the Min Days for an Event, Booking needed for the cms.js script.
+     *
+     * @var int
+     */
+    protected $min_days = 0;
+
+    /**
+     * Set Max Events, Bookings per Day only works if the `$show_more_events` is true.
+     *
+     * @var int
+     */
+    protected $max_events_per_day = 3;
+
+    /**
+     * This is for all Months that the user will Display.
+     *
+     * @var int
+     */
+    protected $hidden_months = 13;
+
+    /**
+     * The RTL Language support for the whole CMS that is printed out.
+     *
+     * @var bool
+     */
+    protected $rtl_check = false;
+    
+    /**
+     * This is for all Weekend days that are in the current Month.
+     *
+     * @var bool
+     */
+    protected $weekend_check = false;
+    
+    /**
+     * This is for all Months to set an auto size by the screen width/Height.
+     *
+     * @var bool
+     */
+    protected $auto_size = false;
+
     /**
      * This is for all Months that have Backdays.
      *
      * @var bool
      */
     protected $back_days = false;
-
-    /**
-     * If the User will have an Tooltip on each Booking, Event.
-     *
-     * @var bool
-     */
-    protected $tooltip = false;
-
-    /**
-     * If the User will have an Legend over the CMS Calendar.
-     *
-     * @var bool
-     */
-    protected $legend = false;
 
     /**
      * If the User will hidde an Event, Booking.
@@ -180,20 +186,6 @@ class CMS {
      * @var bool
      */
     protected $success_log = true;
-    
-    /**
-     * This is for the Success Message if `$success_log` is true it will Display it.
-     *
-     * @var string
-     */
-    protected $success_msg;
-
-    /**
-     * This is for the Notify Message to Display it.
-     *
-     * @var string
-     */
-    protected $notify_msg;
 
     /**
      * This is for all Errors if is true it will Display it.
@@ -203,16 +195,30 @@ class CMS {
     protected $error_log = false;
 
     /**
-     * This is for the Error Message if `$error_log` is true it will Display it.
+     * Check if the cms.js Script is true to call an Clickable Function on the CMS.
      *
-     * @var string
+     * @var bool
      */
-    protected $error_msg;
+    protected $is_book_able = true;
+
+    /**
+     * Check if there are more than `$max_events_per_day` Events, Bookings on the Current Day.
+     *
+     * @var bool
+     */
+    protected $show_more_events = false;
+    
+    /**
+     * If the User will have an Tooltip on each Booking, Event.
+     *
+     * @var bool
+     */
+    protected $tooltip = false;
 
     /**
      * This holds all Tooltip Functions.
      * This Functions must be Declaread in the Database as an field in the `events`.
-     * Also must be Declaread in the Settings class!!
+     * Also must be Declaread in the CMSSettings class!!
      *
      * @example ['firstname', 'lastname']
      * @var array
@@ -236,73 +242,48 @@ class CMS {
     protected $my_months = array();
 
     /**
-     * This Displays all Infos from the Current CMS.
-     *
-     * @example ["active" => false, "author" => false, "events" => false, "version" => false, "language" => false, "theme" => false]
-     * @var array
+     * Holds all buttons and infos in the Header.
+     * 
+     * @example ["left" => [], "center" => [], "right" => [], "url" => '']
+     * @var string[]
      */
-    protected $static_infos = ["active" => false, "author" => false, "events" => false, "version" => false, "language" => false, "theme" => false];
-
+    protected $header = ["left" => [], "center" => [], "right" => [], "url" => ''];
+    
     /**
      * If the User will have an Booking, Reservation Form.
      *
-     * @example ["active" => false, "action" => '', "modal" => false, "arrivel_time" => '14:00:00', "leaving_time" => '10:00:00', "person" => '', "payment" => '', "active_event" => null]
+     * @example ["active" => false, "action" => '', "modal" => false, "arrivel_time" => '14:00:00', "leaving_time" => '10:00:00', "person" => false, "payment" => false, "active_event" => null]
      * @var string[]
      */
-    protected $event_form = ["active" => false, "action" => '', "modal" => false, "arrivel_time" => '14:00:00', "leaving_time" => '10:00:00', "person" => '', "payment" => '', "active_event" => null];
-    
+    protected $event_form = ["active" => false, "action" => '', "modal" => false, "arrivel_time" => '14:00:00', "leaving_time" => '10:00:00', "person" => false, "payment" => false, "active_event" => null];
+
     /**
-     * If the User will have some Buttons.
+     * This Displays all Infos from the Current CMS.
      *
-     * @example ["active" => false, "prev_year" => false, "next_year" => false, "prev_month" => false, "next_month" => false, "today" => false, "year" => false, "week" => false, "day" => false, "url" => '']
+     * @example ["active" => false, "authors" => false, "events" => false, "version" => false, "language" => false, "theme" => false]
+     * @var array
+     */
+    protected $static_infos = ["active" => false, "authors" => false, "events" => false, "version" => false, "language" => false, "theme" => false];
+
+    /**
+     * This is for the Database connection.
+     *
+     * @example ["HOST" => 'localhost', "DATABASE" => 'cms', "USER" => 'root', "PASSWORD" => '', "Type" => 'mysql']
      * @var string[]
      */
-    protected $buttons = ["active" => false, "prev_year" => false, "next_year" => false, "prev_month" => false, "next_month" => false, "today" => false, "year" => false, "week" => false, "day" => false, "url" => ''];
+    public $sql_infos = ["HOST" => 'localhost', "DATABASE" => 'cms', "USER" => 'root', "PASSWORD" => '', "Type" => 'mysql'];
 
     /**
-     * This for the Min Year in the CMS.
+     * Theme for the wohle CMS System, can include you owne Theme by url.
      *
-     * @var int
+     * @example ["theme" => 'Original', "custom_url" => '']
+     * @var string[]
      */
-    protected $min_year = "2019";
-
-    /**
-     * This for the Max Year in the CMS.
-     *
-     * @var int
-     */
-    protected $max_year = "2030";
-
-    /**
-     * This for the Min Days for an Event, Booking needed for the cms.js script.
-     *
-     * @var int
-     */
-    protected $min_days = 0;
-
-    /**
-     * Check if the cms.js Script is true to call an Clickable Function on the CMS.
-     *
-     * @var bool
-     */
-    protected $is_book_able = true;
-
-    /**
-     * Check if there are more than 3 Events, Bookings on the Current Day.
-     *
-     * @var bool
-     */
-    protected $show_more_events = false;
-
-    /**
-     * Set Max Events, Bookings per Day only works if the `$show_more_events` is true.
-     *
-     * @var int
-     */
-    protected $max_events_per_day = 3;
+    protected $theme = ["theme" => 'Original', "custom_url" => ''];
 
     /********************************************************
-     * Ground variables for the calendar
+     * HELP: Do not change this Settings.
+     * INFO: Ground variables for the calendar 
      ********************************************************/
     /**
      * This array holds all Settings from the json.
@@ -318,8 +299,8 @@ class CMS {
         "database" => [
             [
                 "name" => "events",
-                "parameters" => "`id` int(11) NOT NULL, `event_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `start_date` date NOT NULL, `end_date` date NOT NULL, `my_description` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `status` tinyint(1) DEFAULT 1, `test_event` tinyint(1) DEFAULT 0",
-                "values" => "INSERT INTO `events`(`id`, `event_name`, `start_date`, `end_date`, `my_description`, `status`) VALUES ('1', 'IFA', '2019-08-12', '2019-08-17', 'Auto Messe', '1', '0')"
+                "parameters" => "`id` int(11) NOT NULL, `event_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `start_date` date NOT NULL, `end_date` date NOT NULL, `my_description` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `test_event` tinyint(1) DEFAULT 0",
+                "values" => "INSERT INTO `events`(`id`, `event_name`, `start_date`, `end_date`, `my_description`) VALUES ('1', 'IFA', '2019-08-12', '2019-08-17', 'Auto Messe')"
             ],[
                 "name" => "payments",
                 "parameters" => "`id` int(11) NOT NULL, `payment` varchar(255) NOT NULL, `is_active` tinyint(1) NOT NULL DEFAULT 1",
@@ -345,6 +326,7 @@ class CMS {
                 "next_years" => "btn-warning",
                 "current_year" => "btn-primary",
                 "year" => "btn-primary",
+                "month" => "btn-primary",
                 "week" => "btn-primary",
                 "day" => "btn-primary",
                 "today" => "btn-warning",
@@ -378,6 +360,7 @@ class CMS {
                 "static" => "fas fa-info-circle",
                 "button" => "fas fa-chevron-right",
                 "year" => "fas fa-calendar-alt",
+                "month" => "fas fa-calendar-alt",
                 "week" => "fas fa-calendar-week",
                 "day" => "fas fa-calendar-day"
             ]
@@ -421,6 +404,13 @@ class CMS {
     protected $class_1; // Event status 1
     protected $class_2; // Event status 2
     protected $class_3; // Event status 3
+
+    /**
+     * This strings holds all the codes from the current Event, Booking.
+     *
+     * @var string
+     */
+    protected $custom_code;
 
     /**
      * This holds all Events, Bookings as count.
@@ -467,6 +457,7 @@ class CMS {
             "Border_bottom_Width"            => '1px',
             "Active_Day_Width"               => '24px',
             "Active_Day_Height"              => '24px',
+            "Week_Day_height"                => '64px',
             "Main_Color"                     => 'black',
             "status_name_1"                  => 'green',
             "status_name_2"                  => 'orange',
@@ -487,7 +478,6 @@ class CMS {
             "Year_Background"                => 'none',
             "Weekend_Background"             => 'none',
             "Active_Day_Background"          => '#ff6bda',
-            "Main_Hover_Color"               => 'white',
             "Main_Hover_Background"          => 'none',
             "Table_foot_Hover_Background"    => '#1abc9c',
             "Weekend_Hover_Background"       => 'black',
@@ -520,6 +510,7 @@ class CMS {
             "Border_bottom_Width"            => 'unset',
             "Active_Day_Width"               => '24px',
             "Active_Day_Height"              => '24px',
+            "Week_Day_height"                => '64px',
             "Main_Color"                     => 'black',
             "status_name_1"                  => 'green',
             "status_name_2"                  => 'orange',
@@ -540,7 +531,6 @@ class CMS {
             "Year_Background"                => 'none',
             "Weekend_Background"             => '#525f7f',
             "Active_Day_Background"          => '#6ba0ff',
-            "Main_Hover_Color"               => 'white',
             "Main_Hover_Background"          => 'none',
             "Table_foot_Hover_Background"    => '#6ba0ff',
             "Weekend_Hover_Background"       => 'black',
@@ -573,6 +563,7 @@ class CMS {
             "Border_bottom_Width"            => '1px',
             "Active_Day_Width"               => '24px',
             "Active_Day_Height"              => '24px',
+            "Week_Day_height"                => '64px',
             "Main_Color"                     => 'black',
             "status_name_1"                  => 'green',
             "status_name_2"                  => 'orange',
@@ -593,13 +584,65 @@ class CMS {
             "Year_Background"                => 'none',
             "Weekend_Background"             => '#acb2c1',
             "Active_Day_Background"          => '#6ba0ff',
-            "Main_Hover_Color"               => 'white',
             "Main_Hover_Background"          => 'none',
             "Table_foot_Hover_Background"    => '#6ba0ff',
             "Weekend_Hover_Background"       => 'black',
             "Border_Color"                   => '#444444',
             "Table_foot_Border_Color"        => 'none',
             "Weekend_Border_Color"           => '#ecbaba',
+        ],
+        "Jquery" => [
+            "theme"                          => 'Jquery',
+            "Font_Family"                    => 'Arial, Helvetica, sans-serif',
+            "Font_Weight"                    => 'normal',
+            "Opacity"                        => '0.5',
+            "Border_Style"                   => 'solid',
+            "Border_Section_Style"           => 'solid',
+            "Border_Radius"                  => '6px',
+            "Active_Day_Border_Radius"       => '50%',
+            "Year_left"                      => '10px',
+            "Day_left"                       => '45%',
+            "Day_top"                        => '-10px',
+            "Font_Size"                      => '14px',
+            "Month_Size"                     => '24px',
+            "Year_Size"                      => '12px',
+            "Day_Size"                       => '14px',
+            "Day_Hover_Size"                 => '20%',
+            "Border_Width"                   => '1px',
+            "Border_section_Width"           => '2px',
+            "Border_left_Width"              => '1px',
+            "Border_top_Width"               => '1px',
+            "Border_right_Width"             => '1px',
+            "Border_bottom_Width"            => '1px',
+            "Active_Day_Width"               => '24px',
+            "Active_Day_Height"              => '24px',
+            "Week_Day_height"                => '24px',
+            "Main_Color"                     => 'black',
+            "status_name_1"                  => 'green',
+            "status_name_2"                  => 'orange',
+            "status_name_3"                  => 'red',
+            "selection"                      => 'blue',
+            "Days_Color"                     => '#000000',
+            "Month_Color"                    => '#000000',
+            "Year_Color"                     => '#000000',
+            "Weekend_Color"                  => '#000000',
+            "Active_Day_Color"               => '#000000',
+            "Main_Background"                => 'white',
+            "Table_Background"               => 'none',
+            "Table_head_Background"          => 'none',
+            "Not_Select_Background"          => '#a2ecc9',
+            "Table_foot_Background"          => '#ffffff',
+            "Days_Background"                => '#ededed',
+            "Month_Background"               => '',
+            "Year_Background"                => '',
+            "Weekend_Background"             => 'rgb(255, 255, 229)',
+            "Active_Day_Background"          => 'rgb(255, 255, 229)',
+            "Main_Hover_Background"          => '',
+            "Table_foot_Hover_Background"    => '#6ba0ff',
+            "Weekend_Hover_Background"       => 'rgb(255, 255, 150)',
+            "Border_Color"                   => 'rgb(212, 212, 212)',
+            "Table_foot_Border_Color"        => '',
+            "Weekend_Border_Color"           => 'rgb(212, 212, 212)',
         ],
         "custom" => [
             "Horizon" =>[
@@ -667,9 +710,83 @@ class CMS {
                     border-bottom-right-radius: 4px;
                     clip-path: unset !important
                 }"
+            ],
+            "Jquery" => [
+                ".Jquery.month .monthName {
+                    text-align: center;
+                    background-color: #fff;
+                    z-index: 1049;
+                    pointer-events: none;
+                    border-radius: 16px;
+                    padding: 0 50px;
+                }
+                .Jquery.month table thead td {
+                    padding: unset
+                }"
             ]
         ]
     ];
+
+    /**
+     * This array holds all Help functions foreach array given by Name in the constructor.
+     *
+     * @var string[]
+     */
+    protected $help_array = [
+        "legend" => false,
+        "prev_year" => false,
+        "next_year" => false,
+        "prev_month" => false,
+        "next_month" => false,
+        "today" => false,
+        "year_view" => false,
+        "month_view" => false,
+        "week_view" => false,
+        "day_view" => false,
+        "list_view" => false
+    ];
+
+    /**
+     * This array holds all Errors foreach array given by Name in the constructor.
+     *
+     * @var string[]
+     */
+    protected $error_array = [];
+
+    /**
+     * This is for the Error Message if `$error_log` is true it will Display it.
+     *
+     * @var string
+     */
+    protected $error_msg;
+    
+    /**
+     * This is for the Success Message if `$success_log` is true it will Display it.
+     *
+     * @var string
+     */
+    protected $success_msg;
+
+    /**
+     * This is for the Notify Message to Display it.
+     *
+     * @var string
+     */
+    protected $notify_msg;
+
+    /**
+     * Check if there is an call from an ajax request.
+     *
+     * @var bool
+     */
+    protected $ajax = false;
+    
+    /**
+     * Holds the current version of the CMS.
+     *
+     * @var string
+     */
+    protected $version;
 
     /**
      * This array holds all Events, Bookings from the Database
@@ -813,14 +930,12 @@ class CMS {
     protected $line;
 
     /********************************************************
-     * Constructor Start the CMS Script
+     * INFO: initialise the CMS System with all Settings.
      ********************************************************/
-    /**
-     * FUN initialise the CMS System with all Settings.
-     */
     public function __construct($arrgs = array()) {
         // initialise all Variables for the Calendar script
         if($this->initialise($arrgs)) {
+            // echo '<pre>'.print_r($this, true).'</pre>';
             // Read the .json file and set all informations into an array
             if(file_exists(dirname(__FILE__)."/language.json")) {
                 $this->json_lg = json_decode(file_get_contents(dirname(__FILE__)."/language.json"), true);
@@ -828,20 +943,22 @@ class CMS {
                 if(!isset($this->json_lg['check_lg'][$this->lg])) {
                     $this->error('check_lg', __CLASS__, __FUNCTION__, __LINE__);
                 }
+                // Create the version variable
+                $this->version = trim(preg_split("/[:at]/", file(__FILE__)[12])[3]);
             } else {
                 exit("Sorry about that, but the language.json file dose not exist. <br> The language.json file is important for the CMS System!");
             }
-
-            // Check if the PHP version is lower than the version we need
-            if(CMS::PHP_MIN > PHP_VERSION) {
-                $this->error('php_version', __CLASS__, __FUNCTION__, __LINE__);
+            // Check if there is an ajax call
+            if(!$this->ajax) {
+                // Check if the PHP version is lower than the version we need
+                if(CMS::PHP_MIN > PHP_VERSION) {
+                    $this->error('php_version', __CLASS__, __FUNCTION__, __LINE__);
+                }
+                // Finaly check all Functions for the Calendar
+                if(!$this->checkAllFunctions()) {
+                    $this->error('functions_check', __CLASS__, __FUNCTION__, __LINE__);
+                }
             }
-
-            // Finaly check all Functions for the Calendar
-            if(!$this->checkAllFunctions()) {
-                $this->error('functions_check', __CLASS__, __FUNCTION__, __LINE__);
-            }
-
             // Check if the User has given an array with Bookings, Events.
             // Also check if the Database is not active
             if(!$this->database_check && count($this->my_events) < 0) {
@@ -853,96 +970,156 @@ class CMS {
             else {
                 $this->checkDatabase();
             }
-            // Also check if the Database is active and if the User has given some Events, Bookings. Display an Notification
-            if($this->database_check && count($this->my_events) > 0) {
-                $this->notify('my_events_check_2');
+            // Check if there is an ajax call
+            if(!$this->ajax) {
+                // Also check if the Database is active and if the User has given some Events, Bookings. Display an Notification
+                if($this->database_check && count($this->my_events) > 0) {
+                    $this->notify('my_events_check_2');
+                }
+                // Change the Theme only if is existing
+                $this->change_theme();
+                
+                // last but not least create the javascript tag
+                $this->_drawJSscript();
             }
-
             // Check with language the Month Names are have
             for($i = 1; $i <= 12; $i++) {
                 array_push($this->month_names, $this->json_lg['month_name_'.$i][$this->lg]);
             }
-
-            // Change the Theme only if is existing
-            $this->change_theme();
+            // save the Settings in the Session if the CMS is called 1 times
+            if(!isset($_SESSION["CMS"]) || isset($_SESSION["CMS"]) && $_SESSION["CMS"] != "") {
+                $_SESSION["CMS"] = $arrgs;
+            }
         } else {
-            exit("Please check all Settings there are some Problems. <br>   1. Check if you have given the right Names for the Settings. <br>   2. Check the Settings you have used if its supportet by this version of the CMS System. (".CMS::VERSION.")");
+            exit("Please check all Settings there are some Problems.
+                    <br>1. Check if you have given the right Names for the Settings.
+                <br>2. Check if you have given any empty Settings parameter.
+            <br>3. Check if you used Settings that are supportet by this version of the CMS System. (".$this->version.")
+            Here are all Errors from the Settings you have take:
+            ".'<pre style="color: red;">'.print_r($this->error_array, true).'</pre>'."");
         }
         // Call cleanup method after script execution finishes or exit is called.
         register_shutdown_function(array($this, 'destroy'), true);
     }
 
     /**
-     * FUN Checks all user Settings given by the $arrgs array.
+     * FUN: Checks all user Settings given by the $arrgs array.
      * 
      * Setup the Calendar variables and start the script
      */
     protected function initialise($arrgs = array()) {
         $check = array(true);
+        // Loop trought each key from User Settings
         foreach ($arrgs as $key => $value) {
+            // Check if the value is an array
             if(is_array($value)) {
+                // Loop trought each value as 2 array
                 foreach ((array) $value as $Ckey => $row) {
+                    // Check if key is existing in the Settings
                     if(isset($this->$key)) {
-                        if(is_numeric($Ckey)) {
+                        // Check if key is an array and value is not null
+                        if(is_numeric($Ckey) && $row != null && $row != "") {
                             array_push($this->$key, $row);
                         } else {
-                            $this->$key[$Ckey] = $row;
+                            // Check if the key as array is existing and value is not an array
+                            if(isset($this->$key[$Ckey]) && !is_array($row)) {
+                                $this->$key[$Ckey] = $row;
+                            }
+                            // the value of the 2 array is also an array
+                            else if(is_array($row)) {
+                                // Loop trought each row as 3 array
+                                foreach ($row as $Dkey => $val) {
+                                    // Check if the key is existing in the help array
+                                    if(array_key_exists($Dkey, $this->help_array)) {
+                                        $this->$key[$Ckey][$Dkey] = $val;
+                                    }
+                                    else if(array_key_exists($val, $this->help_array)) {
+                                        $this->$key[$Ckey][$val] = true;
+                                    }
+                                    else {
+                                        $this->error_array[$key][$Ckey] = $Dkey;
+                                        array_push($check, false);
+                                    }
+                                }
+                            } else {
+                                $this->error_array[$key][$Ckey] = $row;
+                                array_push($check, false);
+                            }
                         }
                     } else {
+                        $this->error_array[$key][$Ckey] = $row;
                         array_push($check, false);
                     }
                 }
-            } else {
+            }
+            // Check is not an array
+            else {
+                // Check if key is existing in the Settings
                 if(isset($this->$key)) {
+                    // Check if the value is not an array
                     if(!is_array($value) && $value != null && $value != "" || $value == false) {
                         $this->$key = $value;
                     } else {
+                        $this->error_array[$key] = $value;
                         array_push($check, false);
                     }
                 } else {
+                    $this->error_array[$key] = $value;
                     array_push($check, false);
                 }
             }
         }
+        // Return true if all Settings are correct
         return count($check) == array_sum($check) ? true : false;
     }
 
     /**
-     * FUN Global Database connection.
+     * FUN: Global Database connection.
      */
     protected function checkDatabase() {
-        // Try the connection to the database
+        // Get the current Type for the connection
+        switch (strtolower($this->sql_infos["Type"])) {
+            case 'mssql':
+                $SV = "sqlsrv:Server=";
+                $DB = "Database=";
+                break;
+            case 'mysql':
+                $SV = "mysql:host=";
+                $DB = "dbname=";
+                break;
+            case 'odbc':
+                $SV = "dblib:host=";
+                $DB = "dbname=";
+                break;
+            default:
+                $this->error('database_check', __CLASS__, __FUNCTION__, __LINE__);
+                return false;
+                break;
+        }
+        // Try the connection to the database with given Type
         try {
-            $PDO = new PDO("mysql:host=".CMS::HOST.";dbname=".CMS::DATABASE.";charset=utf8", CMS::USER, CMS::PASSWORD, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
+            $this->sql_infos["PDO"] = new PDO($SV.$this->sql_infos['HOST'].";".$DB.$this->sql_infos['DATABASE'].";", $this->sql_infos['USER'], $this->sql_infos['PASSWORD'], array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
         }
         catch(PDOException $ex) {
             if(!$this->create_Database()) {
                 $this->error($ex->getMessage(), __CLASS__, __FUNCTION__, __LINE__);
                 return false;
-            }
-        }
-        try {
-            if(mysqli_connect(CMS::HOST, CMS::USER, CMS::PASSWORD, CMS::DATABASE)) {
-                $CON = mysqli_connect(CMS::HOST, CMS::USER, CMS::PASSWORD, CMS::DATABASE);
             } else {
-                throw new Exception('Unable to connect');
+                $this->error('sql_conn', __CLASS__, __FUNCTION__, __LINE__);
+                return false;
             }
-        }
-        catch(Exception $ex) {
-            $this->error($ex->getMessage(), __CLASS__, __FUNCTION__, __LINE__);
-            return false;
         }
         return true;
     }
 
     /**
-     * FUN Check if all Functions that we need for the Calendar are existing in the Settings class.
+     * FUN: Check if all Functions that we need for the Calendar are existing in the CMS_Settings class.
      */
     protected function checkAllFunctions() {
         $check = array(true);
         // Loop trow the Functions array to check each Function
         foreach ($this->functions as $key => $value) {
-            if(method_exists('Settings', $value)) {
+            if(method_exists('CMS_Settings', $value)) {
                 array_push($check, true);
             } else {
                 array_push($check, false);
@@ -953,42 +1130,51 @@ class CMS {
     }
 
     /**
-     * FUN Change the System Theme.
+     * FUN: Change the System Theme.
      * Get all Variables from the layout.php file.
      */
     public function change_theme() {
-        // Check if the Theme is existing
-        if(isset($this->theme_styles[$this->theme])) {
+        // Check if the Theme is in the cms or from User by url
+        if(isset($this->theme_styles[$this->theme["theme"]])) {
             // Check if the Theme is an array
-            if(is_array($this->theme_styles[$this->theme])) {
+            if(is_array($this->theme_styles[$this->theme["theme"]])) {
                 // Check if the custom array is not null for the current Theme
-                if(isset($this->theme_styles["custom"][$this->theme])) {
+                if(isset($this->theme_styles["custom"][$this->theme["theme"]])) {
                     // Loop trow the Theme variables to set it into the $this->theme array
-                    foreach ($this->theme_styles[$this->theme] as $key => $value) {
+                    foreach ($this->theme_styles[$this->theme["theme"]] as $key => $value) {
                         $_SESSION["TH"][$key] = $value;
                     }
                     // Loop trow the custom css sytles
                     $_SESSION["TH"]["custom"] = "";
-                    $count = count($this->theme_styles["custom"][$this->theme]);
+                    $count = count($this->theme_styles["custom"][$this->theme["theme"]]);
                     for ($i = 0; $i < $count; $i++) {
-                        $_SESSION["TH"]["custom"] .= $this->theme_styles["custom"][$this->theme][$i];
+                        $_SESSION["TH"]["custom"] .= $this->theme_styles["custom"][$this->theme["theme"]][$i];
                     }
                 } else {
                     // Loop trow the Theme variables to set it into the $this->theme array
-                    foreach ($this->theme_styles[$this->theme] as $key => $value) {
+                    foreach ($this->theme_styles[$this->theme["theme"]] as $key => $value) {
                         $_SESSION["TH"][$key] = $value;
                     }
                 }
             } else {
                 $this->error('theme_var_not_found', __CLASS__, __FUNCTION__, __LINE__);
             }
-        } else {
+        }
+        // Theme is not from cms get Theme from url
+        else if(file_exists($this->theme["custom_url"])) {
+            $theme_styles = file_get_contents($this->theme["custom_url"]);
+            // Loop trow the Theme variables to set it into the $GS array
+            foreach ($theme_styles as $key => $value) {
+                $_SESSION["TH"][$key] = $value;
+            }
+        }
+        // No Theme is found
+        else {
             $this->error('theme_not_found', __CLASS__, __FUNCTION__, __LINE__);
         }
         // Display the css file
-        echo '<link rel="stylesheet" href="css/styles.css.php" type="text/css">
-        <input type="zahl" hidden name="min_nights_for_booking" id="min_nights_for_booking" value="'.$this->min_days.'" style="display: hidden;">';
-        
+        echo '<link rel="stylesheet" href="css/styles.css.php" type="text/css">';
+
         // Check if the RTL support is active
         if($this->rtl_check) {
             echo '<html dir="rtl">';
@@ -996,36 +1182,27 @@ class CMS {
     }
 
     /**
-     * FUN Get all Events, Bookings by id from it self.
+     * FUN: Get all Events, Bookings by id from it self.
      */
     protected function getAllBookings($startDate, $endDate) {
-        $sql = "SELECT *
-                FROM events";
-
-        $mysqli = new mysqli(CMS::HOST, CMS::USER, CMS::PASSWORD, CMS::DATABASE);
-        // Check the connection
-        if($mysqli->connect_error) {
-            $this->error('theme_not_found', __CLASS__, __FUNCTION__, __LINE__);
-        }
-        $mysqli->set_charset("utf8");
-        $RS = $mysqli->query($sql);
-        $mysqli->close();
+        // Get all infos from the given Database
+        $ST = $this->sql_infos["PDO"]->prepare("SELECT * FROM events");
         
         // Check the query
-        if(!$RS) {
-            $this->error('mysqli_query', __CLASS__, __FUNCTION__, __LINE__);
+        if(!$ST->execute()) {
+            $this->error('sql_query', __CLASS__, __FUNCTION__, __LINE__);
         }
-        // Loop trow all Events, Bookings and set each Event, Booking as new Settings class
-        while($data = $RS->fetch_object()) {
-            $EVENT_End = DateTime::createFromFormat("d/m/Y", date("d/m/Y", strtotime($data->end_date)), new DateTimeZone("UTC"));
+        // Loop trow all Events, Bookings and set each Event, Booking as new CMS_Settings class
+        while($data = $ST->fetch()) {
+            $EVENT_End = DateTime::createFromFormat("d/m/Y", date("d/m/Y", strtotime($data["end_date"])), new DateTimeZone("UTC"));
             // Check the Date and with status are the Event, Reservation have
             if(($EVENT_End >= $startDate) && ($EVENT_End <= $endDate)) {
-                array_push($this->EVENTS, new Settings($data));
+                array_push($this->EVENTS, new CMS_Settings($data));
             }
         }
         // Get all Bookings as count
-        $this->allBookings = $RS->num_rows;
-
+        $this->allBookings = $ST->rowCount();
+        
         // Sort array to ASC mode by date
         usort($this->EVENTS, function($a, $b) {
             return $a->getStart_date()->format('U') - $b->getStart_date()->format('U');
@@ -1033,7 +1210,7 @@ class CMS {
     }
 
     /**
-     * FUN Check Event, Apartment or Room by id and get all informations about that.
+     * FUN: Check Event, Apartment or Room by id and get all informations about that.
      */
     protected function getAllInfosFromRoom() {
         // Check if the Payment Function is active
@@ -1041,7 +1218,7 @@ class CMS {
             $RS = $this->getAllPayments();
             $isFirst = true;
             // Get all Payments for the Event, Apartment, Room
-            while($PY = $RS->fetch_object()) {
+            while($PY = $RS->fetchObject()) {
                 if($PY->is_active == 1) {
                     if($isFirst) {
                         $this->option_pay = '<option class="checked" value="'.$PY->payment.'">'.$PY->payment.'</option>';
@@ -1061,9 +1238,9 @@ class CMS {
             $RS = $this->getAllPersons();
             $isFirst = true;
             // Check if there is more than 1 Event as Select option
-            if($RS->num_rows > 1) {
+            if($RS->rowCount() > 1) {
                 // Get all Persons for the Event, Apartment, Room
-                while($PS = $RS->fetch_object()) {
+                while($PS = $RS->fetchObject()) {
                     if($isFirst) {
                         $this->option_event = '<option class="checked" value="'.$PS->id.'">'.$PS->event_name.'</option>';
                         // Get all Persons as select option
@@ -1087,7 +1264,7 @@ class CMS {
                 }
             } else {
                 // Get all Persons for the Event, Apartment, Room
-                while($PS = $RS->fetch_object()) {
+                while($PS = $RS->fetchObject()) {
                     // Get all Persons as select option
                     for ($i = 1; $i <= $PS->persons; $i++) {
                         if($i == 1) {
@@ -1107,7 +1284,7 @@ class CMS {
     }
 
     /**
-     * FUN Get an Key from the json file.
+     * FUN: Get an Key from the json file.
      * By the given Key and Name
      */
     protected function getKey($key, $name = array()) {
@@ -1128,7 +1305,7 @@ class CMS {
     }
 
     /**
-     * FUN Check the Given Months (User Months) by index.
+     * FUN: Check the Given Months (User Months) by index.
      * 
      * if month is older than current month return false.
      * else retun the index as month
@@ -1159,7 +1336,7 @@ class CMS {
     }
 
     /**
-     * FUN Create the Calender with all Settings you have set.
+     * FUN: Create the Calender with all Settings you have set.
      */
     public function showCalendar($year, $month_index) {
         // Check if month_index is null
@@ -1167,7 +1344,11 @@ class CMS {
             $month_index = 1;
         }
         // Setup the current year and month
-        $this->current_year = intval(trim($year));
+        if($this->cur_year != null && $this->cur_year < $year) {
+            $this->current_year = intval(trim($this->cur_year));
+        } else {
+            $this->current_year = intval(trim($year));
+        }
         $this->current_month = intval(trim($month_index));
 
         // Create an new Date object for start, end date
@@ -1180,12 +1361,12 @@ class CMS {
         }
         // Bookings and Database are false but my_events can be true
         else if(!$this->database_check && count($this->my_events) > 0) {
-            // Loop trow the my_events array and set each Event, Booking as new Settings class
+            // Loop trow the my_events array and set each Event, Booking as new CMS_Settings class
             foreach ($this->my_events as $data) {
                 $EVENT_End = DateTime::createFromFormat("d/m/Y", date("d/m/Y", strtotime($data["end_date"])), new DateTimeZone("UTC"));
                 // Check the Date and with status are the Event, Reservation have
                 if(($EVENT_End >= $startDate) && ($EVENT_End <= $endDate)) {
-                    array_push($this->EVENTS, new Settings($data));
+                    array_push($this->EVENTS, new CMS_Settings($data));
                 }
             }
             // Sort Events array from the User by Datetime in ASC mode
@@ -1197,11 +1378,14 @@ class CMS {
         else {
             $this->EVENTS = array();
         }
-        // Create the Header with Buttons and Legend
-        $this->_drawCalendarHeader();
-
-        echo "<div class=\"{$this->theme} calendar row\">";
-
+        // Create the Header with Buttons and Legend if ajax is false
+        if(!$this->ajax) {
+            echo '<div class="'.$this->theme['theme'].'" name="cms_calendar" id="cms_calendar">
+                <div class="cms-header">';
+                    $this->_drawCalendarHeader();
+            echo '</div>
+                <div class="cms-body"><div class="col-12 row">';
+        }
         // Loop trow all Months as index
         if(count($this->my_months) > 0 && $this->my_months[0] != "") {
             // Check the Months that the User has given in the array
@@ -1220,7 +1404,7 @@ class CMS {
                     $j = array_search($name, $month) +1;
                     
                     // Display the current Month with Events, Bookings inside
-                    echo "<div class=\"{$this->theme} month table-responsive col-xs-4 col-md-6 col-lg-4\">";
+                    echo "<div class=\"month table-responsive ".($this->auto_size ? 'col' : 'col-xs-4 col-md-6 col-lg-4')."\">";
                         $this->_showCalendarMonth($j == 13 ? 1 : $j, $this->getYear($year, $j));
                     echo "</div>";
                 }
@@ -1235,27 +1419,34 @@ class CMS {
                     break;
                 }
                 // Display the current Month with Events, Bookings inside
-                echo "<div class=\"{$this->theme} month table-responsive col-xs-4 col-md-6 col-lg-4\">";
+                echo "<div class=\"month table-responsive ".($this->auto_size ? 'col' : 'col-xs-4 col-md-6 col-lg-4')."\">";
                     $this->_showCalendarMonth($i == 13 ? 1 : $i, $this->getYear($year, $i));
                 echo "</div>";
             }
         }
-        // End of the CMS System print out end of div
-        echo '</div>';
-
-        // Create the Event Form
+        // End of the cms-calendar print out if ajax is false
+        if(!$this->ajax) {
+            echo "</div></div>";
+        }
+        // Create the Event Form if ajax is false
         if($this->event_form['active']) {
             // Get All informations from Apartment, Room
             $this->getAllInfosFromRoom();
-
-            if($this->event_form['modal']) {
+            
+            // Print form if ajax is false
+            if($this->event_form['modal'] && !$this->ajax) {
                 $this->_drawBookingFormModal();
             } else {
-                $this->_drawBookingForm();
+                // Check if ajax is false
+                if(!$this->ajax) {
+                    echo '<div class="cms-footer">';
+                        $this->_drawBookingForm();
+                    echo '</div>';
+                }
             }
         }
-        // Create the Static Modal if is activated
-        if($this->static_infos["active"]) {
+        // Create the Static Modal if is activated if ajax is false
+        if($this->static_infos["active"] && !$this->ajax) {
             $this->_drawStaticModal();
         }
         // Check if the error_msg is empty
@@ -1264,12 +1455,12 @@ class CMS {
         } else {
             $this->error('cms_create_error', __CLASS__, __FUNCTION__, __LINE__);
         }
-        // last but not least get all Notifys for the cms.js
-        $this->_drawJSscriptNotifys();
+        // End of CMS System
+        echo '</div>';
     }
 
     /**
-     * FUN Get all Tooltip Functions from the User array.
+     * FUN: Get all Tooltip Functions from the User array.
      */
     protected function getTooltipFunctions($EVENT) {
         $count = count($this->tooltip_functions);
@@ -1294,7 +1485,7 @@ class CMS {
     }
 
     /**
-     * FUN Create the Tooltip with status and some informations about the Resevation, Event.
+     * FUN: Create the Tooltip with status and some informations about the Resevation, Event.
      */
     protected function createTooltip($EVENT) {
         if($EVENT->getStatus() == CMS::AKTIVE) {
@@ -1323,7 +1514,7 @@ class CMS {
     }
 
     /**
-     * FUN Check if Date is in range with current Event dates.
+     * FUN: Check if Date is in range with current Event dates.
      */
     protected function isDateInRange($EVENT, $dayToCheck) {
         $dateRangeEnd = $EVENT->getEnd_date();
@@ -1338,7 +1529,7 @@ class CMS {
     }
 
     /**
-     * FUN Check Current Status from Event, Reservation if is true or false.
+     * FUN: Check Current Status from Event, Reservation if is true or false.
      */
     protected function checkStatus($EVENT) {
         if($EVENT != null) {
@@ -1350,7 +1541,7 @@ class CMS {
     }
 
     /**
-     * FUN Check the Current `test_event` Status is `1` and if hidde_event is true than return true.
+     * FUN: Check the Current `test_event` Status is `1` and if hidde_event is true than return true.
      */
     protected function checkHidden($EVENT) {
         if($this->hidde_events) {
@@ -1360,7 +1551,7 @@ class CMS {
     }
 
     /**
-     * FUN Return the calculated Year.
+     * FUN: Return the calculated Year.
      * 
      * if the `max_year` var is more than the current Year.
      * Also check if the Month is lower than the `hidden` var.
@@ -1375,7 +1566,7 @@ class CMS {
     }
 
     /** 
-     * FUN Create each Month and check each Day if there is an Event.
+     * FUN: Create each Month and check each Day if there is an Event.
      */
     protected function _showCalendarMonth($month, $year) {
         // Create all variables that we need to start the while loop
@@ -1450,6 +1641,7 @@ class CMS {
                                     $this->_drawCalendardayBooked($row);
                                 }
                                 else if($tempDate->format('d.m.Y') == $row->getStart_date()->format('d.m.Y')) {
+                                    $this->custom_code = $row->getCustom_code();
                                     $this->_drawCalendardayBookedStart($row);
                                 }
                                 else if($tempDate->format('d.m.Y') == $row->getEnd_date()->format('d.m.Y')) {
@@ -1471,9 +1663,11 @@ class CMS {
                         }
                     }
                 } else if(isset($this->EVENTS[$this->current_booking]) && !$this->checkStatus($this->EVENTS[$this->current_booking]) ) {
+                    $this->custom_code = "";
                     $this->_drawCalendardayFree();
                     $this->current_booking++;
                 } else {
+                    $this->custom_code = "";
                     $this->_drawCalendardayFree();
                 }
                 // Print End of the Day
@@ -1509,11 +1703,12 @@ class CMS {
             }
         }
         // Print end of table
-        echo '</tbody></table>';
+        echo "</tbody>
+        </table>";
     }
 
     /**
-     * FUN Check the Event status printout start_date from Event.
+     * FUN: Check the Event status printout start_date from Event.
      */
     protected function _drawCalendardayBookedStart($EVENT) {
         if($EVENT->getStatus() == CMS::AKTIVE) {
@@ -1539,7 +1734,7 @@ class CMS {
     }
 
     /**
-     * FUN Check the Event status printout end_date from Event.
+     * FUN: Check the Event status printout end_date from Event.
      */
     protected function _drawCalendardayBookedEnd($EVENT, $tempDate) {
         if($EVENT->getStatus() == CMS::AKTIVE) {
@@ -1567,7 +1762,7 @@ class CMS {
     }
 
     /**
-     * FUN Check the Event status printout date from Event.
+     * FUN: Check the Event status printout date from Event.
      */
     protected function _drawCalendardayBooked($EVENT) {
         if($EVENT->getStatus() == CMS::AKTIVE) {
@@ -1593,7 +1788,7 @@ class CMS {
     }
 
     /**
-     * FUN Check if there is an Event start_date == end_date from last Event.
+     * FUN: Check if there is an Event start_date == end_date from last Event.
      * Check the Status from the current and the last booking select an class by status
      */
     protected function _drawCalendardayBookedNew($status, $tempDate) {
@@ -1629,6 +1824,8 @@ class CMS {
                     } else {
                         $this->error('status_check', __CLASS__, __FUNCTION__, __LINE__);
                     }
+                    // Get the Current code for the Next Event, Booking
+                    $this->custom_code = $EVENT->getCustom_code();
                     // Print out the Event, Booking
                     $this->_printEventsOut();
                 }
@@ -1637,7 +1834,7 @@ class CMS {
     }
 
     /**
-     * FUN There is no Event printout free.
+     * FUN: There is no Event printout free.
      */
     protected function _drawCalendardayFree() {
         $this->class_1 = "free";
@@ -1645,22 +1842,22 @@ class CMS {
     }
 
     /**
-     * FUN Print out the Created Events, Bookings from the Classes.
+     * FUN: Print out the Created Events, Bookings from the Classes.
      */
     protected function _printEventsOut() {
         if($this->class_1 != "") {
-            echo "<li><span class=\"{$this->class_1}\" data-toggle=\"tooltip\" title=\"{$this->tooltip_text_1}\"></span></li>";
+            echo "<li><span class=\"{$this->class_1}\" data-code=\"{$this->custom_code}\" data-toggle=\"tooltip\" title=\"{$this->tooltip_text_1}\"></span></li>";
         }
         if($this->class_2 != "") {
-            echo "<li><span class=\"{$this->class_2}\" data-toggle=\"tooltip\" title=\"{$this->tooltip_text_2}\"></span></li>";
+            echo "<li><span class=\"{$this->class_2}\" data-code=\"{$this->custom_code}\" data-toggle=\"tooltip\" title=\"{$this->tooltip_text_2}\"></span></li>";
         }
         if($this->class_3 != "") {
-            echo "<li><span class=\"{$this->class_3}\" data-toggle=\"tooltip\" title=\"{$this->tooltip_text_3}\"></span></li>";
+            echo "<li><span class=\"{$this->class_3}\" data-code=\"{$this->custom_code}\" data-toggle=\"tooltip\" title=\"{$this->tooltip_text_3}\"></span></li>";
         }
     }
 
     /**
-     * FUN Create the Header on top of Calendar.
+     * FUN: Create the Header on top of Calendar.
      * check all elements variables if there is one true print this element
      */
     protected function _drawCalendarHeader() {
@@ -1674,75 +1871,122 @@ class CMS {
         // Check if the prev_month is Negative
         if($this->prev_month <= 0) {
             $this->prev_month = 1 + $this->hidden_months;
-            // Check if the month is lower than 12
-            for($i = 1; $i < 12; $i++) {
-                // Check second time if the month is lower than 12
-                if($this->prev_month < 12 && ($this->prev_month + $this->hidden_months) <= 12) {
-                    $this->prev_month = $this->prev_month + $this->hidden_months;
-                }
-            }
+        }
+        // Check second time if the month is lower than 12
+        if($this->prev_month < 12 && ($this->prev_month + $this->hidden_months) <= 12) {
+            $this->prev_month = $this->prev_month + $this->hidden_months;
         }
         // Check if the prev_month is higger 12
         if($this->prev_month >= 12) {
             $this->prev_month = 13 - $this->hidden_months;
         }
         // Create the Prev & Next Button to switch the Months and Years
-        if($this->buttons["active"]) {
-            echo '<div class="text-center">';
-                $this->_drawNaviButtons();
-            echo "</div>";
-        }
-        // Create the Statics if is active
-        if($this->static_infos["active"]) {
-            echo '<button class="btn '.$this->getKey('class', ['button' => 'static']).' float-right '.$this->getKey('class', ['margin' => 'm-left']).'" data-toggle="modal" data-target="#staticModal"><i class="'.$this->getKey('class', ['icons' => 'static']).'"></i></button>';
-        }
-        // Create the Legend if is Active
-        if($this->legend) {
-            echo "<p id=\"legend\">".$this->json_lg["legend"][$this->lg]."
-                    <span style=\"background: ".$this->theme_styles[$this->theme]["status_name_1"].";\"></span>".$this->json_lg["status_name_1"][$this->lg]."
-                    <span style=\"background: ".$this->theme_styles[$this->theme]["status_name_2"].";\"></span>".$this->json_lg["status_name_2"][$this->lg]."
-                    <span style=\"background: ".$this->theme_styles[$this->theme]["status_name_3"].";\"></span>".$this->json_lg["status_name_3"][$this->lg]."
-                    <span style=\"background: ".$this->theme_styles[$this->theme]["selection"].";\"></span>".$this->json_lg["selection"][$this->lg]."
-                    <span style=\"background: ".$this->theme_styles[$this->theme]["Active_Day_Background"].";\"></span>".$this->json_lg["current_day"][$this->lg]."
-                </p>";
-        }
+        $this->_drawNaviButtons();
+
         // Rebuild the current year variable
         $this->current_year = $year;
     }
     
     /**
-     * FUN Create foreach Month the headers in the Calendar.
+     * FUN: Create foreach Month the headers in the Calendar.
      */
     protected function _drawMonthTableHeader($date) {
-        echo "<table class=\"table table-bordered table-striped\" id=\"month_{$date->format("n")}\">"
-            . "<thead>"
-            . "<tr><th colspan=\"7\" class=\"monthName\">".$this->month_names[($date->format("n")-1)]."<span class=\"yearName\">".$date->format("Y")."</span></th></tr>"
-            . "<tr>"
-            . "<td class=\"weekDay\">".$this->json_lg["week_day_1"][$this->lg]."</td>"
-            . "<td class=\"weekDay\">".$this->json_lg["week_day_2"][$this->lg]."</td>"
-            . "<td class=\"weekDay\">".$this->json_lg["week_day_3"][$this->lg]."</td>"
-            . "<td class=\"weekDay\">".$this->json_lg["week_day_4"][$this->lg]."</td>"
-            . "<td class=\"weekDay\">".$this->json_lg["week_day_5"][$this->lg]."</td>"
-            . "<td class=\"weekDay\">".$this->json_lg["week_day_6"][$this->lg]."</td>"
-            . "<td class=\"weekDay\">".$this->json_lg["week_day_7"][$this->lg]."</td>"
-            . "</tr></thead><tbody>";
+        echo "<table class=\"table table-bordered table-striped\" id=\"month_{$date->format("n")}\">
+            <thead>
+                <tr>
+                    <th colspan=\"7\" class=\"monthName\">".$this->month_names[($date->format("n")-1)]."<span class=\"yearName\">".$date->format("Y")."</span></th>
+                </tr>
+                <tr>
+                    <td class=\"weekDay\">".$this->json_lg["week_day_1"][$this->lg]."</td>
+                    <td class=\"weekDay\">".$this->json_lg["week_day_2"][$this->lg]."</td>
+                    <td class=\"weekDay\">".$this->json_lg["week_day_3"][$this->lg]."</td>
+                    <td class=\"weekDay\">".$this->json_lg["week_day_4"][$this->lg]."</td>
+                    <td class=\"weekDay\">".$this->json_lg["week_day_5"][$this->lg]."</td>
+                    <td class=\"weekDay\">".$this->json_lg["week_day_6"][$this->lg]."</td>
+                    <td class=\"weekDay\">".$this->json_lg["week_day_7"][$this->lg]."</td>
+                </tr>
+            </thead>
+        <tbody>";
     }
 
     /**
-     * FUN Create all the active Buttons.
+     * FUN: Create all the active Buttons.
      */
     protected function _drawNaviButtons() {
+        // Create each Button with the current from if is active
+        foreach ($this->header as $key => $value) {
+            if($key == "left" || $key == "center" || $key == "right") {
+                // Check with side the Button is
+                if($key == "left") {
+                    echo '<div class="cms-left">';
+                } else if($key == "center") {
+                    echo '<div class="cms-center">';
+                } else {
+                    echo '<div class="cms-right">';
+                }
+                // Loop trought all buttons and draw it out
+                foreach ($value as $Ckey => $row) {
+                    if($Ckey == "year_view" && $row) {
+                        echo '<button class="btn '.$this->getKey('class', ['button' => 'year']).'" value="'.$this->current_year.'" name="year_view" id="year_view" data-toggle="tooltip" title="'.$this->json_lg["header_1"][$this->lg].'"><i class="'.$this->getKey('class', ['icons' => 'year']).'"></i></button>';
+                        unset($this->header[$key][$Ckey]);
+                    }
+                    if($Ckey == "month_view" && $row) {
+                        echo '<button class="btn '.$this->getKey('class', ['button' => 'month']).'" value="'.$this->current_month.'" name="month_view" id="month_view" data-toggle="tooltip" title="'.$this->json_lg["header_2"][$this->lg].'"><i class="'.$this->getKey('class', ['icons' => 'month']).'"></i></button>';
+                        unset($this->header[$key][$Ckey]);
+                    }
+                    if($Ckey == "week_view" && $row) {
+                        echo '<button class="btn '.$this->getKey('class', ['button' => 'week']).'" value="'.date('W').'" name="week_view" id="week_view" data-toggle="tooltip" title="'.$this->json_lg["header_3"][$this->lg].'"><i class="'.$this->getKey('class', ['icons' => 'week']).'"></i></button>';
+                        unset($this->header[$key][$Ckey]);
+                    }
+                    if($Ckey == "day_view" && $row) {
+                        echo '<button class="btn '.$this->getKey('class', ['button' => 'day']).'" value="'.date('d').'" name="day_view" id="day_view" data-toggle="tooltip" title="'.$this->json_lg["header_4"][$this->lg].'"><i class="'.$this->getKey('class', ['icons' => 'day']).'"></i></button>';
+                        unset($this->header[$key][$Ckey]);
+                    }
+                    if($Ckey == "today" && $row) {
+                        echo '<button class="btn '.$this->getKey('class', ['button' => 'today']).'" onclick="window.location.href=\''.$this->header['url'].'&year='.date('Y').'&month='.date('m').'\'" data-toggle="tooltip" title="'.$this->json_lg["header_5"][$this->lg].'"><i class="'.$this->getKey('class', ['icons' => 'current_day']).'"></i></button>';
+                        unset($this->header[$key][$Ckey]);
+                    }
+                    if($Ckey == "legend" && $row) {
+                        echo "<p class=\"float-{$key}\" id=\"legend\">".$this->json_lg["legend"][$this->lg]."
+                            <span style=\"background: ".$this->theme_styles[$this->theme["theme"]]["status_name_1"].";\"></span>".$this->json_lg["status_name_1"][$this->lg]."
+                            <span style=\"background: ".$this->theme_styles[$this->theme["theme"]]["status_name_2"].";\"></span>".$this->json_lg["status_name_2"][$this->lg]."
+                            <span style=\"background: ".$this->theme_styles[$this->theme["theme"]]["status_name_3"].";\"></span>".$this->json_lg["status_name_3"][$this->lg]."
+                            <span style=\"background: ".$this->theme_styles[$this->theme["theme"]]["selection"].";\"></span>".$this->json_lg["selection"][$this->lg]."
+                            <span style=\"background: ".$this->theme_styles[$this->theme["theme"]]["Active_Day_Background"].";\"></span>".$this->json_lg["current_day"][$this->lg]."
+                        </p>";
+                        unset($this->header[$key][$Ckey]);
+                    }
+                }
+                // Create the Pagination Buttons
+                $this->_drawNaviSwitchButtons($key);
+                
+                // Create the Statics if is active
+                if($key == "right") {
+                    if($this->static_infos["active"]) {
+                        echo '<button class="btn '.$this->getKey('class', ['button' => 'static']).' '.$this->getKey('class', ['margin' => 'm-left']).'" data-toggle="modal" data-target="#staticModal"><i data-toggle="tooltip" title="'.$this->json_lg["header_6"][$this->lg].'" class="'.$this->getKey('class', ['icons' => 'static']).'"></i></button>';
+                    }
+                }
+                // End of the toolbar
+                echo '</div>';
+            }
+        }
+    }
+
+    /**
+     * FUN: Create all active Switch Buttons inside the Navigation.
+     */
+    protected function _drawNaviSwitchButtons($from = "center") {
         // Check if the prev month function is active
-        if(!count($this->my_months) > 0 && $this->hidden_months < 13 && $this->buttons["prev_month"]) {
+        if($this->hidden_months < 13 && isset($this->header[$from]["prev_month"])) {
             if($this->current_month == 1) {
                 $this->current_year = $this->current_year - 1;
                 $change = true;
             }
-            if($this->prev_month <= $this->min_year) {
-                echo "<a href=\"{$this->buttons['url']}&year={$this->current_year}&month={$this->prev_month}\" "
+            if($this->prev_year <= $this->min_year) {
+                echo "<a href=\"{$this->header['url']}&year={$this->current_year}&month={$this->prev_month}\" "
                 . "class=\"btn ".$this->getKey('class', ['button' => 'prev_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-right: 5px;\"><i class=\"{$this->getKey('class', ['icons' => 'prev_month'])}\"></i></a>";
             } else {
-                echo "<a href=\"{$this->buttons['url']}&year={$this->current_year}&month={$this->prev_month}\" "
+                echo "<a href=\"{$this->header['url']}&year={$this->current_year}&month={$this->prev_month}\" "
                 . "disabled class=\"btn disabled ".$this->getKey('class', ['button' => 'prev_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-right: 5px;\"><i class=\"{$this->getKey('class', ['icons' => 'prev_month'])}\"></i></a>";
             }
             if(isset($change) && $change) {
@@ -1751,35 +1995,35 @@ class CMS {
             }
         }
         // Check if the prev and next year function is active
-        if($this->buttons["prev_year"] && $this->buttons["next_year"]) {
+        if(isset($this->header[$from]["prev_year"]) && isset($this->header[$from]["next_year"])) {
             if($this->prev_year >= $this->min_year) {
-                echo "<a href=\"{$this->buttons['url']}&year={$this->prev_year}&month={$this->current_month}\" "
+                echo "<a href=\"{$this->header['url']}&year={$this->prev_year}&month={$this->current_month}\" "
                 . "class=\"btn ".$this->getKey('class', ['button' => 'prev_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-right: 5px;\">{$this->prev_year}</a>";
             }
                 echo "<a href=\"\" class=\"btn ".$this->getKey('class', ['button' => 'current_year'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"pointer-events: none;\">{$this->current_year}</a>";
             if($this->next_year <= $this->max_year) {
-                echo "<a href=\"{$this->buttons['url']}&year={$this->next_year}&month={$this->current_month}\" "
+                echo "<a href=\"{$this->header['url']}&year={$this->next_year}&month={$this->current_month}\" "
                 . "class=\"btn ".$this->getKey('class', ['button' => 'next_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-left: 5px;\">{$this->next_year}</a>";
             }
         }
         // Check if the prev year function is active
-        else if($this->buttons["prev_year"] && !$this->buttons["next_year"]) {
+        else if(isset($this->header[$from]["prev_year"])) {
             if($this->prev_year >= $this->min_year) {
-                echo "<a href=\"{$this->buttons['url']}&year={$this->prev_year}&month={$this->current_month}\" "
+                echo "<a href=\"{$this->header['url']}&year={$this->prev_year}&month={$this->current_month}\" "
                 . "class=\"btn ".$this->getKey('class', ['button' => 'prev_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-right: 5px;\">{$this->prev_year}</a>";
                 echo "<a href=\"\" class=\"btn ".$this->getKey('class', ['button' => 'current_year'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"pointer-events: none;\">{$this->current_year}</a>";
             }
         }
         // Check if the next year function is active
-        else if($this->buttons["next_year"] && !$this->buttons["prev_year"]) {
+        else if(isset($this->header[$from]["next_year"])) {
             if($this->next_year <= $this->max_year) {
                 echo "<a href=\"\" class=\"btn ".$this->getKey('class', ['button' => 'current_year'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"pointer-events: none;\">{$this->current_year}</a>";
-                echo "<a href=\"{$this->buttons['url']}&year={$this->next_year}&month={$this->current_month}\" "
+                echo "<a href=\"{$this->header['url']}&year={$this->next_year}&month={$this->current_month}\" "
                 . "class=\"btn ".$this->getKey('class', ['button' => 'next_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-left: 5px;\">{$this->next_year}</a>";
             }
         }
         // Check if the next month function is active
-        if(!count($this->my_months) > 0 && $this->hidden_months < 13 && $this->buttons["next_month"]) {
+        if($this->hidden_months < 13 && isset($this->header[$from]["next_month"])) {
             // Check if next_month is lower than 12
             if($this->next_month <= 12) {
                 if($this->current_month == 12) {
@@ -1792,37 +2036,20 @@ class CMS {
                 $this->current_year = $this->current_year +1;
             }
             if($this->next_month <= $this->max_year) {
-                echo "<a href=\"{$this->buttons['url']}&year={$this->current_year}&month={$this->next_month}\" "
+                echo "<a href=\"{$this->header['url']}&year={$this->current_year}&month={$this->next_month}\" "
                 . "class=\"btn ".$this->getKey('class', ['button' => 'next_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-left: 5px;\"><i class=\"{$this->getKey('class', ['icons' => 'next_month'])}\"></i></a>";
             } else {
                 echo "<a href=\"#\" "
                 . "disabled class=\"btn disabled ".$this->getKey('class', ['button' => 'next_years'])." ".$this->getKey('class', ['margin' => 'm-bottom'])."\" style=\"margin-left: 5px;\"><i class=\"{$this->getKey('class', ['icons' => 'next_month'])}\"></i></a>";
             }
         }
-        // Create the Year Button if is active
-        if($this->buttons["year"]) {
-            echo '<button class="btn '.$this->getKey('class', ['button' => 'year']).' float-right"><i class="'.$this->getKey('class', ['icons' => 'year']).'"></i></button>';
-        }
-        // Create the Week Button if is active
-        if($this->buttons["week"]) {
-            echo '<button class="btn '.$this->getKey('class', ['button' => 'week']).' float-right"><i class="'.$this->getKey('class', ['icons' => 'week']).'"></i></button>';
-        }
-        // Create the Day Button if is active
-        if($this->buttons["day"]) {
-            echo '<button class="btn '.$this->getKey('class', ['button' => 'day']).' float-right"><i class="'.$this->getKey('class', ['icons' => 'day']).'"></i></button>';
-        }
-        // Create the Today Button if is Active
-        if($this->buttons["today"]) {
-            $today = date("Y");
-            echo '<button class="btn '.$this->getKey('class', ['button' => 'today']).' float-right" onclick="window.location.href=\''.$this->buttons['url'].'&year='.$today.'&month='. $this->current_month.'\'" ><i class="'.$this->getKey('class', ['icons' => 'current_day']).'"></i></button>';
-        }
     }
 
     /**
-     * FUN Create Event form and show all Payments and Persons as select.
+     * FUN: Create Event form and show all Payments and Persons as select.
      */
     protected function _drawBookingForm() {
-        echo '<div class="card '.$this->theme.'">
+        echo '<div class="card">
                 <div class="card-header">
                     <h4 class="card-title">'.$this->json_lg["selection_2"][$this->lg].'</h4>
                 </div>
@@ -1892,10 +2119,10 @@ class CMS {
     }
 
     /**
-     * FUN Create Event form as Modal and show all Payments and Persons as select.
+     * FUN: Create Event form as Modal and show all Payments and Persons as select.
      */
     protected function _drawBookingFormModal() {
-        echo '<div class="modal fade '.$this->theme.'" id="calendarModal" tabindex="-1" role="dialog" aria-labelledby="calendarModalLabel" aria-hidden="true">
+        echo '<div class="modal fade" id="calendarModal" tabindex="-1" role="dialog" aria-labelledby="calendarModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -1969,27 +2196,463 @@ class CMS {
     }
 
     /**
-     * FUN Create all cms.js info msg with the given language.
+     * FUN: Create the complette JavaScript file as an script tag in the HTML file with the given language.
      */
-    protected function _drawJSscriptNotifys() {
-        // print out all warnings and success to get it later in the cms.js file
+    protected function _drawJSscript() {
         echo '<script>
-            color = "'.$this->theme_styles[$this->theme]["selection"].'";
-            var notify_1 = "'.$this->json_lg["notify_1"][$this->lg].'",
-                notify_2 = "'.$this->json_lg["notify_2"][$this->lg].'",
-                notify_3 = "'.$this->json_lg["notify_3"][$this->lg].'",
-                notify_4 = "'.$this->json_lg["notify_4"][$this->lg].'",
-                notify_5 = "'.$this->json_lg["notify_5"][$this->lg].'",
-                notify_5_1 = "'.$this->json_lg["notify_5_1"][$this->lg].'",
-                notify_5_2 = "'.$this->json_lg["notify_5_2"][$this->lg].'",
-                notify_6 = "'.$this->json_lg["notify_6"][$this->lg].'",
-                notify_7 = "'.$this->json_lg["notify_7"][$this->lg].'"
-        </script>
-        ';
+        /**
+        * FUN: Setup the Bootstrap Tooltip function.
+        */
+        $(function() {
+            $("[data-toggle=\"tooltip\"]").tooltip({
+                html: true
+            });
+        });
+            
+        /**
+        * FUN: Setup the Bootstrap Notify function.
+        */
+        var type = ["primary", "info", "success", "warning", "danger"];
+        cms = {
+            showNotification: function(color, from, align, message, icon, url = "") {
+                $.notify({
+                    icon: icon,
+                    message: message,
+                    url: url,
+                    target: "_blank"
+                }, {
+                    newest_on_top: true,
+                    mouse_over: "pause",
+                    type: type[color],
+                    timer: 8000,
+                    placement: {
+                        from: from,
+                        align: align
+                    }
+                });
+            }
+        };
+            
+        /**
+        * FUN: CMS Calender Picker script.
+        */
+        var color = "'.$this->theme_styles[$this->theme["theme"]]["selection"].'",
+            firstdate = "";
+        $(document).ready(function() {
+            var firstClick = true,
+                startDate,
+                endDate,
+                arrivalDay = "",
+                leavingDay = "",
+                arrivalMonth = "",
+                leavingMonth = "",
+                datediff = 0,
+                options = {year: "numeric", month: "2-digit", day: "2-digit"},
+                datemin = '.$this->min_days.';
+        
+                /**
+                * FUN: check the arttribute of an element.
+                */
+                $.fn.hasAttr = function(name) {
+                    return this.attr(name) !== undefined;
+                };
+
+                /**
+                 * FUN: Return the current week from an date.
+                 */
+                Date.prototype.getWeek = function() {
+                    var onejan = new Date(this.getFullYear(),0,1);
+                    var millisecsInDay = 86400000;
+                    return Math.ceil((((this - onejan) /millisecsInDay) + onejan.getDay()+1)/7);
+                };
+                
+                /**
+                * FUN: Get the Start Date after first click and End Date after second click.
+                * 
+                * Show mark all cells between thes Dates and set the Date into the Event, Booking form
+                */
+                $("#cms_calendar").on("click", ".month tbody td", function() {
+                    var new_event = $(this).children("span:last-child"), // span new booking
+                        ul = $(this).find("ul"),                         // ul inside td
+                        li = $(this).find("ul li"),                      // li inside ul
+                        date = getDate($(this)),                         // date from the td (id)
+                        check_1 = $(this).hasClass("not-select-able"),   // check if is select able
+                        check_2 = $(this).hasAttr("data-set");           // second check if is select able
+                    
+                    // Set the current year, week and Day into the Buttons
+                    if($("#year_view").length > 0) {
+                        $("#year_view").attr("value", date.getFullYear());
+                    }
+                    if($("#week_view").length > 0) {
+                        $("#week_view").attr("value", date.getWeek());
+                    }
+                    if($("#day_view").length > 0) {
+                        $("#day_view").attr("value", date.getDate());
+                    }
+                    // Check the date and mark the cells from the Table
+                    if (!check_2) {
+                        if (!check_1 && new_event.hasClass("book_able")) {
+                            if (firstClick || firstClick == false && firstdate > date) {
+                                clear_li()
+                                startDate = date;
+                                if (!li.find("span").hasClass("booked-start") || !li.find("span").hasClass("booked") || !li.find("span").hasClass("booked-end")) {
+                                    ul.append("<li><span style=\"border-color: "+color+"; background-color: "+color+";\" class=\"booked-new-start\"></span></li>");
+                                    arrivalDay = startDate.getDate();
+                                    arrivalMonth = startDate.getMonth() + 1;
+                                    $("#arrival").attr("value", startDate.toLocaleDateString(undefined, options));
+                                    firstClick = false;
+                                    firstdate = date;
+                                    // if the datemin is disabled
+                                    if(datemin == 0 || datemin == null) {
+                                        $("#leaving").attr("value", startDate.toLocaleDateString(undefined, options));
+                                        leavingDay = arrivalDay;
+                                        leavingMonth = arrivalMonth;
+                                        firstClick = true;
+                                        if($("#calendarModal").length > 0) {
+                                            $("#calendarModal").modal("show");
+                                        }
+                                    }
+                                    return true;
+                                } else {
+                                    cms.showNotification("4", "top", "center", "'.$this->json_lg["notify_1"][$this->lg].'", "fas fa-bell");
+                                    firstClick = true;
+                                    return false;
+                                }
+                            } else {
+                                if (startDate < date) {
+                                    endDate = date;
+                                    leavingDay = endDate.getDate();
+                                    leavingMonth = endDate.getMonth() + 1;
+                                    if(checkDate(startDate.toLocaleDateString(), endDate.toLocaleDateString())) {
+                                        if(cellsColorMarked(startDate, endDate)) {
+                                            ul.append("<li><span style=\"border-color: "+color+"; background-color: "+color+";\" class=\"booked-new booked-new-end\"></span></li>");
+                                            $("#leaving").attr("value", endDate.toLocaleDateString(undefined, options));
+                                        }
+                                    } else {
+                                        cms.showNotification("4", "top", "center", "'.$this->json_lg["notify_2"][$this->lg].' "+datemin+".", "fas fa-bell");
+                                        firstClick = false;
+                                        return false;
+                                    }
+                                    firstClick = true;
+                                    if($("#calendarModal").length > 0) {
+                                        $("#calendarModal").modal("show");
+                                    }
+                                } else {
+                                    firstClick = true;
+                                    return true;
+                                }
+                            }
+                        } else {
+                            if(new_event.hasClass("book_able")) {
+                                cms.showNotification("4", "top", "center", "'.$this->json_lg["notify_3"][$this->lg].'", "fas fa-bell");
+                            } else {
+                                cms.showNotification("4", "top", "center", "'.$this->json_lg["notify_7"][$this->lg].'", "fas fa-bell");
+                            }
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
+                });
+            
+                /**
+                * FUN: check the Date and return true or false if date is not valide.
+                */
+                function checkDate(start = $("#arrival").val(), end = $("#leaving").val()) {
+                    // Check if the datmin is `0`
+                    if(datemin == 0 && $("#arrival").val() != "" && $("#leaving").val() != "") {
+                        return true;
+                    } else {
+                        // setup the variables and check if the Data is in range
+                        start = moment(start, "DD.MM.YYY");
+                        end = moment(end, "DD.MM.YYY");
+                        datediff = moment.duration(end.diff(start)).asDays() +1;
+                        // Check the Date if is in the same month
+                        if(arrivalMonth == leavingMonth) {
+                            // Check the Date Day if is lower or higer than the given Day
+                            if(arrivalDay < leavingDay && datediff >= datemin) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        } else {
+                            if(arrivalMonth < leavingMonth && datediff >= datemin) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            
+                /**
+                * FUN: Marks all cells between the start Date & the End Date.
+                */
+                function cellsColorMarked(start_Date, end_Date) {
+                    var td = $("#" + start_Date.toISOString().substring(0, 10));
+                    while(start_Date < end_Date) {
+                        // Check if start_date is first add class booked-new
+                        if(start_Date.toISOString() == start_Date.toISOString()) {
+                            td.find("ul li:last-child span").addClass("booked-new");
+                        }
+                        // Update the Date from the td
+                        start_Date.setDate(start_Date.getDate() + 1);
+                        // Get the td from the Table
+                        td = $("#" + start_Date.toISOString().substring(0, 10));
+                        // span new booking
+                        var ul = td.find("ul");
+                        // Check if start_date is same as end_date
+                        if(start_Date.toISOString() == end_Date.toISOString()) {
+                            break;
+                        }
+                        // Add the New Event, Booking
+                        ul.append("<li><span style=\"border-color: "+color+"; background-color: "+color+";\" class=\"booked-new\"></span></li>");
+                    }
+                    return true;
+                }
+            
+                /**
+                * FUN: Get the current date from the td Table cell.
+                */
+                function getDate(td) {
+                    // Get the current Date from the id of the clicked td field
+                    var cal = $(td).attr("id");
+                    var year = cal.match(/\d+/);
+                    var table = td.closest("table");
+                    var month = table.attr("id").match(/\d+/) - 1;
+                    // Create an new Date object and return it
+                    var date = new Date(Date.UTC(year, month, td.text(), 0, 0, 0, 0));
+                    return date;
+                }
+            
+                /**
+                * FUN: Remove and Clear all li points if there is an New Booking on it.
+                */
+                function clear_li() {
+                    $("td ul li").each( function() {
+                        if($(this).find("span").hasClass("booked-new-start") || $(this).find("span").hasClass("booked-new") || $(this).find("span").hasClass("booked-new-end")) {
+                            $(this).remove();
+                        }
+                    });
+                    // Clear all items
+                    $("#arrival").attr("value", "");
+                    $("#leaving").attr("value", "");
+                }
+        
+                /**
+                * FUN: Delete selected Date if Click is outside of Calendar and Date is only firstdate.
+                */
+                $(document).on("click", function(event) { 
+                    $target = $(event.target);
+                    // Check if the clicked element is not the form submit button or an td cell
+                    if(!$target.hasAttr("id")) {
+                        // Check if the element has an new event, booking inside the span
+                        if(!$target.closest("td").length && $("#arrival").val() != "" && firstClick == false || datemin == 0 && !$target.closest("td").length && $("#arrival").val() != "") {
+                            clear_li();
+                            firstClick = true;
+                        }
+                    }
+                    // Clear all view Buttons if the click is on the DOM
+                    if(!$target.is("button") && !$target.is("input") && !$target.is("i") && !$target.closest("td").children("span:last-child").hasClass("book_able")) {
+                        // Get the current date
+                        var d = new Date();
+                            $("#year_view").attr("value", d.getFullYear());
+                            $("#week_view").attr("value", d.getWeek());
+                            $("#day_view").attr("value", d.getDate());
+                    }
+                });
+            
+                /**
+                * FUN: Check the form submit before send to php script.
+                */
+                $("#booking_calendar_form").submit(function() {
+                    if($("#arrival").val() != "" && $("#leaving").val() != "") {
+                        if(checkDate()) {
+                            return true;
+                        } else {
+                            cms.showNotification("4", "top", "center", "'.$this->json_lg["notify_4"][$this->lg].' "+datemin, "fas fa-bell");
+                            $("#arrival").css({
+                                "border-color": "#ff0505"
+                            });
+                            $("#leaving").css({
+                                "border-color": "#ff0505"
+                            });
+                            return false;
+                        }
+                    } else {
+                        cms.showNotification("4", "top", "center", "'.$this->json_lg["notify_6"][$this->lg].' "+datemin, "fas fa-bell");
+                        $("#arrival").css({
+                            "border-color": "#ff0505"
+                        });
+                        $("#leaving").css({
+                            "border-color": "#ff0505"
+                        });
+                        return false;
+                    }
+                });
+
+                /**
+                 * FUN: Check the Persons val if there is an second_person.
+                 */
+                $("[id=\"persons\"]").change(function() {
+                    var second_prcie = $("#second_price").attr("value");
+                    var second_person = $("#second_person").attr("value");
+                    // Prüft die Anzahl an Personen
+                    if($(this).val() > second_person) {
+                        cms.showNotification("4", "top", "center", "'.$this->json_lg["notify_5"][$this->lg].' "+second_prcie+"", "fas fa-bell");
+                    }
+                });
+            
+                /**
+                * FUN: Change the Infos from the ajax request by changing the Event, Booking.
+                */
+                $("[id=\"events\"]").change(function() {
+                    var formData = new FormData();
+                        formData.append("action", "getInfosById"),
+                        formData.append("id", $(this).val());
+
+                    // Get the current Event, Booking from Database and set the Infos to the input fields
+                    $.ajax({
+                        url: "./src/cms.php",
+                        type: "POST",
+                        data: formData,
+                        contentType: false,
+                        cache: false,
+                        processData: false,
+                        success: function(response) {
+                            // Check with select is active to set the response
+                            if($("#persons").length > 0) {
+                                var RS = jQuery.parseJSON(response);
+                                    $("#persons").html(RS[0]);
+                                    $("#second_person").attr("value", RS[1]);
+                                    $("#second_price").attr("value", RS[2]);
+                            }
+                        },
+                        fail: function() {
+                            cms.showNotification("4", "top", "center", "'.$this->json_lg["notify_8"][$this->lg].'", "fas fa-bell");
+                        }
+                    });
+                });
+
+                /**
+                 * FUN: Change the Viewport from the cms by the current Day.
+                 */
+                $("#day_view").click(function() {
+                    var formData = new FormData();
+                        formData.append("action", "getEventsDay"),
+                        formData.append("start_date", $(this).val());
+
+                    // Get all Events, Bookings from Database by the current Day.
+                    $.ajax({
+                        url: "./src/cms.php",
+                        type: "POST",
+                        data: formData,
+                        contentType: false,
+                        cache: false,
+                        processData: false,
+                        success: function(response) {
+                            if($("#cms_calendar").html(response)) {
+                                cms.showNotification("2", "top", "center", "'.$this->json_lg["notify_11"][$this->lg].'", "fas fa-bell");
+                            }
+                        },
+                        fail: function() {
+                            cms.showNotification("4", "top", "center", "'.$this->json_lg["notify_12"][$this->lg].'", "fas fa-bell");
+                        }
+                    });
+                });
+
+                /**
+                 * FUN: Change the Viewport from the cms by the current week.
+                 */
+                $("#week_view").click(function() {
+                    var formData = new FormData();
+                        formData.append("action", "getEventsWeek");
+                        formData.append("start_date", $(this).val());
+
+                    // Get all Events, Bookings from Database by the current week.
+                    $.ajax({
+                        url: "./src/cms.php",
+                        type: "POST",
+                        data: formData,
+                        contentType: false,
+                        cache: false,
+                        processData: false,
+                        success: function(response) {
+                            if($("#cms_calendar").html(response)) {
+                                cms.showNotification("2", "top", "center", "'.$this->json_lg["notify_11"][$this->lg].'", "fas fa-bell");
+                            }
+                        },
+                        fail: function() {
+                            cms.showNotification("4", "top", "center", "'.$this->json_lg["notify_12"][$this->lg].'", "fas fa-bell");
+                        }
+                    });
+                });
+
+                /**
+                 * FUN: Change the Viewport from the cms by the current year.
+                 */
+                $("#year_view").click(function() {
+                    var formData = new FormData();
+                        formData.append("action", "getEventsYear");
+                        formData.append("start_date", $(this).val());
+
+                    // Get all Events, Bookings from Database by the current year.
+                    $.ajax({
+                        url: "./src/cms.php",
+                        type: "POST",
+                        data: formData,
+                        contentType: false,
+                        cache: false,
+                        processData: false,
+                        success: function(response) {
+                            if($("#cms_calendar").html(response)) {
+                                cms.showNotification("2", "top", "center", "'.$this->json_lg["notify_11"][$this->lg].'", "fas fa-bell");
+                            }
+                        },
+                        fail: function() {
+                            cms.showNotification("4", "top", "center", "'.$this->json_lg["notify_12"][$this->lg].'", "fas fa-bell");
+                        }
+                    });
+                });
+            });
+
+            /**
+             * FUN: Get an link to an Calendar from the cms.
+             */
+            function create_link(link, element) {
+                var tr = $(element).closest("tr");
+                var formData = new FormData();
+                    formData.append("action", "getLinkById"),
+                    formData.append("system", link),
+                    formData.append("title", tr.children("td").eq(0).text()),
+                    formData.append("desc", tr.children("td").eq(1).text()),
+                    formData.append("start_date", tr.children("td").eq(2).text()),
+                    formData.append("end_date", tr.children("td").eq(3).text()),
+                    formData.append("allDay", false);
+
+                // Get the current Event as an link to an Calendar that the User has taken.
+                $.ajax({
+                    url: "./src/cms.php",
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function(response) {
+                        console.log(...formData);
+                        console.log(response);
+                        cms.showNotification("2", "top", "center", "'.$this->json_lg["notify_9"][$this->lg].'", "fas fa-bell", response);
+                    },
+                    fail: function() {
+                        cms.showNotification("4", "top", "center", "'.$this->json_lg["notify_10"][$this->lg].'", "fas fa-bell");
+                    }
+                });
+            }
+        </script>';
     }
 
     /**
-     * FUN Create the Satic Modal with some informations about the Calendar.
+     * FUN: Create the Satic Modal with some informations about the Calendar.
      */
     protected function _drawStaticModal() {
         $statics = "";
@@ -2001,13 +2664,13 @@ class CMS {
                 $statics .= "<p>{$this->json_lg["infos_2"][$this->lg]}: {$this->getKey('authors', ['name'])} <a href=\"mailto:{$this->getKey('authors', ['email'])}\">{$this->getKey('authors', ['email'])}</a></p>";
             }
             else if($key == "version" && $value) {
-                $statics .= "<p>{$this->json_lg["infos_3"][$this->lg]}: ".CMS::VERSION."</p>";
+                $statics .= "<p>{$this->json_lg["infos_3"][$this->lg]}: ".$this->version."</p>";
             }
             else if($key == "language" && $value) {
                 $statics .= "<p>{$this->json_lg["infos_4"][$this->lg]}: {$this->lg}</p>";
             }
             else if($key == "theme" && $value) {
-                $statics .= "<p>{$this->json_lg["infos_5"][$this->lg]}: {$this->theme}</p>";
+                $statics .= "<p>{$this->json_lg["infos_5"][$this->lg]}: {$this->theme['theme']}</p>";
             }
             // Check if there is an Dev key
             if($key == "dev" && $value) {
@@ -2021,7 +2684,7 @@ class CMS {
             }
         }
         // Print out the Static Modal with all Inforamations from .json file
-        echo '<div class="modal fade '.$this->theme.'" id="staticModal" tabindex="-1" role="dialog" aria-labelledby="staticModalLabel" aria-hidden="true">
+        echo '<div class="modal fade" id="staticModal" tabindex="-1" role="dialog" aria-labelledby="staticModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -2037,21 +2700,22 @@ class CMS {
     }
 
     /**
-     * FUN Get all Payments from Database.
+     * FUN: Get all Payments from Database.
      */
     protected function getAllPayments() {
-        $sql = "SELECT * FROM payments";
-        
-        $mysqli = new mysqli(CMS::HOST, CMS::USER, CMS::PASSWORD, CMS::DATABASE);
-        $mysqli->set_charset("utf8");
-        $RS = $mysqli->query($sql);
-        $mysqli->close();
+        // Get all infos from the given Database
+        $ST = $this->sql_infos["PDO"]->prepare("SELECT * FROM payments");
 
-        return $RS;
+        // Check the query
+        if(!$ST->execute()) {
+            $this->error('sql_query', __CLASS__, __FUNCTION__, __LINE__);
+        }
+        // Return the result
+        return $ST;
     }
 
     /**
-     * FUN Get all Persons from Database.
+     * FUN: Get all Persons from Database.
      */
     protected function getAllPersons() {
         if(is_array($this->event_form['active_event'])) {
@@ -2060,45 +2724,67 @@ class CMS {
         } else {
             $sql = "SELECT * FROM persons WHERE id_event = ".$this->event_form['active_event']."";
         }
+        // Get all infos from the given Database
+        $ST = $this->sql_infos["PDO"]->prepare($sql);
 
-        $mysqli = new mysqli(CMS::HOST, CMS::USER, CMS::PASSWORD, CMS::DATABASE);
-        $mysqli->set_charset("utf8");
-        $RS = $mysqli->query($sql);
-        $mysqli->close();
+        // Check the query
+        if(!$ST->execute()) {
+            $this->error('sql_query', __CLASS__, __FUNCTION__, __LINE__);
+        }
+        // Return the result
+        return $ST;
+    }
 
+    /**
+     * FUN: Get an Protected Key fom the CMS to an gloabl call.
+     */
+    public function getProtected($var, $type = "count") {
+        // Check with type it is
+        switch ($type) {
+            case 'count':
+                $RS = count($this->$var);
+                break;
+            case 'return':
+                $RS = $this->$var;
+                break;
+            default:
+                $RS = false;
+                break;
+        }
+        // Return the result.
         return $RS;
     }
 
     /**
-     * FUN to Create the Database and the Tables.
+     * FUN: to Create the Database and the Tables.
      */
     protected function create_Database() {
         // Initalise all Variables
         $count = count($this->json['database']);
 
-        // Create the Database
-        $mysqli = new mysqli(CMS::HOST, CMS::USER, CMS::PASSWORD);
-            if($mysqli->select_db(CMS::DATABASE) == false) {
-                $sql = "CREATE DATABASE ".CMS::DATABASE;
-                $mysqli->query($sql);
-            }
-        $mysqli->close();
+        // Check if the Connection is true
+        try {
+            $dbh = new PDO($this->sql_infos["SV"].$this->sql_infos["HOST"].','. $this->sql_infos["USER"], $this->sql_infos["PASSWORD"]);
+            // Create the Database
+            $dbh->execute("CREATE DATABASE ".$this->sql_infos['DATABASE']) or die(print_r($dbh->errorInfo(), true));
 
+        } catch (PDOException $ex) {
+            $this->error($ex->getMessage(), __CLASS__, __FUNCTION__, __LINE__);
+            return false;
+        }
         // Create the Tables
-        $mysqli = new mysqli(CMS::HOST, CMS::USER, CMS::PASSWORD, CMS::DATABASE);
-            for($i = 0; $i < $count; $i++) {
-                $sql = "CREATE TABLE ".$this->json['database'][$i]['name']." (".$this->json['database'][$i]['parameters'].") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
-                $mysqli->query($sql);
-                // Insert value into the current Table
-                if($this->json['database'][$i]["values"] != "") {
-                    $sql = "".$this->json['database'][$i]["values"]."";
-                    $mysqli->query($sql);
-                }
-                $sql = "ALTER TABLE ".$this->json['database'][$i]['name']." ADD PRIMARY KEY( `id`);";
-                $RS = $mysqli->query($sql);
+        for($i = 0; $i < $count; $i++) {
+            $ST = $this->sql_infos["PDO"]->prepare("CREATE TABLE ".$this->json['database'][$i]['name']." (".$this->json['database'][$i]['parameters'].") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
+            $ST->execute();
+            
+            // Insert value into the current Table
+            if($this->json['database'][$i]["values"] != "") {
+                $ST = $this->sql_infos["PDO"]->prepare("".$this->json['database'][$i]["values"]."");
+                $ST->execute();
             }
-        $mysqli->close();
-
+            $ST = $this->sql_infos["PDO"]->prepare("ALTER TABLE ".$this->json['database'][$i]['name']." ADD PRIMARY KEY( `id`);");
+            $RS = $ST->execute();
+        }
         // Check if the Result is true
         if($RS) {
             return true;
@@ -2108,7 +2794,7 @@ class CMS {
     }
 
     /**
-     * FUN Display an Notify.
+     * FUN: Display an Notify.
      */
     protected function notify($notify = "") {
         // Check the $notify wich notify it is.
@@ -2124,7 +2810,7 @@ class CMS {
     }
 
     /**
-     * FUN Display an Success or not.
+     * FUN: Display an Success or not.
      * 
      * If the User has Activated the Funktion
      */
@@ -2153,7 +2839,7 @@ class CMS {
     }
 
     /**
-     * FUN Exit the Script and Display an Error or not.
+     * FUN: Exit the Script and Display an Error or not.
      * 
      * If the User has Activated the Funktion
      */
@@ -2186,7 +2872,7 @@ class CMS {
     }
 
     /**
-     * FUN Log the Status of an Succes or an Error Msg if the User has trund of the Display log function.
+     * FUN: Log the Status of an Succes or an Error Msg if the User has trund of the Display log function.
      */
     protected function status_log($type = "error") {
         $var = $type.'_msg';
@@ -2208,16 +2894,18 @@ class CMS {
     }
 
     /**
-	 * FUN Unset all variables and files.
+	 * FUN: Unset all variables and files.
 	 */
 	public function destroy() {
 		foreach($this as $key => $value) {
-            unset($this->$key);
+            if($key != "sql_infos") {
+                unset($this->$key);
+            }
 		}
     }
     
     /**
-	 * FUN Default destructor cleanup all variables.
+	 * FUN: Default destructor cleanup all variables.
 	 */
 	public function __destruct() {
         $this->destroy();
@@ -2225,11 +2913,11 @@ class CMS {
 }
 
 /**
- * CLASS Create Settings class.
+ * CLASS: Create CMS_Settings class.
  * 
  * Set Data from Database in to the Functions
  */
-class Settings {
+class CMS_Settings {
     /**
      * Holds the `id` from the current Event, Booking
      *
@@ -2247,14 +2935,14 @@ class Settings {
     /**
      * Holds the `start_date` from the current Event, Booking
      *
-     * @var date
+     * @var DateTime
      */
     protected $start_date;
 
     /**
      * Holds the `end_date` from the current Event, Booking
      *
-     * @var date
+     * @var DateTime
      */
     protected $end_date;
 
@@ -2287,7 +2975,7 @@ class Settings {
     protected $_methods = array();
 
     /****************************************************************
-    * FUN inizilaize the class by constructor 
+    * INFO: inizilaize the class by constructor 
     *****************************************************************/
     public function __construct($event = array()) {
         // Check if the event variable is not null
@@ -2310,58 +2998,185 @@ class Settings {
                 }
             }
         }
+        // Insert the current status of the Event, Booking
+        $dateNow = DateTime::createFromFormat("d/m/Y", date("d/m/Y"), new DateTimeZone("UTC"));
+        if($this->start_date <= $dateNow && $this->end_date >= $dateNow) {
+            $this->status = 1; // Aktiv
+        }
+        else if($this->start_date > $dateNow && $this->end_date > $dateNow) {
+            $this->status = 2; // Offen
+        }
+        else if($this->start_date < $dateNow && $this->end_date < $dateNow) {
+            $this->status = 3; // Beendet
+        }
+    }
+
+    /**
+     * FUN: Generate an random code for the current Event, Booking.
+     */
+    protected function generateRandomCode($length = 10) {
+        return substr(str_shuffle(str_repeat($x='0123456789', ceil($length/strlen($x)) )), 1, $length); // last charakter is length of code (10)
     }
 
     /****************************************************************
-    * FUN Inizilaize all Functions and set data to object (this).
+    * INFO: Inizilaize all Functions and set data to object (this).
     *****************************************************************/
+    /**
+     * FUN: Get the Current Start date from Event, Booking.
+     */
     public function getStart_date() {
         return $this->start_date;
     }
+
+    /**
+     * FUN: Get the Current End date from Event, Booking.
+     */
     public function getEnd_date() {
         return $this->end_date;
     }
+
+    /**
+     * FUN: Get the Current Status from Event, Booking.
+     */
     public function getStatus() {
         return $this->status;
     }
+
+    /**
+     * FUN: Get the Current Test Status from Event, Booking.
+     */
     public function getHidden() {
         return $this->test_event;
     }
+
+    /**
+     * FUN: Get the Current Name from Event, Booking.
+     */
     public function getEvent_name() {
         return $this->event_name;
     }
+    
+    /**
+     * FUN: Get the Current Description from Event, Booking.
+     */
     public function getEvent_desc() {
         return $this->my_description;
+    }
+
+    /**
+     * FUN: Get the Current Code from Event, Booking.
+     */
+    public function getCustom_code() {
+        return $this->generateRandomCode();
     }
 }
 
 /**
- * CLASS Create My_Ajax class.
+ * CLASS: Create CMS_Ajax class.
  * 
  * Set Data from Database in to the Functions
  */
-class My_Ajax {
-    /****************************************************************
-    * FUN inizilaize the class by constructor 
-    *****************************************************************/
-    public function __construct() {}
+class CMS_Ajax {
+    /**
+     * The Title for the given Calendar.
+     *
+     * @var string
+     */
+    protected $title;
 
     /**
-     * FUN Get all Infos from Database by id from Event, Booking.
+     * The Description for the given Calendar.
+     * 
+     * @var string
+     */
+    protected $description;
+
+    /**
+     * The Adress for the given Calendar.
+     * 
+     * @var string
+     */
+    protected $address;
+
+    /**
+     * The Start Date for the given Calendar.
+     * 
+     * @var DateTime
+     */
+    protected $start_date;
+
+    /**
+     * The End Date for the given Calendar.
+     * 
+     * @var DateTime
+     */
+    protected $end_date;
+
+    /**
+     * Check the Dateformat for the given Calendar.
+     * 
+     * @var bool
+     */
+    protected $allDay;
+
+    /**
+     * Holds the HTML table for the ajax.
+     * 
+     * @var string
+     */
+    protected $html = "<table class='table table-bordered table-striped'>
+        <thead>
+            <tr>
+                <th>Event</th>
+                <th>Description</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Export</th>
+            </tr>
+        </thead>
+    <tbody>";
+
+    /**
+     * Holds the HTML links for the CMS exports, for the ajax.
+     * 
+     * @var string
+     */
+    protected $links = "<option value='' selected hidden>Select</option>
+        <option value='google'>Google</option>
+        <option value='ical'>iCal</option>
+        <option value='yahoo'>Yahoo</option>
+        <option value='webOutlook'>Web Outlook</option>";
+
+    /****************************************************************
+    * INFO: inizilaize the class by constructor 
+    *****************************************************************/
+    public function __construct() {
+        // First of all we need an Session for the CMS Script!
+        if(session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+    }
+
+    /**
+     * FUN: Get all Infos from Database by id from Event, Booking.
      */
     public function getInfosById($id) {
         $id = intval(trim($id));
         $RRS = [];
-        
-        // Get all Persons from the current Event, Booking
-        $sql = "SELECT * FROM persons WHERE id_event = ".$id."";
+        $_SESSION["CMS"]["ajax"] = true;
 
-        $mysqli = new mysqli(CMS::HOST, CMS::USER, CMS::PASSWORD, CMS::DATABASE);
-        $RS = $mysqli->query($sql);
-        $mysqli->close();
+        // Get all Infos from the current Event, Booking
+        // Get all infos from the given Database
+        $CT = new CMS($_SESSION["CMS"]);
+        $ST = $CT->sql_infos["PDO"]->prepare("SELECT * FROM persons WHERE id_event = ".$id."");
+
+        // Check the query
+        if(!$ST->execute()) {
+            return false;
+        }
 
         // Loop trow the result and return it to the ajax
-        while ($PS = $RS->fetch_object()) {
+        while ($PS = $ST->fetchObject()) {
             // Get all Persons as select option
             for ($i = 1; $i <= $PS->persons; $i++) {
                 if($i == 1) {
@@ -2374,13 +3189,270 @@ class My_Ajax {
             $second_person = $PS->second_person;
             $second_price = $PS->second_price;
         }
-        // Create the Persons reuslt
+        // Create the reuslt
         $RRS[0] = $option_pers;
         $RRS[1] = $second_person;
         $RRS[2] = $second_price;
 
         // Return the result
         return $RRS;
+    }
+
+    /**
+     * FUN: Get all Events, Bookings as Table from current Day.
+     */
+    public function getEventsDay($day) {
+        // Create all variables
+        $date = date("Y-m-").$day;
+        $_SESSION["CMS"]["ajax"] = true;
+
+        // Get all Events, Bookings from Database
+        $CT = new CMS($_SESSION["CMS"]);
+
+        // Check if there are Events. Bookings in the my_events array
+        if($CT->getProtected("my_events", "count") > 0) {
+            $my_events = $CT->getProtected("my_events", "return");
+
+            // Loop trow the result and return it to the ajax
+            foreach ($my_events as $row) {
+                // Check if there is an Event, Booking on the given Day
+                if(date("Y-m-d", strtotime($row["start_date"])) == $date && date("Y-m-d", strtotime($row["end_date"])) >= $date) {
+                    // Get all Events as Table td
+                    $this->html .= '<tr>
+                        <td>'.$row["event_name"].'</td>
+                        <td>'.$row["my_description"].'</td>
+                        <td>'.$row["start_date"].'</td>
+                        <td>'.$row["end_date"].'</td>
+                        <td>
+                            <select onchange="create_link(this.value, this);" class="custom-select">
+                                '.$this->links.'
+                            </select>
+                        </td>
+                    </tr>';
+                }
+            }
+        }
+        // Get all Events, Bookings from Database.
+        else {
+            $ST = $CT->sql_infos["PDO"]->prepare("SELECT * FROM events WHERE WHERE DAY(start_date) = DAY('{$date}') AND MONTH(start_date) = MONTH('{$date}') AND YEAR(start_date) = YEAR('{$date}') AND DAY(end_date) >= DAY('{$date}')");
+                
+            // Check the query
+            if(!$ST->execute()) {
+                return false;
+            }
+            // Loop trow the result and return it to the ajax
+            while ($TS = $ST->fetchObject()) {
+                // Get all Events as Table td
+                $this->html .= '<tr>
+                    <td>'.$TS->event_name.'</td>
+                    <td>'.$TS->my_description.'</td>
+                    <td>'.$TS->start_date.'</td>
+                    <td>'.$TS->end_date.'</td>
+                    <td>
+                        <select onchange="create_link(this.value, this);" class="custom-select">
+                            '.$this->links.'
+                        </select>
+                    </td>
+                </tr>';
+            }
+        }
+        // Set end of table
+        $this->html .= "</tbody></table>";
+
+        // Return the result
+        return $this->html;
+    }
+
+    /**
+     * FUN: Get all Events, Bookings as Table from current Week.
+     */
+    public function getEventsWeek($week) {
+        // Create all variables
+        $_SESSION["CMS"]["ajax"] = true;
+
+        // Get all Events, Bookings from Database
+        $CT = new CMS($_SESSION["CMS"]);
+
+        // Check if there are Events. Bookings in the my_events array
+        if($CT->getProtected("my_events", "count") > 0) {
+            $my_events = $CT->getProtected("my_events", "return");
+
+            // Loop trow the result and return it to the ajax
+            foreach ($my_events as $row) {
+                // Check if there is an Event, Booking on the given Day
+                if(date("W", strtotime($row["start_date"])) == $week && date("W", strtotime($row["end_date"])) >= $week) {
+                    // Get all Events as Table td
+                    $this->html .= '<tr>
+                        <td>'.$row["event_name"].'</td>
+                        <td>'.$row["my_description"].'</td>
+                        <td>'.$row["start_date"].'</td>
+                        <td>'.$row["end_date"].'</td>
+                        <td>
+                            <select onchange="create_link(this.value, this);" class="custom-select">
+                                '.$this->links.'
+                            </select>
+                        </td>
+                    </tr>';
+                }
+            }
+        }
+        // Get all Events, Bookings from Database.
+        else {
+            $ST = $CT->sql_infos["PDO"]->prepare("SELECT * FROM events WHERE WEEK(start_date) = WEEK(".date('Y-m-d', strtotime($week)).") AND MONTH(start_date) = MONTH(".date('Y-m-d', strtotime($week)).") AND YEAR(start_date) = YEAR(".date('Y-m-d', strtotime($week)).")");
+                    
+            // Check the query
+            if(!$ST->execute()) {
+                return false;
+            }
+            // Loop trow the result and return it to the ajax
+            while ($TS = $ST->fetchObject()) {
+                // Get all Events as Table td
+                $this->html .= '<tr>
+                    <td>'.$TS->event_name.'</td>
+                    <td>'.$TS->my_description.'</td>
+                    <td>'.$TS->start_date.'</td>
+                    <td>'.$TS->end_date.'</td>
+                    <td>
+                        <select onchange="create_link(this.value, this);" class="custom-select">
+                            '.$this->links.'
+                        </select>
+                    </td>
+                </tr>';
+            }
+        }
+        // Set end of table
+        $this->html .= "</tbody></table>";
+
+        // Return the result
+        return $this->html;
+    }
+
+    /**
+     * FUN: Get all Events, Bookings as Table from current year.
+     */
+    public function getEventsYear($year) {
+        // Create all variables
+        $_SESSION["CMS"]["ajax"] = true;
+
+        // Create the cms and return it to the ajax
+        $CT = new CMS($_SESSION["CMS"]);
+        return $CT->showCalendar($year, date("m", strtotime($year)));
+    }
+
+    /**
+     * FUN: Create an link to add the current Event to the given Calendar.
+     */
+    public function getLinkById($post) {
+        // Check if the given date is in range
+        if($post["end_date"] < $post["start_date"]) {
+            return false;
+        }
+        $this->title = $post["title"];
+        $this->description = $post["desc"];
+        $this->address = "";
+        $this->allDay = $post["allDay"];
+        $this->start_date = new DateTime($post["start_date"]);
+        $this->end_date = new DateTime($post["end_date"]);
+
+        // Generate the link and return the result.
+        return $this->generate($post["system"]);
+    }
+
+
+    /**
+    * FUN: Generate the link by given System.
+    */
+    protected function generate($system): string {
+        // Check witch System it is for the correct link
+        switch ($system) {
+            case 'google':
+                $url = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
+                    $dateTimeFormat = $this->allDay ? 'Ymd' : "Ymd\THis";
+                    $url .= '&text='.urlencode($this->title);
+                    $url .= '&dates='.$this->start_date->format($dateTimeFormat).'/'.$this->end_date->format($dateTimeFormat);
+                    $url .= '&ctz='.$this->start_date->getTimezone()->getName();
+                    if ($this->description) {
+                        $url .= '&details='.urlencode($this->description);
+                    }
+                    if ($this->address) {
+                        $url .= '&location='.urlencode($this->address);
+                    }
+                    $url .= '&sprop=&sprop=name:';
+                return $url;
+                break;
+            case 'ical':
+                $url = [
+                    'BEGIN:VCALENDAR',
+                    'VERSION:2.0',
+                    'BEGIN:VEVENT',
+                    'UID:'.(md5($this->start_date->format(DateTime::ATOM).$this->end_date->format(DateTime::ATOM).$this->title.$this->address)),
+                    'SUMMARY:'.$this->title,
+                ];
+                if ($this->allDay) {
+                    $url[] = 'DTSTART:'.$this->start_date->format('Ymd');
+                    $url[] = 'DURATION:P1D';
+                } else {
+                    $url[] = 'DTSTART;TZID='.$this->start_date->format("e:Ymd\THis");
+                    $url[] = 'DTEND;TZID='.$this->end_date->format("e:Ymd\THis");
+                }
+                if ($this->description) {
+                    $url[] = 'DESCRIPTION:'.(addcslashes($this->description, "\r\n,;"));
+                }
+                if ($this->address) {
+                    $url[] = 'LOCATION:'.(addcslashes($this->address, "\r\n,;"));
+                }
+                $url[] = 'END:VEVENT';
+                $url[] = 'END:VCALENDAR';
+                $redirectLink = implode('%0d%0a', $url);
+                return 'data:text/calendar;charset=utf8,'.$redirectLink;
+                break;
+            case 'yahoo':
+                $url = 'https://calendar.yahoo.com/?v=60&view=d&type=20';
+                    $url .= '&title='.urlencode($this->title);
+                    if ($this->allDay) {
+                        $url .= '&st='.$this->start_date->format('Ymd');
+                        $url .= '&dur=allday';
+                    } else {
+                        $utcStartDateTime = (clone $this->start_date)->setTimezone(new DateTimeZone('UTC'));
+                        $utcEndDateTime = (clone $this->end_date)->setTimezone(new DateTimeZone('UTC'));
+                        $url .= '&st='.$utcStartDateTime->format('Ymd\THis').'Z';
+                        $url .= '&et='.$utcEndDateTime->format('Ymd\THis').'Z';
+                    }
+                    if ($this->description) {
+                        $url .= '&desc='.urlencode($this->description);
+                    }
+                    if ($this->address) {
+                        $url .= '&in_loc='.urlencode($this->address);
+                    }
+                return $url;
+                break;
+            case 'webOutlook':
+                $url = 'https://outlook.live.com/owa/?path=/calendar/action/compose&rru=addevent';
+                    $dateTimeFormat = $this->allDay ? 'Ymd' : "Ymd\THis";
+                    $utcStartDateTime = (clone $this->start_date)->setTimezone(new DateTimeZone('UTC'));
+                    $utcEndDateTime = (clone $this->end_date)->setTimezone(new DateTimeZone('UTC'));
+                    $url .= '&startdt='.$utcStartDateTime->format($dateTimeFormat);
+                    $isSingleDayEvent = $this->end_date->diff($this->start_date)->d < 2;
+                    $canOmitEndDateTime = $this->allDay && $isSingleDayEvent;
+                    if (! $canOmitEndDateTime) {
+                        $url .= '&enddt='.$utcEndDateTime->format($dateTimeFormat);
+                    }
+                    if ($this->allDay) {
+                        $url .= '&allday=true';
+                    }
+                    $url .= '&subject='.urlencode($this->title);
+                    if ($this->description) {
+                        $url .= '&body='.urlencode($this->description);
+                    }
+                    if ($this->address) {
+                        $url .= '&location='.urlencode($this->address);
+                    }
+                return $url;
+                break;
+            default:
+                return false;
+                break;
+        }
     }
 }
 ?>
