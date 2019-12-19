@@ -56,16 +56,16 @@
 ## How to install
 1. #### You need the following files.
     ###### CMS
-      1. cms.php
-      2. langauge.json
+      - cms.php
+      - langauge.json
     ###### JS
-      1. jquery-3.3.1.min.js
-      2. popper.min.js
-      3. bootstrap.min.js
-      4. bootstrap-notify.js
-      5. moment.min.js
+      - jquery-3.3.1.min.js
+      - popper.min.js
+      - bootstrap.min.js
+      - bootstrap-notify.js
+      - moment.min.js
     ###### CSS
-      1. bootstrap.min.css
+      - bootstrap.min.css
 &nbsp;
 &nbsp;
 ***
@@ -104,6 +104,7 @@
 | `static_infos` | Show some information of the CMS [`active`, `author`, `events`, `version`, `language`, `theme`] | array() | null |
 | `sql_infos` | SQL infos [`HOST` => 'localhost', `DATABASE` => 'cms', `USER` => 'root', `PASSWORD` => '', `Type` => 'MySql'] | array() | null |
 | `theme` | Theme of the CMS [`theme` => 'Original', `custom_url` => ''] | array() | null |
+
 &nbsp;
 &nbsp;
 ***
@@ -144,6 +145,7 @@
 | | | | | |
 | `theme` | `theme` | string | The current Theme (Horizon, Metro, Original, Jquery) | Original |
 |         | `custom_url` | string | Here you can add your one Theme from an php file | "" |
+
 &nbsp;
 &nbsp;
 ***
