@@ -150,7 +150,7 @@
 &nbsp;
 ***
 ## Legacy versions
-CMS version 2.2.0 are the acctual stable version which is compatible with PHP 5.3+ and is supported for feature updates.
+This version of the CMS are the acctual stable version which is compatible with PHP 5.3+ and is supported for feature updates.
 
 ## Do you have an Ideas, Changes or Bugs ?
 Please let me know in the Comments, i will try to fix or add waht you found/want :D
