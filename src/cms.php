@@ -379,12 +379,14 @@ class CMS {
      *
      * @var string[]
      */
-    protected $functions = ["getStart_date",
-                            "getEnd_date",
-                            "getStatus",
-                            "getHidden",
-                            "getEvent_name",
-                            "getEvent_desc"];
+    protected $functions = [
+            "getStart_date",
+            "getEnd_date",
+            "getStatus",
+            "getHidden",
+            "getEvent_name",
+            "getEvent_desc"
+        ];
 
     /**
      * This strings holds all informations about the current Event, Booking foreach Status.
@@ -1016,35 +1018,34 @@ class CMS {
                 // Loop trought each value as 2 array
                 foreach ((array) $value as $Ckey => $row) {
                     // Check if key is existing in the Settings
-                    if(isset($this->$key)) {
+                    if(isset($this->$key) || isset($this->$key[$Ckey])) {
                         // Check if key is an array and value is not null
-                        if(is_numeric($Ckey) && $row != null && $row != "") {
+                        if(is_numeric($Ckey) && !is_array($row)) {
                             array_push($this->$key, $row);
-                        } else {
-                            // Check if the key as array is existing and value is not an array
-                            if(isset($this->$key[$Ckey]) && !is_array($row)) {
-                                $this->$key[$Ckey] = $row;
-                            }
-                            // the value of the 2 array is also an array
-                            else if(is_array($row)) {
-                                // Loop trought each row as 3 array
-                                foreach ($row as $Dkey => $val) {
-                                    // Check if the key is existing in the help array
-                                    if(array_key_exists($Dkey, $this->help_array)) {
-                                        $this->$key[$Ckey][$Dkey] = $val;
-                                    }
-                                    else if(array_key_exists($val, $this->help_array)) {
-                                        $this->$key[$Ckey][$val] = true;
-                                    }
-                                    else {
-                                        $this->error_array[$key][$Ckey] = $Dkey;
-                                        array_push($check, false);
-                                    }
+                        }
+                        // Check if the key as array is existing and value is not an array
+                        else if(is_string($Ckey) && !is_array($row)) {
+                            $this->$key[$Ckey] = $row;
+                        }
+                        // the value of the 2 array is also an array
+                        else if(is_array($row)) {
+                            // Loop trought each row as 3 array
+                            foreach ($row as $Dkey => $val) {
+                                // Check if the key is existing in the help array
+                                if(array_key_exists($Dkey, $this->help_array) || !isset($this->$key[$Ckey][$Dkey]) && is_numeric($val) || !is_numeric($Dkey) && $val != "") {
+                                    $this->$key[$Ckey][$Dkey] = $val;
                                 }
-                            } else {
-                                $this->error_array[$key][$Ckey] = $row;
-                                array_push($check, false);
+                                else if(array_key_exists($val, $this->help_array)) {
+                                    $this->$key[$Ckey][$val] = true;
+                                }
+                                else {
+                                    $this->error_array[$key][$Ckey] = $Dkey;
+                                    array_push($check, false);
+                                }
                             }
+                        } else {
+                            $this->error_array[$key][$Ckey] = $row;
+                            array_push($check, false);
                         }
                     } else {
                         $this->error_array[$key][$Ckey] = $row;
