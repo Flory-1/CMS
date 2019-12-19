@@ -11,8 +11,7 @@ $CT = new CMS(
             "authors"=>true,
             "version"=>true
         ],
-        "event_form"=>[
-            'active'=>true,
+        "event"=>[
             'action'=>'?page_2',
             'modal'=>true
         ]

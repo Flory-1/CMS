@@ -3,7 +3,6 @@
 $CT = new CMS(
     [
         "lg"=>"de",
-        "legend"=>true,
         "back_days"=>true,
         "tooltip"=>true,
         "events_check"=>true,
@@ -17,20 +16,26 @@ $CT = new CMS(
         "event_form"=>[
             'active'=>true,
             'action'=>'?page_2',
-            'person_check'=>true,
-            'payment_check'=>true,
+            'person'=>true,
+            'payment'=>true,
             'active_event'=>'2'
         ],
         "min_year"=>'2000',
         "max_year"=>'2030',
-        "theme"=>'Horizon',
-        "buttons"=>[
-            'active'=>true,
-            "prev_year"=>true,
-            "next_year"=>true,
-            "prev_month"=>true,
-            "next_month"=>true,
-            "today"=>true,
+        "theme"=>[
+            "theme"=>'Horizon'
+        ],
+        "header"=>[
+            "left"=>[
+                "legend"
+            ],
+            "center"=>[
+                "prev_year",
+                "next_year",
+                "prev_month",
+                "next_month",
+                "today",
+            ]
         ]
     ]
 );

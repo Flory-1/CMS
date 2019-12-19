@@ -4,17 +4,33 @@ $CT = new CMS(
     [
         "tooltip"=>true,
         "events_check"=>true,
-        "theme"=>"Horizon",
-        "time_format"=>"H.i",
+        "header"=>[
+            "left"=>[
+                "legend"
+            ],
+            "center"=>[
+                "prev_year",
+                "next_year"
+            ],
+            "right"=>[
+                "week_view",
+                "year_view",
+                "day_view"
+            ]
+        ],
+        "theme"=>[
+            "theme"=>'Horizon',
+        ],
+        "time_format"=>'H.i',
         "database_check"=>false,
         "error_log"=>true,
+        "cur_year"=>'2019',
         "my_events"=>[
             [
                 "event_name"=>"Test",
-                "start_date"=>"2019-10-22",
-                "end_date"=>"2019-10-26",
+                "start_date"=>"2019-12-16",
+                "end_date"=>"2019-12-26",
                 "my_description"=>"Test array 1",
-                "status"=>"3",
                 "test_event"=>"0",
                 "event_code"=>"meoghetnghgwtb",
                 "email"=>"info@test.de",
@@ -23,10 +39,9 @@ $CT = new CMS(
             ],
             [
                 "event_name"=>"Test_2",
-                "start_date"=>"2019-11-03",
-                "end_date"=>"2019-11-12",
+                "start_date"=>"2019-12-03",
+                "end_date"=>"2019-12-12",
                 "my_description"=>"Test array 2",
-                "status"=>"2",
                 "test_event"=>"0",
                 "event_code"=>"gkrgmoejmohreh",
                 "email"=>"info@test.de",
@@ -45,8 +60,7 @@ $CT = new CMS(
                 "authors"=>true,
                 "language"=>true,
                 "theme"=>true
-            ],
-        "legend"=>true
+            ]
     ]
 );
 ?>
