@@ -84,7 +84,6 @@
 | `max_events_per_day` | Maximum Events per Day (`show_more_events` Must be true) | int | 3 |
 | `hidden_months` | Hidde Months by index (3 == after the 3 Month hidde all Months) | int | 13 |
 | | | | |
-
 | `season_check` | Year season check print out Seasonname and Theme | bool | false |
 | `rtl_check` | RTL Support for the Language and the Calendar | bool | false |
 | `weekend_check` | Show each weekend of month true or flase | bool | false |
