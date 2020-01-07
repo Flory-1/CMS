@@ -71,12 +71,6 @@
 &nbsp;
 &nbsp;
 ***
-## Download Now
-<a id="raw-url" href="https://github.com/Flory-1/CMS.git">Download GIT</a>
-
-&nbsp;
-&nbsp;
-***
 ## All Settings in the CMS System
 | <strong style="color: #6ba0ff;">Variable</strong> | <strong style="color: #6ba0ff;">Description</strong> | <strong style="color: #6ba0ff;">Type</strong> | <strong style="color: #6ba0ff;">Default value</strong> |
 | --- | --- | --- | --- |
