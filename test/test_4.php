@@ -3,7 +3,6 @@
 $CT = new CMS(
     [
         "lg"=>"en",
-        "legend"=>true,
         "events_check"=>true,
         "min_days"=>'5',
         "static_infos"=>[
@@ -11,9 +10,14 @@ $CT = new CMS(
             "authors"=>true,
             "version"=>true
         ],
-        "event"=>[
+        "event_form"=>[
             'action'=>'?page_2',
             'modal'=>true
+        ],
+        "header"=>[
+            "left"=>[
+                "legend"
+            ]
         ]
     ]
 );
