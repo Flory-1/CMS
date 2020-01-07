@@ -19,6 +19,10 @@
         "de": "Die Theme Eigenschaften wurden nicht gefunden! Bitte Überprüfen Sie das Theme.",
         "en": "The theme properties were not found! Please check the theme."
     },
+    "theme_var_set": {
+        "de": "Der Themename den Sie gestezt haben wird bereits benutzt!",
+        "en": "The Themename you have taen is allready in use!"
+    },
     "php_version": {
         "de": "Bitte überprüfen Sie ihre PHP Version diese ist älter als 5.3.0.",
         "en": "Please check your PHP version which is older than 5.3.0."
@@ -127,6 +131,10 @@
         "de": "Infos vom aktuellen Kalendar Anzeigen",
         "en": "Show infos about the current calendar"
     },
+    "header_7": {
+        "de": "Liste Anzeigen",
+        "en": "Show list"
+    },
     "status_check": {
         "de": "Der Status der Buchung ist nicht vorhanden.",
         "en": "The status of the Event does not exist."
@@ -142,6 +150,14 @@
     "status_name_3": {
         "de": "Beended",
         "en": "Ended"
+    },
+    "test_name_1": {
+        "de": "Ja",
+        "en": "yes"
+    },
+    "test_name_2": {
+        "de": "Nein",
+        "en": "no"
     },
     "legend": {
         "de": "Legende:",
@@ -179,9 +195,65 @@
         "de": "Events:",
         "en": "Events:"
     },
+    "button_download": {
+        "de": "Download als text Datei",
+        "en": "download as txt file"
+    },
+    "button_iCal": {
+        "de": "Download iCal",
+        "en": "download iCal"
+    },
+    "button_google": {
+        "de": "Download Google",
+        "en": "download google"
+    },
+    "button_yahoo": {
+        "de": "Download Yahoo",
+        "en": "download yahoo"
+    },
+    "button_webOutlook": {
+        "de": "Download WebOutlook",
+        "en": "download webOutlook"
+    },
     "next_step": {
         "de": "Weiter zu schritt 2",
         "en": "Goto step 2"
+    },
+    "empty_list_item": {
+        "de": "Es sind keine Events, Buchungen vorhanden.",
+        "en": "There are no Events, Bookings."
+    },
+    "list_item_1": {
+        "de": "ID",
+        "en": "ID"
+    },
+    "list_item_2": {
+        "de": "Eventname",
+        "en": "Eventname"
+    },
+    "list_item_3": {
+        "de": "Beschreibung",
+        "en": "Description"
+    },
+    "list_item_4": {
+        "de": "Start Datum",
+        "en": "Start date"
+    },
+    "list_item_5": {
+        "de": "End Datum",
+        "en": "End date"
+    },
+    "list_item_6": {
+        "de": "Status",
+        "en": "Status"
+    },
+    "list_item_7": {
+        "de": "Test Event",
+        "en": "Test event"
+    },
+    "list_item_8": {
+        "de": "Aktionen",
+        "en": "Actions"
     },
     "infos": {
         "de": "Informationen aus dem Aktuellen Kalendar.",
@@ -206,6 +278,38 @@
     "infos_5": {
         "de": "Design",
         "en": "Theme"
+    },
+    "week_time": {
+        "de": "Uhrzeit",
+        "en": "Time"
+    },
+    "week_day_long_1": {
+        "de": "Montag",
+        "en": "Monday"
+    },
+    "week_day_long_2": {
+        "de": "Dienstag",
+        "en": "Tuesday"
+    },
+    "week_day_long_3": {
+        "de": "Mittwoch",
+        "en": "Wednesday"
+    },
+    "week_day_long_4": {
+        "de": "Donerstag",
+        "en": "Thusday"
+    },
+    "week_day_long_5": {
+        "de": "Freitag",
+        "en": "Friday"
+    },
+    "week_day_long_6": {
+        "de": "Samstag",
+        "en": "Saturday"
+    },
+    "week_day_long_7": {
+        "de": "Sonntag",
+        "en": "Sunnday"
     },
     "week_day_1": {
         "de": "Mo",
@@ -282,5 +386,21 @@
     "month_name_12": {
         "de": "Dezember",
         "en": "December"
+    },
+    "winter_season": {
+        "de": "Winter",
+        "en": "winter"
+    },
+    "summer_season": {
+        "de": "Sommer",
+        "en": "summer"
+    },
+    "fall_season": {
+        "de": "Herbst",
+        "en": "fall"
+    },
+    "spring_season": {
+        "de": "Frühling",
+        "en": "spring"
     }
 }
