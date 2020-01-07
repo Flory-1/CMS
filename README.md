@@ -2,6 +2,7 @@
 # CMS a Full-Featured Calendar Managment System made with PHP by Florian L&auml;mmlein
 #### Creates an interactive Calendar with User Settings.
 #### Calendar can include Bookings, Reservations or waht you want
+#### The CMS System has over 60+ Settings options in the acctual stable version witch you can use.
 &nbsp;
 &nbsp;
 ***
@@ -12,6 +13,7 @@
 - Show Custom Months.
 - Public/Private Events.
 - Multi SQL support.
+- Custom Themes.
 - And Much more!
 &nbsp;
 &nbsp;
@@ -69,6 +71,12 @@
 &nbsp;
 &nbsp;
 ***
+## Download Now
+<a id="raw-url" href="https://github.com/Flory-1/CMS.git">Download GIT</a>
+
+&nbsp;
+&nbsp;
+***
 ## All Settings in the CMS System
 | <strong style="color: #6ba0ff;">Variable</strong> | <strong style="color: #6ba0ff;">Description</strong> | <strong style="color: #6ba0ff;">Type</strong> | <strong style="color: #6ba0ff;">Default value</strong> |
 | --- | --- | --- | --- |
@@ -84,7 +92,7 @@
 | `max_events_per_day` | Maximum Events per Day (`show_more_events` Must be true) | int | 3 |
 | `hidden_months` | Hidde Months by index (3 == after the 3 Month hidde all Months) | int | 13 |
 | | | | |
-| `season_check` | Year season check print out Seasonname and Theme | bool | false |
+| `season_check` | Yearseasons check print out Seasonname and Theme | bool | false |
 | `rtl_check` | RTL Support for the Language and the Calendar | bool | false |
 | `weekend_check` | Show each weekend of month true or flase | bool | false |
 | `auto_size` | Set auto size by the screen width/Height true or flase | bool | false |
@@ -100,7 +108,7 @@
 | | | | |
 | `tooltip_functions` | Tooltip text (Function Names from Settings class) (firstname) | array() | null |
 | `my_events` | You owne Bookings or Events (`database_check` must be false to work) | array() | null |
-| `my_months` | Display custom months ["June", "July",...] (`hidden_months` will not longer work) | array() | null |
+| `my_months` | Display custom months ['June', 'July',...] (`hidden_months` will not longer work) | array() | null |
 | `header` | Show all Navi Buttons on the position you want [`left` => [], `center` => [], `right` => [], `url` => ''] | array() | null |
 | `event_form` | Show Booking, Reservation Form [`active`, `action`, `modal`, `arrivel_time`, `leaving_time`, `person_check`, `payment_check`, `active_event`] | array() | null |
 | `static_infos` | Show some information of the CMS [`active`, `author`, `events`, `version`, `language`, `theme`] | array() | null |
@@ -118,7 +126,7 @@
 |             | `USER` | string | Database User | root |
 |             | `DATABASE` | string | Database Name | cms |
 |             | `PASSWORD` | string | Database Password | "" |
-|             | `Type` | string | SQL format (mysql, mssql, odbc) | mysql |
+|             | `Type` | string | SQL format ('mysql', 'mssql', 'odbc') | mysql |
 | | | | | |
 | `header` | `prev_year` | bool | Displays an previus year Button | false |
 |          | `next_year` | bool | Displays an next year Button | false |
@@ -152,14 +160,14 @@
 |                | `yahoo` | bool | yahoo Download button | false |
 |                | `webOutlook` | bool | webOutlook Download button | false |
 | | | | | |
-| `theme` | `theme` | string | The current Theme (Horizon, Metro, Original, Jquery) | Original |
+| `theme` | `theme` | string | The current Theme ('Horizon', 'Metro', 'Original', 'Jquery') | Original |
 |         | `custom_url` | string | Here you can add your one Theme from an php file | "" |
 
 &nbsp;
 &nbsp;
 ***
 ## Legacy versions
-This version of the CMS are the acctual stable version which is compatible with PHP 5.3+ and is supported for feature updates.
+This version of the CMS are the acctual stable version which is compatible with PHP 5.5.3+ and is supported for feature updates.
 
-## Do you have an Ideas, Changes or Bugs ?
+## Do you have any Ideas, Changes or Bugs ?
 Please let me know in the Comments, i will try to fix or add waht you found/want :D
