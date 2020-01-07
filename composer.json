@@ -1,0 +1,41 @@
+{
+    "name": "CMS",
+	"description": "Creates an interactive Calendar with User Settings.",
+	"keywords": [
+        "framework",
+        "CMS",
+        "calendar",
+        "jquery",
+        "bootstrap",
+        "kalendar",
+        "google",
+        "ical",
+        "yhaoo",
+        "weboutlook",
+        "events",
+        "bookings"
+    ],
+    "version": "2.2.4",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Florian Lämmlein",
+            "email": "florian.laemmlein@gmx.de"
+        }
+    ],
+    "autoload": {
+        "files": [
+            "src/cms.php"
+        ]
+    },
+    "require" : {
+        "php" : ">=5.5.9"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/Flory-1/CMS"
+        }
+    ]
+}

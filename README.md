@@ -78,11 +78,14 @@
 | `min_year` | Min Year of CMS only the YEAR | string | 2019 |
 | `max_year` | Max Year of CMS only the YEAR | string | 2030 |
 | `cur_year` | The current Year of CMS only the YEAR | string | 2019 |
+| `view` | The current view of CMS ('year_view', 'month_view', 'week_view', 'day_view', 'list_view') | string | year_view |
 | | | | |
 | `min_days` | Min Nights / Days for the Apartment, Room, Event | int | 0 |
 | `max_events_per_day` | Maximum Events per Day (`show_more_events` Must be true) | int | 3 |
 | `hidden_months` | Hidde Months by index (3 == after the 3 Month hidde all Months) | int | 13 |
 | | | | |
+
+| `season_check` | Year season check print out Seasonname and Theme | bool | false |
 | `rtl_check` | RTL Support for the Language and the Calendar | bool | false |
 | `weekend_check` | Show each weekend of month true or flase | bool | false |
 | `auto_size` | Set auto size by the screen width/Height true or flase | bool | false |
@@ -102,6 +105,7 @@
 | `header` | Show all Navi Buttons on the position you want [`left` => [], `center` => [], `right` => [], `url` => ''] | array() | null |
 | `event_form` | Show Booking, Reservation Form [`active`, `action`, `modal`, `arrivel_time`, `leaving_time`, `person_check`, `payment_check`, `active_event`] | array() | null |
 | `static_infos` | Show some information of the CMS [`active`, `author`, `events`, `version`, `language`, `theme`] | array() | null |
+| `actions_form` | Show some information of the CMS [`active`, `iCal`, `google`, `yahoo`, `webOutlook`] | array() | null |
 | `sql_infos` | SQL infos [`HOST` => 'localhost', `DATABASE` => 'cms', `USER` => 'root', `PASSWORD` => '', `Type` => 'MySql'] | array() | null |
 | `theme` | Theme of the CMS [`theme` => 'Original', `custom_url` => ''] | array() | null |
 
@@ -142,6 +146,12 @@
 |                | `version` | bool | Current Version | false |
 |                | `language` | bool | Current Language | false |
 |                | `theme` | bool | Current Theme | false |
+| | | | | |
+| `actions_form` | `active` | bool | Activate actions in the current cms | false |
+|                | `iCal` | bool | iCal Download button | false |
+|                | `google` | bool | google Download button | false |
+|                | `yahoo` | bool | yahoo Download button | false |
+|                | `webOutlook` | bool | webOutlook Download button | false |
 | | | | | |
 | `theme` | `theme` | string | The current Theme (Horizon, Metro, Original, Jquery) | Original |
 |         | `custom_url` | string | Here you can add your one Theme from an php file | "" |

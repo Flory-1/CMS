@@ -40,7 +40,9 @@ include_once "src/cms.php";
             // Get all tests from the test folder
             foreach (glob("test/*") as $dir) {
                 $dir = preg_split("/(_|.php)/", basename($dir));
-                echo '<a type="button" href="?test&id='.$dir[1].'" class="btn btn-secondary">'.$dir[0].' '.$dir[1].'</a>';
+                if(isset($dir[1])) {
+                    echo '<a type="button" href="?test&id='.$dir[1].'" class="btn btn-secondary">'.$dir[0].' '.$dir[1].'</a>';
+                }
             }
         ?>
     </div>
