@@ -11,6 +11,14 @@ body {
     font-weight: <?=$_SESSION["TH"]["Font_Weight"]?> !important
 }
 
+#cms_calendar[data-season="winter"] .month table {
+}
+#cms_calendar[data-season="summer"] .month table {
+}
+#cms_calendar[data-season="spring"] .month table {
+}
+#cms_calendar[data-season="fall"] .month table {
+}
 
 .<?=$_SESSION["TH"]["theme"]?> .cms-header {
     display: flex;
@@ -66,7 +74,7 @@ body {
 .<?=$_SESSION["TH"]["theme"]?> .cms-body .month tbody tr td.not-select-able {
     background: <?=$_SESSION["TH"]["Not_Select_Background"]?> !important;
 }
-.<?=$_SESSION["TH"]["theme"]?> .cms-body .month tbody tr td:hover {
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .month tbody tr td:hover:not(.cms-time-names):not(.cms-day-names):not(.weekend) {
     background: <?=$_SESSION["TH"]["Table_foot_Hover_Background"]?> !important
 }
 .<?=$_SESSION["TH"]["theme"]?> .cms-body .month tbody tr td:not([data-set="none"]):not(.not-select-able) {
@@ -94,24 +102,55 @@ body {
 }
 
 
-.<?=$_SESSION["TH"]["theme"]?> .cms-body .month .monthName {
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .month .cms-month-name {
     font-size: <?=$_SESSION["TH"]["Month_Size"]?>;
     color: <?=$_SESSION["TH"]["Month_Color"]?>;
     background: <?=$_SESSION["TH"]["Month_Background"]?>
 }
-.<?=$_SESSION["TH"]["theme"]?> .cms-body .month .yearName {
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .month .cms-season-name {
+    <!-- TODO: add styles for season name -->
+}
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .month .cms-week-days {
+    font-size: <?=$_SESSION["TH"]["Month_Size"]?>;
+    padding-right: 2px;
+    color: <?=$_SESSION["TH"]["Month_Color"]?>;
+    background: <?=$_SESSION["TH"]["Month_Background"]?>
+}
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .month .cms-week-day {
+    color: <?=$_SESSION["TH"]["Table_foot_Hover_Background"]?>
+}
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .month .cms-time-names,
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .month .cms-day-names {
+    cursor: default
+}
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .month .cms-week-time {
+    height: 20px !important;
+    background: #363646 !important;
+}
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .month .cms-week-time.active-day {
+    background: #02f2a2 !important;
+}
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .month .cms-week-time-name,
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .month .cms-day-time-name {
+    position: absolute;
+    display: flex;
+    top: -1px;
+    z-index: 1049;
+    font-size: 14px;
+    font-weight: bold;
+    color: #21caca;
+}
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .month .cms-day-time {
+    text-align: left;
+}
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .month .cms-year-name {
     position: relative;
     display: inline-block;
     font-size: <?=$_SESSION["TH"]["Year_Size"]?>;
-    padding-left: <?=$_SESSION["TH"]["Year_left"]?>;
-    color: <?=$_SESSION["TH"]["Year_Color"]?>;
-    background: <?=$_SESSION["TH"]["Year_Background"]?>
+    padding-left: 6px;
+    color: <?=$_SESSION["TH"]["Month_Color"]?>;
+    background: <?=$_SESSION["TH"]["Month_Background"]?>
 }
-.<?=$_SESSION["TH"]["theme"]?> .cms-body .month table:hover .monthName,
-.<?=$_SESSION["TH"]["theme"]?> .cms-body .month table:hover .yearName {
-    opacity: .2
-}
-
 
 .<?=$_SESSION["TH"]["theme"]?> .cms-body span.day {
     position: relative;
