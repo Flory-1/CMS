@@ -77,6 +77,7 @@
 | `lg` | Language (`my_months` also must be the same language) | string | de |
 | `date_format` | Date formate for all Date Displays in the CMS System | string | Y-m-d |
 | `time_format` | Time formate for all Time Displays in the CMS System | string | H:i:s |
+| `time_zone` | Time zone for all Time creations in the CMS System | string | Europe/Berlin |
 | `min_year` | Min Year of CMS only the YEAR | string | 2019 |
 | `max_year` | Max Year of CMS only the YEAR | string | 2030 |
 | `cur_year` | The current Year of CMS only the YEAR | string | 2019 |
@@ -86,6 +87,7 @@
 | `max_events_per_day` | Maximum Events per Day (`show_more_events` Must be true) | int | 3 |
 | `hidden_months` | Hidde Months by index (3 == after the 3 Month hidde all Months) | int | 13 |
 | | | | |
+| `time_change` | Yearseasons Time change check print out Season change Event | bool | false |
 | `season_check` | Yearseasons check print out Seasonname and Theme | bool | false |
 | `rtl_check` | RTL Support for the Language and the Calendar | bool | false |
 | `weekend_check` | Show each weekend of month true or flase | bool | false |

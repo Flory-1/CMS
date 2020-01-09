@@ -3,6 +3,9 @@
 	"description": "Creates an interactive Calendar with User Settings.",
 	"keywords": [
         "framework",
+        "time zone",
+        "date format",
+        "time format",
         "CMS",
         "calendar",
         "jquery",
@@ -15,7 +18,7 @@
         "events",
         "bookings"
     ],
-    "version": "2.2.4",
+    "version": "2.2.7",
     "license": "MIT",
     "type": "library",
     "authors": [
