@@ -2,7 +2,7 @@
 # CMS a Full-Featured Calendar Managment System made with PHP by Florian L&auml;mmlein
 #### Creates an interactive Calendar with User Settings.
 #### Calendar can include Bookings, Reservations or waht you want
-#### The CMS System has 70 Settings options in the acctual stable version witch you can use.
+#### The CMS System has over 70+ Settings options in the acctual stable version witch you can use.
 &nbsp;
 &nbsp;
 ***
