@@ -10,7 +10,7 @@
  * @license     GNU-LGPL v3 (http://www.gnu.org/copyleft/lesser.html) *
  * @see         https://github.com/Flory-1/CMS The CMS GitHub project *
  * @since       Release version: 1.0.0 at 2019-10-01                  *
- * @version     Actuall version: 2.2.4 at 2020-01-07                  *
+ * @version     Actuall version: 2.2.7 at 2020-01-09                  *
  *********************************************************************/
 
 /**
@@ -48,7 +48,7 @@ class CMS {
     /********************************************************
      * INFO: Static variables for the Statics and System Settings
      ********************************************************/
-    private const PHP_MIN       = "5.3.0";
+    private const PHP_MIN       = "5.5.3";
     private const AKTIVE        = 1;
     private const OPEN          = 2;
     private const ENDED         = 3;
@@ -78,7 +78,14 @@ class CMS {
      */
     protected $time_format = "H:i:s";
 
-        /**
+    /**
+     * The Time zone for the Date creations.
+     *
+     * @var string
+     */
+    protected $time_zone = "Europe/Berlin";
+
+    /**
      * This for the Min Year in the CMS.
      *
      * @var string
@@ -97,7 +104,7 @@ class CMS {
      *
      * @var string
      */
-    protected $cur_year = "2019";
+    protected $cur_year = "";
     
     /**
      * This for the Current view in the CMS.
@@ -127,6 +134,13 @@ class CMS {
      */
     protected $hidden_months = 13;
 
+    /**
+     * The Season Time change check print out the Season change.
+     *
+     * @var bool
+     */
+    protected $time_change = false;
+    
     /**
      * The Season check print out the Seasonname and Theme.
      *
@@ -283,7 +297,7 @@ class CMS {
      * @example ["HOST" => 'localhost', "DATABASE" => 'cms', "USER" => 'root', "PASSWORD" => '', "Type" => 'mysql']
      * @var string[]
      */
-    public $sql_infos = ["HOST" => 'localhost', "DATABASE" => 'cms', "USER" => 'root', "PASSWORD" => '', "Type" => 'mysql'];
+    protected $sql_infos = ["HOST" => 'localhost', "DATABASE" => 'cms', "USER" => 'root', "PASSWORD" => '', "Type" => 'mysql'];
 
     /**
      * Theme for the wohle CMS System, can include you owne Theme by url.
@@ -310,17 +324,17 @@ class CMS {
         ],
         "database" => [
             [
-                "name" => "events",
+                "name" => "cms_events",
                 "parameters" => "`id` int(11) NOT NULL, `event_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `start_date` date NOT NULL, `end_date` date NOT NULL, `my_description` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `test_event` tinyint(1) DEFAULT 0",
-                "values" => "INSERT INTO `events`(`id`, `event_name`, `start_date`, `end_date`, `my_description`) VALUES ('1', 'IFA', '2019-08-12', '2019-08-17', 'Auto Messe')"
+                "values" => "INSERT INTO `cms_events`(`id`, `event_name`, `start_date`, `end_date`, `my_description`) VALUES ('1', 'IFA', '2019-08-12', '2019-08-17', 'Auto Messe')"
             ],[
-                "name" => "payments",
+                "name" => "cms_payments",
                 "parameters" => "`id` int(11) NOT NULL, `payment` varchar(255) NOT NULL, `is_active` tinyint(1) NOT NULL DEFAULT 1",
-                "values" => "INSERT INTO `payments`(`id`, `payment`, `is_active`) VALUES ('1', 'PayPal', '1')"
+                "values" => "INSERT INTO `cms_payments`(`id`, `payment`, `is_active`) VALUES ('1', 'PayPal', '1')"
             ],[
-                "name" => "persons",
+                "name" => "cms_persons",
                 "parameters" => "`id` int(11) NOT NULL, `id_event` int(11) NOT NULL DEFAULT 1, `persons` int(11) NOT NULL, `second_person` int(11) NOT NULL, `price` int(11) NOT NULL, `second_price` int(11) NOT NULL",
-                "values" => "INSERT INTO `persons` (`id`, `id_event`, `persons`, `second_person`, `price`, `second_price`) VALUES ('1', '1', '8', '6', '50', '10')"
+                "values" => "INSERT INTO `cms_persons` (`id`, `id_event`, `persons`, `second_person`, `price`, `second_price`) VALUES ('1', '1', '8', '6', '50', '10')"
             ]
         ],
         "statuse" => [
@@ -346,7 +360,6 @@ class CMS {
                 "static" => "btn-info",
                 "submit" => "btn-success",
                 "info" => "btn-info",
-                "download" => "btn-info",
                 "iCal" => "btn-info",
                 "google" => "btn-info",
                 "yahoo" => "btn-info",
@@ -383,7 +396,6 @@ class CMS {
                 "week" => "fas fa-calendar-week",
                 "day" => "fas fa-calendar-day",
                 "list" => "fas fa-list",
-                "download" => "",
                 "iCal" => "",
                 "google" => "",
                 "yahoo" => "",
@@ -1084,6 +1096,10 @@ class CMS {
             if(!isset($_SESSION["CMS"]) || isset($_SESSION["CMS"]) && $_SESSION["CMS"] != "") {
                 $_SESSION["CMS"] = $arrgs;
             }
+            // Check the given Timezone from User.
+            if(!$this->checkTimeZone()) {
+                $this->error('time_zone_check', __CLASS__, __FUNCTION__, __LINE__);
+            }
         } else {
             exit("Please check all Settings there are some Problems.
                     <br>1. Check if you have given the right Names for the Settings.
@@ -1101,7 +1117,7 @@ class CMS {
      * 
      * Setup the Calendar variables and start the script
      */
-    protected function initialise($arrgs = array()) {
+    protected function initialise($arrgs = array()): bool {
         $check = array(true);
         // Loop trought each key from User Settings
         foreach ($arrgs as $key => $value) {
@@ -1189,7 +1205,9 @@ class CMS {
                 return false;
                 break;
         }
+        // Set the SQL type in the `$sql_infos` to get it later.
         $this->sql_infos["SV"] = $SV;
+        $this->sql_infos["DB"] = $DB;
         // Try the connection to the database with given Type
         try {
             $this->sql_infos["PDO"] = new PDO($SV.$this->sql_infos['HOST'].";".$DB.$this->sql_infos['DATABASE'].";", $this->sql_infos['USER'], $this->sql_infos['PASSWORD'], array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
@@ -1197,9 +1215,6 @@ class CMS {
         catch(PDOException $ex) {
             if(!$this->create_Database()) {
                 $this->error($ex->getMessage(), __CLASS__, __FUNCTION__, __LINE__);
-                return false;
-            } else {
-                $this->error('sql_conn', __CLASS__, __FUNCTION__, __LINE__);
                 return false;
             }
         }
@@ -1209,7 +1224,7 @@ class CMS {
     /**
      * FUN: Check if all Functions that we need for the Calendar are existing in the CMS_Settings class.
      */
-    protected function checkAllFunctions() {
+    protected function checkAllFunctions(): bool {
         $check = array(true);
         // Loop trow the Functions array to check each Function
         foreach ($this->functions as $key => $value) {
@@ -1286,6 +1301,22 @@ class CMS {
     }
 
     /**
+     * FUN: Check if the given Timezone is existing in PHP.
+     */
+    protected function checkTimeZone(): bool {
+        $ZONES = DateTimeZone::listIdentifiers(DateTimeZone::ALL);
+
+        // Check if there is an match in the time zone list.
+        foreach($ZONES as $value) {
+            if($this->time_zone == $value) {
+                return true;
+            }
+        }
+        // There are no match return false.
+        return false;
+    }
+
+    /**
      * FUN: Get all Events, Bookings by id from it self.
      */
     protected function getAllBookings($startDate, $endDate) {
@@ -1298,7 +1329,7 @@ class CMS {
         }
         // Loop trow all Events, Bookings and set each Event, Booking as new CMS_Settings class
         while($data = $ST->fetch()) {
-            $EVENT_End = DateTime::createFromFormat("d/m/Y", date("d/m/Y", strtotime($data["end_date"])), new DateTimeZone("UTC"));
+            $EVENT_End = DateTime::createFromFormat("d/m/Y", date("d/m/Y", strtotime($data["end_date"])), new DateTimeZone($this->time_zone));
             // Check the Date and with status are the Event, Reservation have
             if(($EVENT_End >= $startDate) && ($EVENT_End >= $endDate)) {
                 array_push($this->EVENTS, new CMS_Settings($data));
@@ -1415,14 +1446,14 @@ class CMS {
      * else retun the index as month
      */
     protected function ceckGivenMonths($YEAR) {
-        $startDate = DateTime::createFromFormat("d/m/Y", date("d/m/Y"), new DateTimeZone("UTC"));
+        $startDate = DateTime::createFromFormat("d/m/Y", date("d/m/Y"), new DateTimeZone($this->time_zone));
         $check = array(true);
         // Check if the array is not empty and if there are no issues between the month names
         if(count(array_intersect($this->month_names, $this->my_months)) > 0) {
             // Check the Date foreach month name (User Months)
             // if the current month is lower than the month retun false
             foreach ($this->my_months as $key => $value) {
-                $endDate = DateTime::createFromFormat("d/m/Y", date("d/m/{$YEAR}", strtotime($value)), new DateTimeZone("UTC"));
+                $endDate = DateTime::createFromFormat("d/m/Y", date("d/m/{$YEAR}", strtotime($value)), new DateTimeZone($this->time_zone));
                 // Check if the date is lower or higger than todays date
                 if($startDate >= $endDate) {
                     array_push($check, false);
@@ -1456,8 +1487,8 @@ class CMS {
         $this->current_month = intval(trim($month_index));
 
         // Create an new Date object for start, end date
-        $startDate = DateTime::createFromFormat("d/m/Y", "1/1/{$this->current_year}", new DateTimeZone("UTC"));
-        $endDate = DateTime::createFromFormat("d/m/Y", "{$startDate->format("t")}/12/{$this->current_year}", new DateTimeZone("UTC"));
+        $startDate = DateTime::createFromFormat("d/m/Y", "1/1/{$this->current_year}", new DateTimeZone($this->time_zone));
+        $endDate = DateTime::createFromFormat("d/m/Y", "{$startDate->format("t")}/12/{$this->current_year}", new DateTimeZone($this->time_zone));
 
         // Check if Bookings and Database are true
         if($this->events_check && $this->database_check) {
@@ -1467,7 +1498,7 @@ class CMS {
         else if(!$this->database_check && count($this->my_events) > 0) {
             // Loop trow the my_events array and set each Event, Booking as new CMS_Settings class
             foreach ($this->my_events as $data) {
-                $EVENT_End = DateTime::createFromFormat("d/m/Y", date("d/m/Y", strtotime($data["end_date"])), new DateTimeZone("UTC"));
+                $EVENT_End = DateTime::createFromFormat("d/m/Y", date("d/m/Y", strtotime($data["end_date"])), new DateTimeZone($this->time_zone));
                 // Check the Date and with status are the Event, Reservation have
                 if(($EVENT_End >= $startDate) && ($EVENT_End <= $endDate)) {
                     array_push($this->EVENTS, new CMS_Settings($data));
@@ -1572,28 +1603,40 @@ class CMS {
      * FUN: Get an function from by Name and overgive all parameters.
      */
     protected function getFunction($fun, $arrgs) {
-        // Check witch fun it is
+        // Check witch fun it is.
         switch ($fun) {
             case 'Tooltip':
-                $count = count($this->tooltip_functions);
-                // Check with index is in array and if index are the same as given
-                if($count > 0) {
-                    foreach ($this->tooltip_functions as $key => $value) {
-                        if(isset($arrgs->$value)) {
-                            if($count == 1) {
-                                $fun = $arrgs->$value."<br>";
-                            } else {
-                                $fun .= $arrgs->$value."&nbsp;";
+                // Check with index is in array and if index are the same as given.
+                foreach($this->tooltip_functions as $key => $value) {
+                    // Check if the given function (variable is existing).
+                    if($arrgs->getMethod($value) != "" || $arrgs->getProtected($value, "return") != "") {
+                        // Check if the `$RS` is set.
+                        if(!isset($RS)) {
+                            // Check if the function (variable) is an `$_methods` or an `$variable`.
+                            if($arrgs->getMethod($value) != "") {
+                                $RS = $arrgs->getMethod($value)."<br>";
+                            }
+                            else {
+                                $RS = $arrgs->getProtected($value, "return")."<br>";
+                            }
+                        }
+                        else {
+                            // Check if the function (variable) is an `$_methods` or an `$variable`.
+                            if($arrgs->getMethod($value) != "") {
+                                $RS .= $arrgs->getMethod($value)."<br>";
+                            }
+                            else {
+                                $RS .= $arrgs->getProtected($value, "return")."<br>";
                             }
                         }
                     }
-                    return $fun;
                 }
-                return "";
+                // Return the result.
+                return isset($RS) ? $RS : null;
                 break;
             case 'year_view':
                 $this->view = 'year_view';
-                // Check the arrgs array if is from ajax
+                // Check the arrgs array if is from ajax.
                 if(!is_array($arrgs)) {
                     $this->_drawCalendarYearView(date("m", strtotime($arrgs)), date("Y", strtotime($arrgs)));
                 } else {
@@ -1602,7 +1645,7 @@ class CMS {
                 break;
             case 'month_view':
                 $this->view = 'month_view';
-                // Check the arrgs array if is from ajax
+                // Check the arrgs array if is from ajax.
                 if(!is_array($arrgs)) {
                     $this->_drawCalendarMonthView(date("m", strtotime($arrgs)), date("Y", strtotime($arrgs)));
                 } else {
@@ -1611,7 +1654,7 @@ class CMS {
                 break;
             case 'week_view':
                 $this->view = 'week_view';
-                // Check the arrgs array if is from ajax
+                // Check the arrgs array if is from ajax.
                 if(!is_array($arrgs)) {
                     $this->_drawCalendarWeekView(date("m", strtotime($arrgs)), date("Y", strtotime($arrgs)));
                 } else {
@@ -1620,7 +1663,7 @@ class CMS {
                 break;
             case 'day_view':
                 $this->view = 'day_view';
-                // Check the arrgs array if is from ajax
+                // Check the arrgs array if is from ajax.
                 if(!is_array($arrgs)) {
                     $this->_drawCalendarDayView(date("d", strtotime($arrgs)), date("m", strtotime($arrgs)), date("Y", strtotime($arrgs)));
                 } else {
@@ -1629,7 +1672,7 @@ class CMS {
                 break;
             case 'list_view':
                 $this->view = 'list_view';
-                // Check the arrgs array if is from ajax
+                // Check the arrgs array if is from ajax.
                 if(!is_array($arrgs)) {
                     $this->_drawCalendarListView(date("m", strtotime($arrgs)), date("Y", strtotime($arrgs)));
                 } else {
@@ -1646,23 +1689,32 @@ class CMS {
         if($EVENT->getStatus() == CMS::AKTIVE) {
             return $this->tooltip_text_1 = "<span class='".$this->getKey("class", ["tooltip" => "title", "statuse" => "AKTIVE"])."'>".$this->json_lg["status_name_1"][$this->lg].":</span><br>
             ".$EVENT->getEvent_name()."<br>"."
-            ".$EVENT->getEvent_desc()."<br>"."
             ".$this->getFunction("Tooltip", $EVENT)."
-            ".$EVENT->getStart_date()->format($this->date_format)." - ".$EVENT->getEnd_date()->format($this->date_format);
+            ".(
+                $EVENT->getStart_date()->format($this->date_format) == $EVENT->getEnd_date()->format($this->date_format) ? 
+                    $EVENT->getStart_date()->format($this->date_format) :
+                    $EVENT->getStart_date()->format($this->date_format)." - ".$EVENT->getEnd_date()->format($this->date_format)
+            );
         } 
         else if($EVENT->getStatus() == CMS::OPEN) {
             return $this->tooltip_text_2 = "<span class='".$this->getKey("class", ["tooltip" => "title", "statuse" => "OPEN"])."'>".$this->json_lg["status_name_2"][$this->lg].":</span><br>
             ".$EVENT->getEvent_name()."<br>"."
-            ".$EVENT->getEvent_desc()."<br>"."
             ".$this->getFunction("Tooltip", $EVENT)."
-            ".$EVENT->getStart_date()->format($this->date_format)." - ".$EVENT->getEnd_date()->format($this->date_format);
+            ".(
+                $EVENT->getStart_date()->format($this->date_format) == $EVENT->getEnd_date()->format($this->date_format) ? 
+                    $EVENT->getStart_date()->format($this->date_format) :
+                    $EVENT->getStart_date()->format($this->date_format)." - ".$EVENT->getEnd_date()->format($this->date_format)
+            );
         } 
         else if($EVENT->getStatus() == CMS::ENDED) {
             return $this->tooltip_text_3 = "<span class='".$this->getKey("class", ["tooltip" => "title", "statuse" => "ENDED"])."'>".$this->json_lg["status_name_3"][$this->lg].":</span><br>
             ".$EVENT->getEvent_name()."<br>"."
-            ".$EVENT->getEvent_desc()."<br>"."
             ".$this->getFunction("Tooltip", $EVENT)."
-            ".$EVENT->getStart_date()->format($this->date_format)." - ".$EVENT->getEnd_date()->format($this->date_format);
+            ".(
+                $EVENT->getStart_date()->format($this->date_format) == $EVENT->getEnd_date()->format($this->date_format) ? 
+                    $EVENT->getStart_date()->format($this->date_format) :
+                    $EVENT->getStart_date()->format($this->date_format)." - ".$EVENT->getEnd_date()->format($this->date_format)
+            );
         } else {
             $this->error('status_check', __CLASS__, __FUNCTION__, __LINE__);
         }
@@ -1724,7 +1776,7 @@ class CMS {
      * FUN: Return the Start and End day of an Week in an Year.
      */
     protected function getStartAndEndDay($WEEK, $YEAR, $check = false): object {
-        $today = DateTime::createFromFormat("d/m/Y", date("d/m/Y"), new DateTimeZone("UTC"));
+        $today = DateTime::createFromFormat("d/m/Y", date("d/m/Y"), new DateTimeZone($this->time_zone));
 
         // Check the `$check` var if is true
         if($check) {
@@ -1749,7 +1801,7 @@ class CMS {
     }
 
     /**
-     * FUN: Return the current Season of the given Timestamp (by Year).
+     * FUN: Return the current Season of the given Timestamp (by Month).
      */
     protected function getYearSeason($MONTH): string {
         // Check witch Season it is and return it.
@@ -1766,15 +1818,32 @@ class CMS {
     }
 
     /**
+     * FUN: Return the current Season Time to change it (by Year).
+     */
+    protected function getSeasonTimeChange($YEAR) {
+        // Create the Time Change by the given Time zone and Year.
+        $timeZone = new DateTimeZone($this->time_zone);
+        $transitions = $timeZone->getTransitions(mktime(0, 0, 0, 1, 1, $YEAR));
+
+        // Check if there is an Time change on this Time zone.
+        if(isset($transitions[1])) {
+            return array_slice($transitions, 1, 2);
+        }
+        // There are no Time changes on this Time zone.
+        return false;
+    }
+
+    /**
      * FUN: Print out the Events, Bookings from the foreach by an view.
      */
     protected function _drawEvents($weekDays, $tempDate, $setDate = null) {
         // Create all variables we need to start
-        $setDate = $setDate == null ? DateTime::createFromFormat("d/m/Y H:i:s", date("d/m/Y H:i:s"), new DateTimeZone("UTC")) : $setDate;
-        $dateNow = DateTime::createFromFormat("d/m/Y", date("d/m/Y"), new DateTimeZone("UTC"));
+        $setDate = $setDate == null ? DateTime::createFromFormat("d/m/Y H:i:s", date("d/m/Y H:i:s"), new DateTimeZone($this->time_zone)) : $setDate;
+        $dateNow = DateTime::createFromFormat("d/m/Y", date("d/m/Y"), new DateTimeZone($this->time_zone));
+        $times = $this->getSeasonTimeChange($tempDate->format("Y"));
 
         // check if $tempDate == Active Day
-        if($tempDate == $dateNow) {
+        if($tempDate == $dateNow && $dateNow->format("H") <= $setDate->format('H')) {
             $this->class_td = "active-day";
         }
         else if($tempDate < $dateNow) {
@@ -1833,51 +1902,51 @@ class CMS {
         }
         // Check if on this Day is an Event.
         if($this->EVENTS != null) {
-            foreach ($this->EVENTS as $key => $value) {
+            foreach ($this->EVENTS as $key => $EVENT) {
                 // Check the Status from an Event, Booking and if is an Test Event, Booking.
-                if($this->checkStatus($value) && !$this->checkHidden($value)) {
+                if($this->checkStatus($EVENT) && !$this->checkHidden($EVENT)) {
                     // Check if the show_more_events is false and if max_events_per_day == 3.
                     if($this->show_more_events && $this->max_events_per_day != $key || !$this->show_more_events && $this->max_events_per_day == 3 && $this->max_events_per_day != $key) {
                         // Check foreach Date if start, end or between the booking Date.
-                        if($tempDate->format('d.m.Y') == $value->getStart_date()->format('d.m.Y') && $tempDate->format('d.m.Y') == $value->getEnd_date()->format('d.m.Y')) {
-                            $this->_drawCalendardayBooked($value);
+                        if($tempDate->format('d.m.Y') == $EVENT->getStart_date()->format('d.m.Y') && $tempDate->format('d.m.Y') == $EVENT->getEnd_date()->format('d.m.Y')) {
+                            $this->_drawCalendardayBooked($EVENT);
                         }
                         // Check if Event, Booking start_date is same as tempDate.
-                        else if($tempDate->format('d.m.Y') == $value->getStart_date()->format('d.m.Y')) {
+                        else if($tempDate->format('d.m.Y') == $EVENT->getStart_date()->format('d.m.Y')) {
                             // Check if the view is week_view or day_view.
                             if($this->view == "week_view" || $this->view == "day_view") {
                                 // Check if the Datetime is not Null.
-                                if($value->getStart_date()->format('H') != 00 && $value->getStart_date()->format('H') == $setDate->format('H')) {
-                                    $this->custom_code = $value->getCustom_code();
-                                    $this->_drawCalendardayBookedStart($value);
+                                if($EVENT->getStart_date()->format('H') != 00 && $EVENT->getStart_date()->format('H') == $setDate->format('H')) {
+                                    $this->custom_code = $EVENT->getCustom_code();
+                                    $this->_drawCalendardayBookedStart($EVENT);
                                 }
                                 // Datetime is Null.
-                                else if($value->getStart_date()->format('H') == 00) {
-                                    $this->custom_code = $value->getCustom_code();
-                                    $this->_drawCalendardayBookedStart($value);
+                                else if($EVENT->getStart_date()->format('H') == 00) {
+                                    $this->custom_code = $EVENT->getCustom_code();
+                                    $this->_drawCalendardayBookedStart($EVENT);
                                 }
                                 else {
                                     $this->_drawCalendardayFree();
                                 }
                             // There is no special view.
                             } else {
-                                $this->custom_code = $value->getCustom_code();
-                                $this->_drawCalendardayBookedStart($value);
+                                $this->custom_code = $EVENT->getCustom_code();
+                                $this->_drawCalendardayBookedStart($EVENT);
                             }
                         }
                         // Check if Event, Booking end_date is same as tempDate.
-                        else if($tempDate->format('d.m.Y') == $value->getEnd_date()->format('d.m.Y')) {
+                        else if($tempDate->format('d.m.Y') == $EVENT->getEnd_date()->format('d.m.Y')) {
                             // Check if the view is week_view or day_view.
                             if($this->view == "week_view" || $this->view == "day_view") {
                                 // Check if the Datetime is not Null.
-                                if($value->getEnd_date()->format('H') != 00 && $value->getEnd_date()->format('H') == $setDate->format('H')) {
-                                    $this->_drawCalendardayBookedEnd($value, $tempDate);
+                                if($EVENT->getEnd_date()->format('H') != 00 && $EVENT->getEnd_date()->format('H') == $setDate->format('H')) {
+                                    $this->_drawCalendardayBookedEnd($EVENT, $tempDate);
                                     $this->current_booking++;
                                     unset($this->EVENTS[$key]);
                                 }
                                 // Datetime is Null.
-                                else if($value->getEnd_date()->format('H') == 00) {
-                                    $this->_drawCalendardayBookedEnd($value, $tempDate);
+                                else if($EVENT->getEnd_date()->format('H') == 00) {
+                                    $this->_drawCalendardayBookedEnd($EVENT, $tempDate);
                                     $this->current_booking++;
                                     unset($this->EVENTS[$key]);
                                 }
@@ -1886,14 +1955,14 @@ class CMS {
                                 }
                             // There is no special view.
                             } else {
-                                $this->_drawCalendardayBookedEnd($value, $tempDate);
+                                $this->_drawCalendardayBookedEnd($EVENT, $tempDate);
                                 $this->current_booking++;
                                 unset($this->EVENTS[$key]);
                             }
                         }
                         // Check if tempDate is between the start_date and end_date from an Event, Booking.
-                        else if($this->isDateInRange($value, $tempDate)){
-                            $this->_drawCalendardayBooked($value);
+                        else if($this->isDateInRange($EVENT, $tempDate)){
+                            $this->_drawCalendardayBooked($EVENT);
                         }
                         // There is no date match  in the Event, Booking.
                         else {
@@ -1920,6 +1989,55 @@ class CMS {
         else {
             $this->custom_code = "";
             $this->_drawCalendardayFree();
+        }
+        // Check if the User wants the Time change Displayed.
+        if(is_array($times) && $this->time_change) {
+            $start_date = DateTime::createFromFormat("Y-m-d\TH:i:sP", $times[0]["time"], new DateTimeZone($this->time_zone));
+            $end_date = DateTime::createFromFormat("Y-m-d\TH:i:sP", $times[1]["time"], new DateTimeZone($this->time_zone));
+            
+            // Check the Time zone date if is start_date.
+            if($tempDate->format('d.m.Y') == $start_date->format('d.m.Y')) {
+                // Create the Time change Event.
+                $MyEVENT = [
+                    "id" => '0',
+                    "event_name" => $this->json_lg["time_event_name"][$this->lg]." ".$this->json_lg["summer_season"][$this->lg],
+                    "my_description" => $this->json_lg["time_event_desc"][$this->lg],
+                    "start_date" => $start_date->format("d-m-Y H:i:s"),
+                    "end_date" => $start_date->format("d-m-Y H:i:s"),
+                    "test_event" => '0'
+                ];
+            }
+            // Check the Time zone date if is end_date.
+            else if($tempDate->format('d.m.Y') == $end_date->format('d.m.Y')) {
+                // Create the Time change Event.
+                $MyEVENT = [
+                    "id" => '0',
+                    "event_name" => $this->json_lg["time_event_name"][$this->lg]." ".$this->json_lg["winter_season"][$this->lg],
+                    "my_description" => $this->json_lg["time_event_desc"][$this->lg],
+                    "start_date" => $end_date->format("d-m-Y H:i:s"),
+                    "end_date" => $end_date->format("d-m-Y H:i:s"),
+                    "test_event" => '0'
+                ];
+            }
+            // Check if the Event is existing.
+            if(isset($MyEVENT)) {
+                // Create the Event Object with the CMS_Settings class.
+                $this->time_change_event = new CMS_Settings($MyEVENT);
+
+                // Get the Current code for the Next Event, Booking
+                $this->custom_code = $this->time_change_event->getCustom_code();
+
+                // Print out the created Season Time Event.
+                $this->_drawCalendardayBooked($this->time_change_event);
+
+                // Clear all variables.
+                $this->class_1 = "";
+                $this->class_2 = "";
+                $this->class_3 = "";
+                $this->tooltip_text_1 = "";
+                $this->tooltip_text_2 = "";
+                $this->tooltip_text_3 = "";
+            }
         }
         // Print End of the Day
         echo "</ul>";
@@ -2525,8 +2643,8 @@ class CMS {
      */
     protected function _drawCalendarYearView($month, $year) {
         // Create all variables that we need to start the while loop
-        $startDate = DateTime::createFromFormat("d/m/Y", "1/{$month}/{$year}", new DateTimeZone("UTC"));
-        $endDate = DateTime::createFromFormat("d/m/Y", "{$startDate->format("t")}/{$month}/{$year}", new DateTimeZone("UTC"));
+        $startDate = DateTime::createFromFormat("d/m/Y", "1/{$month}/{$year}", new DateTimeZone($this->time_zone));
+        $endDate = DateTime::createFromFormat("d/m/Y", "{$startDate->format("t")}/{$month}/{$year}", new DateTimeZone($this->time_zone));
         $fillStart = $startDate->format("w") - 1;
         $printedFillerDays = true;
         $days = 0;
@@ -2606,7 +2724,7 @@ class CMS {
      */
     protected function _drawCalendarWeekView($month, $year) {
         // Create all variables that we need to start the loop
-        $startDate = DateTime::createFromFormat("d/m/Y", "".date('d')."/{$month}/{$year}", new DateTimeZone("UTC"));
+        $startDate = DateTime::createFromFormat("d/m/Y", "".date('d')."/{$month}/{$year}", new DateTimeZone($this->time_zone));
         $days = $this->getStartAndEndDay($startDate->format("W"), $startDate->format("Y"), true);
         
         // Print all Months with day names inside
@@ -2615,7 +2733,7 @@ class CMS {
         // loop trought the whole Time array and create each Day with Events, Bookings inside
         foreach ($this->times as $key => $row) { // loop 4 times == Morning-Night
             foreach ($row as $Ckey => $val) { // loop 24 times == 00-24 hour
-                $setDate = DateTime::createFromFormat("H/i/s", "{$val}/00/00", new DateTimeZone("UTC"));
+                $setDate = DateTime::createFromFormat("H/i/s", "{$val}/00/00", new DateTimeZone($this->time_zone));
                 // Start the new time tr == $val (00, 01, 02...)
                 echo "<tr>
                     <td class=\"cms-week-time cms-time-names\">".($Ckey == 0 ? '<span class="cms-week-time-name">'.$key.'</span>' : '')."".$setDate->format($this->time_format)."</td>";
@@ -2638,7 +2756,7 @@ class CMS {
      */
     protected function _drawCalendarDayView($day, $month, $year) {
         // Create all variables that we need to start the loop
-        $startDate = DateTime::createFromFormat("d/m/Y", "{$day}/{$month}/{$year}", new DateTimeZone("UTC"));
+        $startDate = DateTime::createFromFormat("d/m/Y", "{$day}/{$month}/{$year}", new DateTimeZone($this->time_zone));
 
         // Print all Months with day names inside
         $this->_drawMonthTableHeader($startDate);
@@ -2646,7 +2764,7 @@ class CMS {
             foreach ($this->times as $key => $value) {
                 // Loop trought the Times arrays
                 foreach ($value as $Ckey => $row) {
-                    $setDate = DateTime::createFromFormat("H/i/s", "{$row}/00/00", new DateTimeZone("UTC"));
+                    $setDate = DateTime::createFromFormat("H/i/s", "{$row}/00/00", new DateTimeZone($this->time_zone));
                     echo "<tr>
                         <td style=\"width:10%\" class=\"cms-day-time cms-day-names\">".($Ckey == 0 ? '<span class="cms-day-time-name">'.$key.'</span>' : '')."".$setDate->format($this->time_format)."</td>";
 
@@ -2668,7 +2786,7 @@ class CMS {
      */
     protected function _drawCalendarListView($month, $year) {
         // Create all variables that we need to start the loop
-        $startDate = DateTime::createFromFormat("d/m/Y", "1/{$month}/{$year}", new DateTimeZone("UTC"));
+        $startDate = DateTime::createFromFormat("d/m/Y", "1/{$month}/{$year}", new DateTimeZone($this->time_zone));
         
         // Print the List Header with item names inside
         $this->_drawMonthTableHeader($startDate);
@@ -2700,8 +2818,12 @@ class CMS {
                 </tr>";
             }
         } else {
-            // Print an empty row
-            $this->_drawCalendardayFree("table", 8);
+            // Check if the actions is not NUll and Print an empty row
+            if($this->actions_form["active"]) {
+                $this->_drawCalendardayFree("table", 8);
+            } else {
+                $this->_drawCalendardayFree("table", 7);
+            }
         }
         // End of Day view
         echo "</tbody></table>";
@@ -3183,7 +3305,7 @@ class CMS {
     /**
      * FUN: Get all Payments from Database.
      */
-    protected function getAllPayments(): array {
+    protected function getAllPayments(): object {
         // Get all infos from the given Database
         $ST = $this->sql_infos["PDO"]->prepare("SELECT * FROM payments");
 
@@ -3198,7 +3320,7 @@ class CMS {
     /**
      * FUN: Get all Persons from Database.
      */
-    protected function getAllPersons(): array {
+    protected function getAllPersons(): object {
         if(is_array($this->event_form['active_event'])) {
             $IDS = "'".implode("','", $this->event_form['active_event'])."'";
             $sql = "SELECT * FROM persons JOIN events ON events.id = persons.id_event WHERE id_event IN(".$IDS.")";
@@ -3257,14 +3379,20 @@ class CMS {
 
         // Check if the Connection is true
         try {
-            $dbh = new PDO($this->sql_infos["SV"].$this->sql_infos["HOST"].','. $this->sql_infos["USER"], $this->sql_infos["PASSWORD"]);
+            // Create an new PDO object to connect to Database
+            $PDO = new PDO($this->sql_infos["SV"].$this->sql_infos["HOST"].";", $this->sql_infos["USER"], $this->sql_infos["PASSWORD"]);
+            // Set Error Attribute to the new PDO object
+            $PDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             // Create the Database
-            $dbh->execute("CREATE DATABASE ".$this->sql_infos['DATABASE']) or die(print_r($dbh->errorInfo(), true));
-
-        } catch (PDOException $ex) {
+            $PDO->exec("CREATE DATABASE ".$this->sql_infos['DATABASE']) or die(print_r($PDO->errorInfo(), true));
+        }
+        catch (PDOException $ex) {
             $this->error($ex->getMessage(), __CLASS__, __FUNCTION__, __LINE__);
             return false;
         }
+        // Setup the PDO connection
+        $this->sql_infos["PDO"] = new PDO($this->sql_infos["SV"].$this->sql_infos['HOST'].";".$this->sql_infos["DB"].$this->sql_infos['DATABASE'].";", $this->sql_infos['USER'], $this->sql_infos['PASSWORD'], array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
+        
         // Create the Tables
         for($i = 0; $i < $count; $i++) {
             $ST = $this->sql_infos["PDO"]->prepare("CREATE TABLE ".$this->json['database'][$i]['name']." (".$this->json['database'][$i]['parameters'].") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
@@ -3400,9 +3528,7 @@ class CMS {
 	 */
 	public function destroy() {
 		foreach($this as $key => $value) {
-            if($key != "sql_infos") {
-                unset($this->$key);
-            }
+            unset($this->$key);
 		}
     }
     
@@ -3472,7 +3598,7 @@ class CMS_Settings {
     /**
      * This array holds all Variables from the $this->`tooltip_functions` array()
      *
-     * @var int
+     * @var array
      */
     protected $_methods = array();
 
@@ -3485,9 +3611,6 @@ class CMS_Settings {
             // Set all variables
             foreach ((array) $event as $key => $value) {
                 switch ($key) {
-                    case '_methods':
-                        $this->_methods[$key] = $value;
-                        break;
                     case 'start_date':
                         $this->start_date = DateTime::createFromFormat("d/m/Y H:i:s", date("d/m/Y H:i:s", strtotime($value)), new DateTimeZone("UTC"));
                         break;
@@ -3495,7 +3618,12 @@ class CMS_Settings {
                         $this->end_date = DateTime::createFromFormat("d/m/Y H:i:s", date("d/m/Y H:i:s", strtotime($value)), new DateTimeZone("UTC"));
                         break;
                     default:
-                        $this->$key = $value;
+                        // Check if the key is existing in the CMS_Settings.
+                        if(property_exists($this, $key)) {
+                            $this->$key = $value;
+                        } else {
+                            $this->_methods[$key] = $value;
+                        }
                         break;
                 }
             }
@@ -3517,6 +3645,7 @@ class CMS_Settings {
      * FUN: Generate an random code for the current Event, Booking.
      */
     function generateRandomString($length = 10) {
+        // Check if the code is allready in use
         return substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length/strlen($x)) )), 1, $length); // last charakter is length of code (10)
     }
 
@@ -3577,6 +3706,30 @@ class CMS_Settings {
      */
     public function getCustom_code(): string {
         return $this->generateRandomString();
+    }
+
+    /**
+     * FUN: Get the Current Tooltip function from Event, Booking.
+     */
+    public function getMethod($METHOD): string {
+        return isset($this->_methods[$METHOD]) ? $this->_methods[$METHOD] : "";
+    }
+
+    /**
+     * FUN: Get an Protected Key fom the CMS_Settings to an gloabl call.
+     */
+    public function getProtected($var, $type = "count") {
+        // Check with type it is
+        switch ($type) {
+            case 'return':
+                $RS = $this->$var;
+                break;
+            default:
+                $RS = false;
+                break;
+        }
+        // Return the result.
+        return isset($RS) ? $RS : true;
     }
 }
 
@@ -3647,9 +3800,11 @@ class CMS_Ajax {
         $_SESSION["CMS"]["ajax"] = true;
 
         // Get all Infos from the current Event, Booking
-        // Get all infos from the given Database
         $CT = new CMS($_SESSION["CMS"]);
-        $ST = $CT->sql_infos["PDO"]->prepare("SELECT * FROM persons WHERE id_event = ".$id."");
+        $PDO = $CT->getProtected("sql_infos", "return");
+
+        // Get all infos from the given Database
+        $ST = $PDO->prepare("SELECT * FROM persons WHERE id_event = ".$id."");
 
         // Check the query
         if(!$ST->execute()) {
@@ -3701,12 +3856,12 @@ class CMS_Ajax {
         if($post["end_date"] < $post["start_date"]) {
             return false;
         }
+        // Create all variables from the ajax request.
         $this->title = $post["title"];
         $this->description = $post["desc"];
-        $this->address = "";
-        $this->allDay = $post["allDay"];
         $this->start_date = new DateTime($post["start_date"]);
         $this->end_date = new DateTime($post["end_date"]);
+        $this->allDay = is_bool($post["allDay"]) ? $post["allDay"] : false;
 
         // Generate the link and return the result.
         return $this->create_link($post["system"]);
@@ -3766,8 +3921,8 @@ class CMS_Ajax {
                         $url .= '&st='.$this->start_date->format('Ymd');
                         $url .= '&dur=allday';
                     } else {
-                        $utcStartDateTime = (clone $this->start_date)->setTimezone(new DateTimeZone('UTC'));
-                        $utcEndDateTime = (clone $this->end_date)->setTimezone(new DateTimeZone('UTC'));
+                        $utcStartDateTime = (clone $this->start_date)->setTimezone(new DateTimeZone("UTC"));
+                        $utcEndDateTime = (clone $this->end_date)->setTimezone(new DateTimeZone("UTC"));
                         $url .= '&st='.$utcStartDateTime->format('Ymd\THis').'Z';
                         $url .= '&et='.$utcEndDateTime->format('Ymd\THis').'Z';
                     }
@@ -3782,8 +3937,8 @@ class CMS_Ajax {
             case 'webOutlook':
                 $url = 'https://outlook.live.com/owa/?path=/calendar/action/compose&rru=addevent';
                     $dateTimeFormat = $this->allDay ? 'Ymd' : "Ymd\THis";
-                    $utcStartDateTime = (clone $this->start_date)->setTimezone(new DateTimeZone('UTC'));
-                    $utcEndDateTime = (clone $this->end_date)->setTimezone(new DateTimeZone('UTC'));
+                    $utcStartDateTime = (clone $this->start_date)->setTimezone(new DateTimeZone("UTC"));
+                    $utcEndDateTime = (clone $this->end_date)->setTimezone(new DateTimeZone("UTC"));
                     $url .= '&startdt='.$utcStartDateTime->format($dateTimeFormat);
                     $isSingleDayEvent = $this->end_date->diff($this->start_date)->d < 2;
                     $canOmitEndDateTime = $this->allDay && $isSingleDayEvent;

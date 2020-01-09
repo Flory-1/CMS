@@ -35,9 +35,9 @@
         "de": "Die Datenbankverbindung konnte nicht hergestellt werden.",
         "en": "The database connection could not be established."
     },
-    "sql_conn": {
-        "de": "Verbindung zur Datenbank Fehlgeschlagen. SQL Connection Error.",
-        "en": "Connection to the database failed. SQL connection error."
+    "time_zone_check": {
+        "de": "Die Zeitzone wurde nicht gefunden! Bitte Überprüfen Sie die Zeitzone.",
+        "en": "The timezone were not found! Please check the timezone."
     },
     "sql_query": {
         "de": "SQL Befehl nicht ausführbar. SQL Query Error.",
@@ -194,10 +194,6 @@
     "input_5": {
         "de": "Events:",
         "en": "Events:"
-    },
-    "button_download": {
-        "de": "Download als text Datei",
-        "en": "download as txt file"
     },
     "button_iCal": {
         "de": "Download iCal",
@@ -402,5 +398,13 @@
     "spring_season": {
         "de": "Frühling",
         "en": "spring"
+    },
+    "time_event_name": {
+        "de": "Zeitumstellung",
+        "en": "Time change"
+    },
+    "time_event_desc": {
+        "de": "Heute ist die Zeitumstellung.",
+        "en": "Today is the time change."
     }
 }
