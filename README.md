@@ -2,7 +2,7 @@
 # CMS a Full-Featured Calendar Managment System made with PHP by Florian L&auml;mmlein
 #### Creates an interactive Calendar with User Settings.
 #### Calendar can include Bookings, Reservations or waht you want
-#### The CMS System has over 60+ Settings options in the acctual stable version witch you can use.
+#### The CMS System has 70 Settings options in the acctual stable version witch you can use.
 &nbsp;
 &nbsp;
 ***
@@ -68,6 +68,7 @@
       - moment.min.js
     ###### CSS
       - bootstrap.min.css
+      - styles.css.php
 &nbsp;
 &nbsp;
 ***
@@ -105,7 +106,7 @@
 | `tooltip_functions` | Tooltip text (Function Names from Settings class) (firstname) | array() | null |
 | `my_events` | You owne Bookings or Events (`database_check` must be false to work) | array() | null |
 | `my_months` | Display custom months ['June', 'July',...] (`hidden_months` will not longer work) | array() | null |
-| `header` | Show all Navi Buttons on the position you want [`left` => [], `center` => [], `right` => [], `url` => ''] | array() | null |
+| `header` | Show all Navi Buttons on the position you want [`left` => [], `center` => [], `right` => []] | array() | null |
 | `event_form` | Show Booking, Reservation Form [`active`, `action`, `modal`, `arrivel_time`, `leaving_time`, `person_check`, `payment_check`, `active_event`] | array() | null |
 | `static_infos` | Show some information of the CMS [`active`, `author`, `events`, `version`, `language`, `theme`] | array() | null |
 | `actions_form` | Show some information of the CMS [`active`, `iCal`, `google`, `yahoo`, `webOutlook`] | array() | null |
@@ -132,6 +133,11 @@
 |          | `year` | bool | Displays an year Button | false |
 |          | `week` | bool | Displays an week Button | false |
 |          | `day` | bool | Displays an day Button | false |
+|          | `year_view` |  | Show the CMS as an Year view | Null |
+|          | `month_view` |  | Show the CMS as an Month view | Null |
+|          | `week_view` |  | Show the CMS as an Week view | Null |
+|          | `day_view` |  | Show the CMS as an Day view | Null |
+|          | `list_view` |  | Show the CMS as an List view | Null |
 |          | `url` | string | The folder location of the cms script | "" |
 | | | | | |
 | `event_form` | `active` | bool | Activate the Event, Booking form | false |
