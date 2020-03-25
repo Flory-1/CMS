@@ -8,8 +8,8 @@
         "en": "You deactivated the database and did not pass some events / bookings as an array!"
     },
     "my_events_check_2": {
-        "de": "Sie haben einige Events / Buchungen als array übergeben, haben aber die Datenbank nicht abgeschaltet. <br> Ihre Events / Buchungen werden nicht Angezeigt!",
-        "en": "You have passed some events / bookings as an array, but you have not turned off the database. <br> Your events / bookings will not be displayed!"
+        "de": "Sie haben einige Events / Buchungen als array übergeben, haben aber die Datenbank nicht abgeschaltet.<br>Ihre Events / Buchungen werden nicht Angezeigt!",
+        "en": "You have passed some events / bookings as an array, but you have not turned off the database.<br>Your events / bookings will not be displayed!"
     },
     "theme_not_found": {
         "de": "Das Theme wurde nicht gefunden! Bitte Überprüfen Sie ob Sie das Theme richtig geschreiben haben.",
@@ -20,8 +20,8 @@
         "en": "The theme properties were not found! Please check the theme."
     },
     "theme_var_set": {
-        "de": "Der Themename den Sie gestezt haben wird bereits benutzt!",
-        "en": "The Themename you have taen is allready in use!"
+        "de": "Der Themename den Sie gestezt haben wird bereits benutzt!<br>Oder der Themename ist nicht der selbe wie in Ihrem eigenen Theme.",
+        "en": "The theme name you have taen is allready in use!<br>Or the theme name is not the same as in your own theme."
     },
     "php_version": {
         "de": "Bitte überprüfen Sie ihre PHP Version diese ist älter als 5.3.0.",
@@ -30,6 +30,14 @@
     "functions_check": {
         "de": "Bitte überprüfen Sie die Funktionen es scheint Probleme mit diesen zu geben.",
         "en": "Please check the features it seems there are problems with these."
+    },
+    "update_success": {
+        "de": "Ihr Update wurde erfolgreich installiert ;-)",
+        "en": "Your update was successfully installed ;-)"
+    },
+    "update_fail": {
+        "de": "Ihre CMS ist auf dem Neuesten Stand der dinge ;-)",
+        "en": "Your CMS is up to date ;-)"
     },
     "database_check": {
         "de": "Die Datenbankverbindung konnte nicht hergestellt werden.",
@@ -72,20 +80,20 @@
         "en": "Your date is older than today's date. Please choose a different date."
     },
     "notify_4": {
-        "de": "Bitte wählen Sie im Kalender einen Buchungs, Event zeitraum. <br> Wählen Sie zuerst den Anreisetag und dann den Abreisetag. <br> Das Abreisedatum darf nicht kleiner sein wie das Anreisedatum. <br> Die mindest Buchungs, Event Tage sind",
-        "en": "Please select a booking, event period in the calendar. <br> First select the arrival day and then the departure day. <br> The departure date can not be smaller than the arrival date. <br> The minimum booking, event days are"
+        "de": "Bitte wählen Sie im Kalender einen Buchungs, Event zeitraum.<br>Wählen Sie zuerst den Anreisetag und dann den Abreisetag.<br>Das Abreisedatum darf nicht kleiner sein wie das Anreisedatum.<br>Die mindest Buchungs, Event Tage sind",
+        "en": "Please select a booking, event period in the calendar.<br>First select the arrival day and then the departure day.<br>The departure date can not be smaller than the arrival date.<br>The minimum booking, event days are"
     },
     "notify_5": {
         "de": "Es fallen extra Kosten für diese Person an in höhe von",
         "en": "There are extra costs for this person in the amount of"
     },
     "notify_6": {
-        "de": "Bitte wählen Sie im Kalender einen Buchungs, Event zeitraum. <br> Die mindest Buchungs, Event Tage sind",
-        "en": "Please select a booking, event period in the calendar. <br> The minimum booking, event days are"
+        "de": "Bitte wählen Sie im Kalender einen Buchungs, Event zeitraum.<br>Die mindest Buchungs, Event Tage sind",
+        "en": "Please select a booking, event period in the calendar.<br>The minimum booking, event days are"
     },
     "notify_7": {
-        "de": "Sie haben die Buchungs Funktion abgeschaltet. <br> Sie müssen die Funktion erst Einschalten um eine Buchung tätigen zu können!",
-        "en": "You have deactivated the booking function. <br> You must first activate the function to make a booking!"
+        "de": "Sie haben die Buchungs Funktion abgeschaltet.<br>Sie müssen die Funktion erst Einschalten um eine Buchung tätigen zu können!",
+        "en": "You have deactivated the booking function.<br>You must first activate the function to make a booking!"
     },
     "notify_8": {
         "de": "Ihr Event ist in der Datenbank nicht vorhanden!",
@@ -93,19 +101,39 @@
     },
     "notify_9": {
         "de": "Das Event steht zum Download bereit, klicken Sie einfach hier.",
-        "en": ""
+        "en": "The event is available for download, just click here."
     },
     "notify_10": {
         "de": "Das Event konnte nicht Bereitgestellt werden!",
-        "en": ""
+        "en": "The event could not be provided!"
     },
     "notify_11": {
         "de": "Umschalten der Anzeige Erfolgreich.",
-        "en": ""
+        "en": "Switching the display Successful."
     },
     "notify_12": {
         "de": "Umschalten der Anzeige Fehlgeschlagen!",
-        "en": ""
+        "en": "Switching the display failed!"
+    },
+    "notify_13": {
+        "de": "Prüfe",
+        "en": "Checking"
+    },
+    "notify_13_1": {
+        "de": "aktuelle version.",
+        "en": "actual version."
+    },
+    "notify_13_2": {
+        "de": "nach Updates.",
+        "en": "for updates."
+    },
+    "notify_13_3": {
+        "de": "Updates vorhanden",
+        "en": "Updates are available"
+    },
+    "notify_13_4": {
+        "de": "Jetzt instalieren →",
+        "en": "install now →"
     },
     "header_1": {
         "de": "Jahr Anzeigen",
@@ -150,6 +178,22 @@
     "status_name_3": {
         "de": "Beended",
         "en": "Ended"
+    },
+    "time_name_Morning": {
+        "de": "Morgen",
+        "en": "Morning"
+    },
+    "time_name_Afternoon": {
+        "de": "Nachmittag",
+        "en": "Afternoon"
+    },
+    "time_name_Evening": {
+        "de": "Abend",
+        "en": "Evening"
+    },
+    "time_name_Night": {
+        "de": "Nacht",
+        "en": "Night"
     },
     "test_name_1": {
         "de": "Ja",
@@ -274,6 +318,10 @@
     "infos_5": {
         "de": "Design",
         "en": "Theme"
+    },
+    "ul": {
+        "de": "Buchungs liste",
+        "en": "Booking list"
     },
     "week_time": {
         "de": "Uhrzeit",
