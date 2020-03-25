@@ -75,6 +75,7 @@
 ## All Settings in the CMS System
 | <strong style="color: #6ba0ff;">Variable</strong> | <strong style="color: #6ba0ff;">Description</strong> | <strong style="color: #6ba0ff;">Type</strong> | <strong style="color: #6ba0ff;">Default value</strong> |
 | --- | --- | --- | --- |
+| `STRINGS` | | | |
 | `lg` | Language (`my_months` also must be the same language) | string | de |
 | `date_format` | Date formate for all Date Displays in the CMS System | string | Y-m-d |
 | `time_format` | Time formate for all Time Displays in the CMS System | string | H:i:s |
@@ -84,10 +85,14 @@
 | `cur_year` | The current Year of CMS only the YEAR | string | 2019 |
 | `view` | The current view of CMS ('year_view', 'month_view', 'week_view', 'day_view', 'list_view') | string | year_view |
 | | | | |
+| `INTEGER` | | | |
+| `time_split` | Split the hours on day_view, week_view into minutes (5, 10, 15, 30) | int | 60 |
 | `min_days` | Min Nights / Days for the Apartment, Room, Event | int | 0 |
 | `max_events_per_day` | Maximum Events per Day (`show_more_events` Must be true) | int | 3 |
 | `hidden_months` | Hidde Months by index (3 == after the 3 Month hidde all Months) | int | 13 |
 | | | | |
+| `BOOLEAN` | | | |
+| `update_check` | Check if there is an Update available from GitHub | bool | true |
 | `time_change` | Yearseasons Time change check print out Season change Event | bool | false |
 | `season_check` | Yearseasons check print out Seasonname and Theme | bool | false |
 | `rtl_check` | RTL Support for the Language and the Calendar | bool | false |
@@ -103,13 +108,14 @@
 | `show_more_events` | Show more Events, Bookings per Day if there are more than `max_events_per_day` on this Day | bool | false |
 | `tooltip` | Show an Tooltip foreach Event, Booking | bool | false |
 | | | | |
+| `ARRAY` | | | |
 | `tooltip_functions` | Tooltip text (Function Names from Settings class) (firstname) | array() | null |
 | `my_events` | You owne Bookings or Events (`database_check` must be false to work) | array() | null |
 | `my_months` | Display custom months ['June', 'July',...] (`hidden_months` will not longer work) | array() | null |
 | `header` | Show all Navi Buttons on the position you want [`left` => [], `center` => [], `right` => []] | array() | null |
 | `event_form` | Show Booking, Reservation Form [`active`, `action`, `modal`, `arrivel_time`, `leaving_time`, `person_check`, `payment_check`, `active_event`] | array() | null |
 | `static_infos` | Show some information of the CMS [`active`, `author`, `events`, `version`, `language`, `theme`] | array() | null |
-| `actions_form` | Show some information of the CMS [`active`, `iCal`, `google`, `yahoo`, `webOutlook`] | array() | null |
+| `actions_form` | Show some actions as Buttons [`active`, `iCal`, `google`, `yahoo`, `webOutlook`] | array() | null |
 | `sql_infos` | SQL infos [`HOST` => 'localhost', `DATABASE` => 'cms', `USER` => 'root', `PASSWORD` => '', `Type` => 'MySql'] | array() | null |
 | `theme` | Theme of the CMS [`theme` => 'Original', `custom_url` => ''] | array() | null |
 
@@ -125,6 +131,7 @@
 |             | `PASSWORD` | string | Database Password | "" |
 |             | `Type` | string | SQL format ('mysql', 'mssql', 'odbc') | mysql |
 | | | | | |
+| | | | | |
 | `header` | `prev_year` | bool | Displays an previus year Button | false |
 |          | `next_year` | bool | Displays an next year Button | false |
 |          | `prev_month` | bool | Displays an previus month Button | false |
@@ -138,7 +145,8 @@
 |          | `week_view` |  | Show the CMS as an Week view | Null |
 |          | `day_view` |  | Show the CMS as an Day view | Null |
 |          | `list_view` |  | Show the CMS as an List view | Null |
-|          | `url` | string | The folder location of the cms script | "" |
+|          | `url` | string | The folder location of the cms, DONT use it in the positions!! | "" |
+| | | | | |
 | | | | | |
 | `event_form` | `active` | bool | Activate the Event, Booking form | false |
 |              | `action` | string | Action link in the HTML form | "" |
@@ -149,6 +157,7 @@
 |              | `payment` | bool | Active Payments on an Event, Booking | false |
 |              | `active_event` | array() | Holds all Events, Bookings as an select options | null |
 | | | | | |
+| | | | | |
 | `static_infos` | `active` | bool | Activate infos about the current cms | false |
 |                | `author` | bool | Author from cms | false |
 |                | `events` | bool | Events as count | false |
@@ -156,11 +165,13 @@
 |                | `language` | bool | Current Language | false |
 |                | `theme` | bool | Current Theme | false |
 | | | | | |
+| | | | | |
 | `actions_form` | `active` | bool | Activate actions in the current cms | false |
 |                | `iCal` | bool | iCal Download button | false |
 |                | `google` | bool | google Download button | false |
 |                | `yahoo` | bool | yahoo Download button | false |
 |                | `webOutlook` | bool | webOutlook Download button | false |
+| | | | | |
 | | | | | |
 | `theme` | `theme` | string | The current Theme ('Horizon', 'Metro', 'Original', 'Jquery') | Original |
 |         | `custom_url` | string | Here you can add your one Theme from an php file | "" |
