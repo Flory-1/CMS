@@ -3,9 +3,13 @@
 $CT = new CMS(
     [
         "events_check"=>true,
-        "view"=>'day_view',
+        "view"=>'week_view',
         "theme"=>[
-            "theme"=>'Metro'
+            "theme"=>'Jquery'
+        ],
+        "actions_form"=>[
+            "active"=>true,
+            "google"=>true
         ],
         "my_events"=>[
             [
@@ -20,15 +24,9 @@ $CT = new CMS(
                 "lastname"=>"Lämmlein"
             ]
         ],
-        "actions_form"=>[
-            "active"=>true,
-            "google"=>true
-        ],
-        "time_format"=>'H.i',
-        "date_format"=>'d.m.Y',
-        "is_book_able"=>false,
+        "is_book_able"=>true,
         "weekend_check"=>true,
-        "time_split"=>5
+        "time_split"=>15
     ]
 );
 ?>

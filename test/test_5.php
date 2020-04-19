@@ -13,12 +13,27 @@ $CT = new CMS(
             'version'=>true,
             'language'=>true
         ],
+        "my_events"=>[
+            [
+                "id"=>'1',
+                "event_name"=>"Test Tooltip",
+                "start_date"=>"2020-04-08",
+                "end_date"=>"2020-04-09",
+                "my_description"=>"Test Tooltip Functions",
+                "test_event"=>"0",
+                "email"=>"info@test.de",
+                "firstname"=>"Florian",
+                "lastname"=>"Lämmlein"
+            ]
+        ],
         "event_form"=>[
             'active'=>true,
             'action'=>'?page_2',
-            'person'=>true,
-            'payment'=>true,
-            'active_event'=>'2'
+            'active_event'=>'1',
+            "events"=>[
+                "IFA",
+                "E3"
+            ]
         ],
         "min_year"=>'2000',
         "max_year"=>'2030',
@@ -34,7 +49,7 @@ $CT = new CMS(
                 "next_year",
                 "prev_month",
                 "next_month",
-                "today",
+                "today"
             ]
         ]
     ]

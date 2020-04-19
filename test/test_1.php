@@ -17,21 +17,25 @@ $CT = new CMS(
                 "year_view",
                 "day_view",
                 "list_view"
-            ]
+            ],
+            "url"=>'?test&id=1'
         ],
         "time_format"=>'H.i',
-        "database_check"=>false,
-        "error_log"=>true,
+        "status_logs"=>true,
         "cur_year"=>'2020',
+        "time_change"=>true,
+        "show_more_events"=>true,
+        "max_events_per_day"=>'4',
+        "min_days"=>'3',
+        "time_split"=>'5',
         "my_events"=>[
             [
                 "id"=>'1',
                 "event_name"=>"Test",
-                "start_date"=>"2019-12-16",
-                "end_date"=>"2019-12-26",
+                "start_date"=>"2020-02-16",
+                "end_date"=>"2020-02-26",
                 "my_description"=>"Test array 1",
                 "test_event"=>"0",
-                "event_code"=>"meoghetnghgwtb",
                 "email"=>"info@test.de",
                 "firstname"=>"Florian",
                 "lastname"=>"Lämmlein"
@@ -39,11 +43,32 @@ $CT = new CMS(
             [
                 "id"=>'2',
                 "event_name"=>"Test_2",
-                "start_date"=>"2020-01-02 07:30:00",
-                "end_date"=>"2020-01-03 12:00:00",
+                "start_date"=>"2020-02-16 07:30:00",
+                "end_date"=>"2020-02-17 12:00:00",
                 "my_description"=>"Test the views and Datetime",
                 "test_event"=>"0",
-                "event_code"=>"gkrgmoejmohreh",
+                "email"=>"info@test.de",
+                "firstname"=>"Max",
+                "lastname"=>"Mustermann"
+            ],
+            [
+                "id"=>'3',
+                "event_name"=>"Test_3",
+                "start_date"=>"2020-02-16",
+                "end_date"=>"2020-02-16",
+                "my_description"=>"Test array 2",
+                "test_event"=>"0",
+                "email"=>"info@test.de",
+                "firstname"=>"Max",
+                "lastname"=>"Mustermann"
+            ],
+            [
+                "id"=>'4',
+                "event_name"=>"Test_4",
+                "start_date"=>"2020-02-16",
+                "end_date"=>"2020-02-16",
+                "my_description"=>"Test array 3",
+                "test_event"=>"0",
                 "email"=>"info@test.de",
                 "firstname"=>"Max",
                 "lastname"=>"Mustermann"
@@ -60,6 +85,10 @@ $CT = new CMS(
                 "authors"=>true,
                 "language"=>true,
                 "theme"=>true
+        ],
+        "actions_form"=>[
+            "active"=>true,
+            "google"=>true
         ]
     ]
 );

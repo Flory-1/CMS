@@ -2,10 +2,10 @@
 // Call the CMS System
 $CT = new CMS(
     [
-        "events_check"=>true,
-        "view"=>'day_view',
+        "lg"=>"de",
+        "weekend_check"=>true,
         "theme"=>[
-            "theme"=>'Metro'
+            "theme"=>'Jquery'
         ],
         "my_events"=>[
             [
@@ -20,15 +20,15 @@ $CT = new CMS(
                 "lastname"=>"Lämmlein"
             ]
         ],
-        "actions_form"=>[
-            "active"=>true,
-            "google"=>true
-        ],
-        "time_format"=>'H.i',
-        "date_format"=>'d.m.Y',
-        "is_book_able"=>false,
-        "weekend_check"=>true,
-        "time_split"=>5
+        "view"=>'month_view',
+        "events_check"=>true,
+        "tooltip"=>true,
+        "tooltip_functions"=>[
+            "my_description",
+            "firstname"=>true,
+            "lastname",
+            "email"
+        ]
     ]
 );
 ?>
