@@ -18,7 +18,7 @@
         "events",
         "bookings"
     ],
-    "version": "2.2.7",
+    "version": "2.4.0",
     "license": "MIT",
     "type": "library",
     "authors": [

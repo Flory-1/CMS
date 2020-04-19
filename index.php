@@ -31,14 +31,12 @@ include_once "src/cms.php";
 
 <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
     <a class="navbar-brand" href="#">CMS (Calendar Management System)</a>
-</nav>
-
-
-<main class="col-12 p-4">
     <div class="btn-group" role="group" aria-label="Basic example">
         <?php 
             // Get all tests from the test folder
-            foreach (glob("test/*") as $dir) {
+            $array = glob("test/*");
+            natsort($array);
+            foreach ($array as $dir) {
                 $dir = preg_split("/(_|.php)/", basename($dir));
                 if(isset($dir[1])) {
                     echo '<a type="button" href="?test&id='.$dir[1].'" class="btn btn-secondary">'.$dir[0].' '.$dir[1].'</a>';
@@ -46,6 +44,10 @@ include_once "src/cms.php";
             }
         ?>
     </div>
+</nav>
+
+
+<main class="col-12 p-4">
     <?php
         // Check if the User has clicked an test
         if(isset($_GET["test"]) && isset($_GET["id"])) {

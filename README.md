@@ -12,8 +12,8 @@
 - Multi language support.
 - Show Custom Months.
 - Public/Private Events.
-- Multi SQL support.
 - Custom Themes.
+- View Changes.
 - And Much more!
 &nbsp;
 &nbsp;
@@ -94,16 +94,15 @@
 | `BOOLEAN` | | | |
 | `update_check` | Check if there is an Update available from GitHub | bool | true |
 | `time_change` | Yearseasons Time change check print out Season change Event | bool | false |
+| `live_time` | Time change for the Week and Day view | bool | false |
 | `season_check` | Yearseasons check print out Seasonname and Theme | bool | false |
 | `rtl_check` | RTL Support for the Language and the Calendar | bool | false |
 | `weekend_check` | Show each weekend of month true or flase | bool | false |
 | `auto_size` | Set auto size by the screen width/Height true or flase | bool | false |
 | `back_days` | Back Days (29, 30, 01, 02) | bool | false |
-| `hidde_events` | Hidde Bookings or Events (if `test_event` in Database is `1`) | bool | false |
+| `hidde_events` | Hidde Bookings or Events (if `test_event` is `1`) | bool | false |
 | `events_check` | Bookings, Resevations or Events (Aktivate if you have one) | bool | false |
-| `database_check` | Get all Events from the Created Database if the Database dosn´t exist | bool | false |
-| `success_log` | Shows the Success from the Script | bool | false |
-| `error_log` | Shows the Errors from the Script | bool | false |
+| `status_logs` | Shows the logs from the Script | bool | false |
 | `is_book_able` | Set status of the cms.js Script if the Calendar is Bookable | bool | false |
 | `show_more_events` | Show more Events, Bookings per Day if there are more than `max_events_per_day` on this Day | bool | false |
 | `tooltip` | Show an Tooltip foreach Event, Booking | bool | false |
@@ -112,11 +111,10 @@
 | `tooltip_functions` | Tooltip text (Function Names from Settings class) (firstname) | array() | null |
 | `my_events` | You owne Bookings or Events (`database_check` must be false to work) | array() | null |
 | `my_months` | Display custom months ['June', 'July',...] (`hidden_months` will not longer work) | array() | null |
-| `header` | Show all Navi Buttons on the position you want [`left` => [], `center` => [], `right` => []] | array() | null |
-| `event_form` | Show Booking, Reservation Form [`active`, `action`, `modal`, `arrivel_time`, `leaving_time`, `person_check`, `payment_check`, `active_event`] | array() | null |
+| `header` | Show all Navi Buttons on the position you want [`left` => [], `center` => [], `right` => [], `url` => ''] | array() | null |
+| `event_form` | Show Booking, Reservation Form [`active`, `action`, `modal`, `arrivel_time`, `leaving_time`, `active_event`, `events`] | array() | null |
 | `static_infos` | Show some information of the CMS [`active`, `author`, `events`, `version`, `language`, `theme`] | array() | null |
 | `actions_form` | Show some actions as Buttons [`active`, `iCal`, `google`, `yahoo`, `webOutlook`] | array() | null |
-| `sql_infos` | SQL infos [`HOST` => 'localhost', `DATABASE` => 'cms', `USER` => 'root', `PASSWORD` => '', `Type` => 'MySql'] | array() | null |
 | `theme` | Theme of the CMS [`theme` => 'Original', `custom_url` => ''] | array() | null |
 
 &nbsp;
@@ -125,27 +123,24 @@
 ## Details about the Settings arrays
 | <strong style="color: #6ba0ff;">Array</strong> | <strong style="color: #6ba0ff;">Parameter</strong> | <strong style="color: #6ba0ff;">Type</strong> | <strong style="color: #6ba0ff;">Description</strong> | <strong style="color: #6ba0ff;">Default value</strong> |
 | --- | --- | --- | --- | --- |
-| `sql_infos` | `HOST` | string | Server adress | localhost |
-|             | `USER` | string | Database User | root |
-|             | `DATABASE` | string | Database Name | cms |
-|             | `PASSWORD` | string | Database Password | "" |
-|             | `Type` | string | SQL format ('mysql', 'mssql', 'odbc') | mysql |
+| `header` | `left` | array() | Displays all from the `header_help` on left | null |
+|          | `center` | array() | Displays all from the `header_help` on center | null |
+|          | `right` | array() | Displays all from the `header_help` on right | null |
+|          | `url` | string | The folder location of the cms | "" |
 | | | | | |
 | | | | | |
-| `header` | `prev_year` | bool | Displays an previus year Button | false |
-|          | `next_year` | bool | Displays an next year Button | false |
-|          | `prev_month` | bool | Displays an previus month Button | false |
-|          | `next_month` | bool | Displays an next month Button | false |
-|          | `today` | bool | Displays an today Button | false |
-|          | `year` | bool | Displays an year Button | false |
-|          | `week` | bool | Displays an week Button | false |
-|          | `day` | bool | Displays an day Button | false |
-|          | `year_view` |  | Show the CMS as an Year view | Null |
-|          | `month_view` |  | Show the CMS as an Month view | Null |
-|          | `week_view` |  | Show the CMS as an Week view | Null |
-|          | `day_view` |  | Show the CMS as an Day view | Null |
-|          | `list_view` |  | Show the CMS as an List view | Null |
-|          | `url` | string | The folder location of the cms, DONT use it in the positions!! | "" |
+| `header_help` | `next_year` | string | Displays an next year Button | "" |
+|          | `prev_month` | string | Displays an previus month Button | "" |
+|          | `next_month` | string | Displays an next month Button | "" |
+|          | `today` | string | Displays an today Button | "" |
+|          | `year` | string | Displays an year Button | "" |
+|          | `week` | string | Displays an week Button | "" |
+|          | `day` | string | Displays an day Button | "" |
+|          | `year_view` | string | Displays an Year view Button | "" |
+|          | `month_view` | string | Displays an Month view Button | "" |
+|          | `week_view` | string | Displays an Week view Button | "" |
+|          | `day_view` | string | Displays an Day view Button | "" |
+|          | `list_view` | string | Displays an List view Button | "" |
 | | | | | |
 | | | | | |
 | `event_form` | `active` | bool | Activate the Event, Booking form | false |
@@ -153,9 +148,8 @@
 |              | `modal` | bool | Display the form as modal| false |
 |              | `arrivel_time` | string | Time for arraivel an Event, Booking | 14:00:00 |
 |              | `leaving_time` | string | Time for leaving an Event, Booking | 10:00:00 |
-|              | `person` | bool | Active Persons on an Event, Booking | false |
-|              | `payment` | bool | Active Payments on an Event, Booking | false |
-|              | `active_event` | array() | Holds all Events, Bookings as an select options | null |
+|              | `active_event` | string | Select an Event, Booking from the `events` array | "" |
+|              | `events` | array() | Holds all Events, Bookings you wan´t | null |
 | | | | | |
 | | | | | |
 | `static_infos` | `active` | bool | Activate infos about the current cms | false |
