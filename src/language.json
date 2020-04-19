@@ -4,12 +4,8 @@
         "en": true
     },
     "my_events_check": {
-        "de": "Sie haben die Datenbank abgeschaltet haben aber keine Events / Buchungen als array übergeben!",
-        "en": "You deactivated the database and did not pass some events / bookings as an array!"
-    },
-    "my_events_check_2": {
-        "de": "Sie haben einige Events / Buchungen als array übergeben, haben aber die Datenbank nicht abgeschaltet.<br>Ihre Events / Buchungen werden nicht Angezeigt!",
-        "en": "You have passed some events / bookings as an array, but you have not turned off the database.<br>Your events / bookings will not be displayed!"
+        "de": "Sie haben keine Events / Buchungen als array übergeben!",
+        "en": "You did not pass some events / bookings as an array!"
     },
     "theme_not_found": {
         "de": "Das Theme wurde nicht gefunden! Bitte Überprüfen Sie ob Sie das Theme richtig geschreiben haben.",
@@ -31,25 +27,13 @@
         "de": "Bitte überprüfen Sie die Funktionen es scheint Probleme mit diesen zu geben.",
         "en": "Please check the features it seems there are problems with these."
     },
-    "update_success": {
-        "de": "Ihr Update wurde erfolgreich installiert ;-)",
-        "en": "Your update was successfully installed ;-)"
-    },
-    "update_fail": {
+    "update_check": {
         "de": "Ihre CMS ist auf dem Neuesten Stand der dinge ;-)",
         "en": "Your CMS is up to date ;-)"
-    },
-    "database_check": {
-        "de": "Die Datenbankverbindung konnte nicht hergestellt werden.",
-        "en": "The database connection could not be established."
     },
     "time_zone_check": {
         "de": "Die Zeitzone wurde nicht gefunden! Bitte Überprüfen Sie die Zeitzone.",
         "en": "The timezone were not found! Please check the timezone."
-    },
-    "sql_query": {
-        "de": "SQL Befehl nicht ausführbar. SQL Query Error.",
-        "en": "SQL command not executable. SQL query error."
     },
     "check_months": {
         "de": "Bitte geben Sie Deutsche Monate an.",
@@ -96,44 +80,20 @@
         "en": "You have deactivated the booking function.<br>You must first activate the function to make a booking!"
     },
     "notify_8": {
-        "de": "Ihr Event ist in der Datenbank nicht vorhanden!",
-        "en": "Your event is not in the database!"
-    },
-    "notify_9": {
         "de": "Das Event steht zum Download bereit, klicken Sie einfach hier.",
         "en": "The event is available for download, just click here."
     },
-    "notify_10": {
+    "notify_9": {
         "de": "Das Event konnte nicht Bereitgestellt werden!",
         "en": "The event could not be provided!"
     },
-    "notify_11": {
+    "notify_10": {
         "de": "Umschalten der Anzeige Erfolgreich.",
         "en": "Switching the display Successful."
     },
-    "notify_12": {
+    "notify_11": {
         "de": "Umschalten der Anzeige Fehlgeschlagen!",
         "en": "Switching the display failed!"
-    },
-    "notify_13": {
-        "de": "Prüfe",
-        "en": "Checking"
-    },
-    "notify_13_1": {
-        "de": "aktuelle version.",
-        "en": "actual version."
-    },
-    "notify_13_2": {
-        "de": "nach Updates.",
-        "en": "for updates."
-    },
-    "notify_13_3": {
-        "de": "Updates vorhanden",
-        "en": "Updates are available"
-    },
-    "notify_13_4": {
-        "de": "Jetzt instalieren →",
-        "en": "install now →"
     },
     "header_1": {
         "de": "Jahr Anzeigen",
@@ -195,11 +155,11 @@
         "de": "Nacht",
         "en": "Night"
     },
-    "test_name_1": {
+    "hidden_name_1": {
         "de": "Ja",
         "en": "yes"
     },
-    "test_name_2": {
+    "hidden_name_2": {
         "de": "Nein",
         "en": "no"
     },
@@ -228,14 +188,6 @@
         "en": "Leaving:"
     },
     "input_3": {
-        "de": "Bezahlung:",
-        "en": "Payment:"
-    },
-    "input_4": {
-        "de": "Personen:",
-        "en": "Persons:"
-    },
-    "input_5": {
         "de": "Events:",
         "en": "Events:"
     },
