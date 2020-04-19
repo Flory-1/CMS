@@ -167,7 +167,30 @@ body {
     color: <?=$_SESSION["TH"]["Active_Day_Color"]?> !important;
     background: <?=$_SESSION["TH"]["Active_Day_Background"]?>;
 }
-
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .day_view .cms-time-split,
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .week_view .cms-time-split {
+    position: relative;
+    display: block;
+    width: 100%;
+    left: 0;
+    border: 1px dashed #fff;
+    padding: 15px 0 0 0;
+}
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .week_view .cms-time-split.weekend {
+    background: #35354f;
+}
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .week_view .cms-time-split.weekend:hover {
+    background: #444 !important;
+}
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .day_view .cms-time-split:hover,
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .week_view .cms-time-split:hover {
+    background: #fff !important;
+}
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .day_view .cms-time-split.active-time,
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .week_view .cms-time-split.active-time,
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .week_view .cms-time-split.active-time.weekend {
+    background: #1affbf !important;
+}
 
 .<?=$_SESSION["TH"]["theme"]?> .cms-body td span.booked,
 .<?=$_SESSION["TH"]["theme"]?> .cms-body td span.booked-end,
@@ -176,16 +199,9 @@ body {
 .<?=$_SESSION["TH"]["theme"]?> .cms-body td span.booked-new-start,
 .<?=$_SESSION["TH"]["theme"]?> .cms-body td span.booked-start {
     position: absolute;
-    top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
     display: block
-}
-.<?=$_SESSION["TH"]["theme"]?> .cms-body td span.booked-start:hover,
-.<?=$_SESSION["TH"]["theme"]?> .cms-body td span.booked:hover,
-.<?=$_SESSION["TH"]["theme"]?> .cms-body td span.booked-end:hover {
-    height: <?=$_SESSION["TH"]["Day_Hover_Size"]?> !important
 }
 .<?=$_SESSION["TH"]["theme"]?> .cms-body .month tbody tr td ul {
     list-style: none;
@@ -200,13 +216,17 @@ body {
     overflow: hidden
 }
 .<?=$_SESSION["TH"]["theme"]?> .cms-body .month tbody tr td ul li {
-    height: 100%;
+    height: 10px;
     width: 100%
+}
+.<?=$_SESSION["TH"]["theme"]?> .cms-body .month tbody tr td ul li:first-child {
+    margin-top: 10px;
 }
 .<?=$_SESSION["TH"]["theme"]?> .cms-body span.booked-start {
     width: 50%;
     height: 8px;
     left: unset !important;
+    right: -1px !important;
     cursor: pointer;
     -webkit-clip-path: polygon(30% 0, 100% 0%, 100% 100%, 0% 100%);
     clip-path: polygon(30% 0, 100% 0%, 100% 100%, 0% 100%);
@@ -227,9 +247,8 @@ body {
 .<?=$_SESSION["TH"]["theme"]?> .cms-body span.booked-new-end,
 .<?=$_SESSION["TH"]["theme"]?> .cms-body span.booked-new {
     width: 100%;
-    height: 100%;
-    border: <?=$_SESSION["TH"]["Border_section_Width"]?> <?=$_SESSION["TH"]["Border_Section_Style"]?>;
-    background: none !important
+    height: 10px;
+    border: <?=$_SESSION["TH"]["Border_section_Width"]?> <?=$_SESSION["TH"]["Border_Section_Style"]?>
 }
 .<?=$_SESSION["TH"]["theme"]?> .cms-body span.booked-new-start.booked-new {
     border-right: unset !important
